@@ -13,12 +13,12 @@ Never touches val/test. Seeds come from data/train/train_labels.jsonl.
 
 Usage:
     # Pre-registered augmentation plan (see data/results/augmentation_plan.md)
-    python scripts/generate_synthetic.py --preset positives
-    python scripts/generate_synthetic.py --preset negatives
+    python generate_synthetic.py --preset positives
+    python generate_synthetic.py --preset negatives
 
     # Ad-hoc
-    python scripts/generate_synthetic.py --codes C_28_0,C_0_1,N_0
-    python scripts/generate_synthetic.py --codes C_2_0,N_5 --negatives
+    python generate_synthetic.py --codes C_28_0,C_0_1,N_0
+    python generate_synthetic.py --codes C_2_0,N_5 --negatives
 """
 
 from __future__ import annotations

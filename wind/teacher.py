@@ -23,9 +23,9 @@ file (as the trailing user message) are skipped.
 Requires OPENROUTER_API_KEY in env or repo .env.
 
 Usage:
-    python scripts/generate_recot.py
-    python scripts/generate_recot.py --model anthropic/claude-sonnet-4.6
-    python scripts/generate_recot.py --concurrency 20 --max 10
+    python teacher.py
+    python teacher.py --model anthropic/claude-sonnet-4.6
+    python teacher.py --concurrency 20 --max 10
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ from openai import OpenAI
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from prompts import full_system_instruction, slim_system_instruction  # noqa: E402

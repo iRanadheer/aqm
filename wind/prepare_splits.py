@@ -36,7 +36,7 @@ Outputs:
   data/train/train_eval_labels.jsonl   (~10% of training pool)
 
 Usage:
-  python scripts/create_splits.py --patches data/annotation_patches.json
+  python prepare_splits.py --patches data/annotation_patches.json
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_ROOT))
 
 import numpy as np
