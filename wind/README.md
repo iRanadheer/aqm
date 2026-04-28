@@ -1,82 +1,62 @@
-# Wind Opposition Detection
+# wind
 
-A project with the CDL at Brown to build a taxonomy and classifier for wind energy opposition narratives and claims. The classifier uses Claude with chain-of-thought prompting to identify opposition frames in text.
+Wind-energy opposition classifier. Three-level output:
+`opposition_detected` (binary) / `frames` (N_*) / `claims` (C_*).
+
+## Pipeline
+
+```
+data/raw/aerows_full.jsonl
+    │ prepare_splits.py
+    ▼
+data/test/{val,test}.jsonl + data/train/train_labels.jsonl
+    │ teacher.py             (RECoT generation via Opus)
+    │ clean_recot.py         (strip rows where teacher second-guesses)
+    │ generate_synthetic.py  (stratified positive / negative augmentation)
+    ▼
+data/train/train.jsonl
+    │ ft/train.py            (Unsloth + LoRA SFT)
+    │ ft/quantize.py         (FP8_DYNAMIC)
+    ▼
+HF Hub model
+    │ infer.py               (run on benchmark JSONL — vllm/openai/openrouter)
+    ▼
+data/results/<split>/<slug>.jsonl
+    │ generate_report.py
+    ▼
+metrics
+```
+
+## Top-level scripts
+
+| File | Role |
+|---|---|
+| `prompts.py`            | codebooks (frames N_*, claims C_*) + system prompt + triggers |
+| `prepare_splits.py`     | `aerows_full.jsonl` → stratified 30/70 val/test split + train splits |
+| `teacher.py`            | Opus-generated RECoT reasoning over training pool |
+| `clean_recot.py`        | drop rows where teacher's `<think>` block shows second-guessing |
+| `generate_synthetic.py` | Opus-generated synthetic positives / near-miss negatives (`--preset {positives,negatives}`) |
+| `infer.py`              | run any chat-completion model on a benchmark JSONL |
+| `generate_report.py`    | parse predictions and compute detection / frames / claims metrics |
+| `errors.py`             | extract error rows for blinded review |
+| `ft/train.py`           | SFT (single or joint, recot or norecot) |
+| `ft/quantize.py`        | FP8_DYNAMIC quantization |
+
+## Data
+
+```
+data/
+├── raw/                    # source files (annotated, synthetic seeds)
+├── train/                  # SFT splits (train + train_eval)
+├── test/                   # held-out val + test
+├── results/{val,test}/     # per-model inference outputs (input to generate_report)
+└── sampling/               # annotation-tool input recipe (see its README)
+```
 
 ## Setup
 
 ```bash
-pip install -r requirements.txt
+cp .env.example .env   # then fill in OPENROUTER_API_KEY / HF_TOKEN
 ```
 
-Create a `.env` file with your Anthropic API key:
-
-```
-ANTHROPIC_API_KEY=your_key_here
-```
-
-## Classification
-
-The core classifier lives in `classifier.py`. It sends text to Claude along with a detailed taxonomy of opposition narratives and claims, and returns structured labels.
-
-```python
-from classifier import WindOppositionClassifier
-import os
-
-classifier = WindOppositionClassifier(os.getenv("ANTHROPIC_API_KEY"))
-
-result = classifier.classify("Wind turbines kill birds and cause noise pollution.", use_cot=True)
-print(result["narratives"])  # e.g., N_1 (Wildlife/environmental harm)
-print(result["claims"])      # e.g., C_1_1 (Bird/bat harm)
-```
-
-Batch classification is also supported:
-
-```python
-results = classifier.classify_batch(texts, use_cot=True)
-```
-
-## Taxonomy
-
-The taxonomy defines 8 opposition narratives and 39+ specific claims, organized hierarchically. Narratives are broad frames (e.g., "Wind energy harms wildlife") and claims are specific arguments within each frame (e.g., "Bird/bat mortality").
-
-The full taxonomy is defined in `codebooks.py`. The system prompt that instructs the classifier is in `prompts.py`.
-
-## Performance Evaluation
-
-`performance.py` provides tools for evaluating classifier accuracy against labeled data. It computes per-class precision, recall, and F1 for both narratives and claims, and supports comparison across different model configurations.
-
-## Error Analysis
-
-Three scripts support error analysis:
-
-- `analyze_errors.py` -- detailed analysis of misclassifications with exportable reports
-- `explore_errors.py` -- interactive exploration of prediction errors
-- `quick_error_summary.py` -- concise summary of where the classifier struggles
-
-All three build on utilities from `performance.py`.
-
-## Project Structure
-
-```
-classifier.py           # Main classifier (Claude + chain-of-thought)
-prompts.py              # System prompt for classification
-codebooks.py            # Narrative and claim taxonomy definitions
-performance.py          # Evaluation metrics and model comparison
-analyze_errors.py       # Detailed error analysis
-explore_errors.py       # Interactive error exploration
-quick_error_summary.py  # Quick error summary
-load_training_data.py   # Load and parse training examples
-data/                   # Data files and older analysis artifacts
-```
-
-## Requirements
-
-- Python 3.10+
-- anthropic
-- pandas
-- scikit-learn
-- python-dotenv
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Each top-level script has its own PEP-723 dependency block (`uv run <script>.py`); no global venv required.
