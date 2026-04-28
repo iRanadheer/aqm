@@ -214,54 +214,54 @@
   "Qwen3.5-9B Base": {
     "label": "Qwen3.5-9B Base",
     "n_samples": 1436,
-    "parse_failures": 18,
+    "parse_failures": 247,
     "level_1_all": {
-      "samples_f1": 0.783,
-      "macro_f1": 0.512,
-      "micro_f1": 0.765,
-      "micro_precision": 0.763,
-      "micro_recall": 0.768,
-      "accuracy": 0.751
+      "samples_f1": 0.721,
+      "macro_f1": 0.629,
+      "micro_f1": 0.775,
+      "micro_precision": 0.866,
+      "micro_recall": 0.701,
+      "accuracy": 0.698
     },
     "level_2_all": {
-      "samples_f1": 0.752,
-      "macro_f1": 0.25,
-      "micro_f1": 0.68,
-      "micro_precision": 0.633,
-      "micro_recall": 0.734,
-      "accuracy": 0.704
+      "samples_f1": 0.693,
+      "macro_f1": 0.351,
+      "micro_f1": 0.707,
+      "micro_precision": 0.744,
+      "micro_recall": 0.674,
+      "accuracy": 0.652
     },
     "level_3_all": {
-      "samples_f1": 0.727,
-      "macro_f1": 0.15,
-      "micro_f1": 0.585,
-      "micro_precision": 0.506,
-      "micro_recall": 0.693,
-      "accuracy": 0.683
+      "samples_f1": 0.678,
+      "macro_f1": 0.285,
+      "micro_f1": 0.66,
+      "micro_precision": 0.674,
+      "micro_recall": 0.648,
+      "accuracy": 0.637
     },
     "level_1_minsup_3": {
-      "samples_f1": 0.783,
-      "macro_f1": 0.512,
-      "micro_f1": 0.765,
-      "micro_precision": 0.763,
-      "micro_recall": 0.768,
-      "accuracy": 0.751
+      "samples_f1": 0.721,
+      "macro_f1": 0.629,
+      "micro_f1": 0.775,
+      "micro_precision": 0.866,
+      "micro_recall": 0.701,
+      "accuracy": 0.698
     },
     "level_2_minsup_3": {
-      "samples_f1": 0.754,
-      "macro_f1": 0.344,
-      "micro_f1": 0.703,
-      "micro_precision": 0.671,
-      "micro_recall": 0.738,
-      "accuracy": 0.708
+      "samples_f1": 0.694,
+      "macro_f1": 0.47,
+      "micro_f1": 0.721,
+      "micro_precision": 0.771,
+      "micro_recall": 0.677,
+      "accuracy": 0.655
     },
     "level_3_minsup_3": {
-      "samples_f1": 0.729,
-      "macro_f1": 0.244,
-      "micro_f1": 0.646,
-      "micro_precision": 0.599,
-      "micro_recall": 0.7,
-      "accuracy": 0.688
+      "samples_f1": 0.678,
+      "macro_f1": 0.365,
+      "micro_f1": 0.679,
+      "micro_precision": 0.705,
+      "micro_recall": 0.654,
+      "accuracy": 0.64
     }
   },
   "CARDS-Qwen3.5-9B": {

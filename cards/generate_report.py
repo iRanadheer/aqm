@@ -110,27 +110,38 @@ def score_one(path, label_field, label, prefix=""):
     return entry
 
 
+F1_METRICS = [("samples_f1", "Samples F1"),
+              ("macro_f1",   "Macro F1"),
+              ("micro_f1",   "Micro F1")]
+
+
 def write_summary(title, summary, out_dir, basename):
     with open(os.path.join(out_dir, f"{basename}.json"), "w") as f:
         json.dump(summary, f, indent=2)
 
+    labels = [e["label"] for e in summary.values()]
     lines = [f"# {title}\n",
              "| Model | N | Parse fails |",
              "|-------|---|-------------|"]
     for e in summary.values():
         lines.append(f"| {e['label']} | {e['n_samples']} | {e['parse_failures']} |")
 
+    # One section per support threshold; one sub-table per F1 metric.
+    # Models are columns; rows are levels.
+    header_row = "| Level | " + " | ".join(labels) + " |"
+    sep_row    = "|-------|" + "|".join(["---"] * len(labels)) + "|"
     for ms in MIN_SUPPORTS:
         suffix = "all" if ms == 0 else f"minsup_{ms}"
-        header = "All labels" if ms == 0 else f"Support ≥ {ms}"
-        lines.append(f"\n## {header}\n")
-        lines.append("| Level | Model | Samples F1 | Macro F1 | Micro F1 | Precision | Recall | EM |")
-        lines.append("|-------|-------|------------|----------|----------|-----------|--------|----|")
-        for lvl in LEVELS:
-            for e in summary.values():
-                m = e[f"level_{lvl}_{suffix}"]
-                lines.append(f"| {lvl} | {e['label']} | {m['samples_f1']} | {m['macro_f1']} | "
-                             f"{m['micro_f1']} | {m['micro_precision']} | {m['micro_recall']} | {m['accuracy']} |")
+        section = "All labels" if ms == 0 else f"Support ≥ {ms}"
+        lines.append(f"\n## {section}\n")
+        for key, name in F1_METRICS:
+            lines.append(f"### {name}\n")
+            lines.append(header_row)
+            lines.append(sep_row)
+            for lvl in LEVELS:
+                cells = [str(e[f"level_{lvl}_{suffix}"][key]) for e in summary.values()]
+                lines.append(f"| {lvl} | " + " | ".join(cells) + " |")
+            lines.append("")
 
     with open(os.path.join(out_dir, f"{basename}.md"), "w") as f:
         f.write("\n".join(lines) + "\n")

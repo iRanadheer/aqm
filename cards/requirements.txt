@@ -8,3 +8,5 @@ tenacity
 litellm
 tabulate 
 flash-linear-attention
+vllm
+openai
