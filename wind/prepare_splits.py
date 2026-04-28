@@ -202,8 +202,16 @@ def main() -> None:
     parser.add_argument("--val-frac", type=float, default=0.3, help="Validation fraction (default 0.3).")
     parser.add_argument(
         "--patches",
-        default=None,
-        help="Optional annotation patches JSON (e.g. data/annotation_patches.json).",
+        default="data/annotation_patches.json",
+        help="Annotation patches JSON path (default: data/annotation_patches.json). "
+             "Pass --no-patches to skip.",
+    )
+    parser.add_argument(
+        "--no-patches",
+        dest="patches",
+        action="store_const",
+        const=None,
+        help="Skip applying annotation patches.",
     )
     args = parser.parse_args()
 
@@ -214,6 +222,8 @@ def main() -> None:
             patches_path = REPO_ROOT / patches_path
         patches = load_patches(patches_path)
         print(f"Loaded {len(patches)} annotation patches from {patches_path}")
+    else:
+        print("Skipping annotation patches (--no-patches).")
 
     # ── Load and clean benchmark pool ──
     df = pd.read_json(AEROWS_FULL, lines=True)

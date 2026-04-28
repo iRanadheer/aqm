@@ -12,10 +12,8 @@ Usage:
 
 from __future__ import annotations
 
-import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 from sklearn.metrics import (
@@ -28,7 +26,6 @@ from sklearn.metrics import (
 from sklearn.preprocessing import MultiLabelBinarizer
 
 REPO_ROOT = Path(__file__).resolve().parent
-DEFAULT_INPUT = "data/results/predictions.jsonl"
 
 
 # ---------------------------------------------------------------------------
@@ -52,10 +49,19 @@ def _extract_yaml_block(response: str) -> str:
     return (m.group(1) if m else tail).strip()
 
 
-def _extract_list(block: str, key: str) -> list[str]:
+def _extract_list(block: str, key: str) -> list[str] | None:
+    """Return the parsed list, [] if the key is explicitly empty
+    (`key: []`), or None if the key is absent (parse failure).
+
+    The None vs [] distinction matters: with the lenient `[]`-on-absent
+    behavior, a malformed response that drops the `frames`/`claims` key
+    silently gets credit on rows where gold also has [] (typically
+    non-opposition rows). Returning None lets the driver treat absent
+    keys as parse failures.
+    """
     m = re.search(_LIST_RE_TMPL.format(key=key), block)
     if not m:
-        return []
+        return None
     body = m.group(1)
     if body.strip() == "[]":
         return []
@@ -71,9 +77,13 @@ def _extract_list(block: str, key: str) -> list[str]:
 
 
 def parse_response(response: str) -> dict:
-    """Parse YAML output into {opposition_detected, frames, claims}."""
+    """Parse YAML output into {opposition_detected, frames, claims}.
+
+    Strict: any of the three keys missing → that field is None. The
+    driver treats any None as a parse failure (no silent crediting).
+    """
     block = _extract_yaml_block(response)
-    parsed = {"opposition_detected": None, "frames": [], "claims": []}
+    parsed: dict = {"opposition_detected": None, "frames": None, "claims": None}
     if not block:
         return parsed
 
@@ -156,145 +166,148 @@ def multilabel_metrics(
     }
 
 
-def per_code_breakdown(
-    y_true: list[list[str]], y_pred: list[list[str]]
-) -> list[tuple[str, int, int, int, float]]:
-    """Return [(code, support, fn, fp, f1), ...] sorted by (fn+fp) descending."""
-    codes = set()
-    for lab in y_true + y_pred:
-        codes.update(lab)
-    out = []
-    for code in sorted(codes):
-        support = sum(1 for lab in y_true if code in lab)
-        fn = sum(1 for t, p in zip(y_true, y_pred) if code in t and code not in p)
-        fp = sum(1 for t, p in zip(y_true, y_pred) if code not in t and code in p)
-        tp = support - fn
-        prec = tp / (tp + fp) if (tp + fp) else 0.0
-        rec = tp / support if support else 0.0
-        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
-        out.append((code, support, fn, fp, f1))
-    out.sort(key=lambda x: (-(x[2] + x[3]), x[0]))
-    return out
-
-
-def _print_per_code(
-    title: str,
-    y_true: list[list[str]],
-    y_pred: list[list[str]],
-    min_support: int,
-) -> None:
-    rows = per_code_breakdown(y_true, y_pred)
-    shown = [r for r in rows if r[1] >= min_support and (r[2] or r[3])]
-    print(f"=== {title} per-code (support >= {min_support}, ordered by FN+FP desc) ===")
-    print(f"  {'code':<10} {'support':>7} {'FN':>5} {'FP':>5} {'F1':>7}")
-    for code, support, fn, fp, f1 in shown:
-        print(f"  {code:<10} {support:>7} {fn:>5} {fp:>5} {f1:>7.3f}")
-    kept_for_macro = [r for r in rows if r[1] >= min_support]
-    if kept_for_macro:
-        macro = sum(r[4] for r in kept_for_macro) / len(kept_for_macro)
-        print(f"  → macro_F1 over {len(kept_for_macro)} codes (support >= {min_support}): {macro:.3f}")
-    print()
-
-
 # ---------------------------------------------------------------------------
-# Driver
+# Lineup + driver — auto-discover, write metrics_summary.{json,md} per split
 # ---------------------------------------------------------------------------
 
-def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--input", default=DEFAULT_INPUT, help="Results jsonl (repo-relative if not absolute).")
-    p.add_argument("--per-code", action="store_true", help="Print per-code FN/FP/F1 breakdown for frames and claims.")
-    p.add_argument("--min-support", type=int, default=0,
-                   help="Minimum gold support (val-set occurrences) to include a code in per-code output and filtered macro_F1.")
-    p.add_argument("--errors", action="store_true", help="Print rows that failed to parse.")
-    args = p.parse_args()
+# Headline lineup. Each tuple is (display_label, slug). Files at
+# data/results/<split>/<slug>.jsonl.
+MODELS = [
+    ("Windy-Qwen3.5-4B",         "windy-qwen35-4b"),
+    ("Windy-Qwen3.5-9B",         "windy-qwen35-9b"),
+    ("Windy-Qwen3.5-27B",        "windy-qwen35-27b"),
+    ("Windy-Qwen3.5-27B FP8",    "windy-qwen35-27b-fp8"),
+    ("CARDS-Wind-Qwen3.6-27B",   "cards-wind-qwen36-27b"),
+    ("CARDS-Wind-Qwen3.6-27B FP8","cards-wind-qwen36-27b-fp8"),
+    ("Claude Opus 4.7",          "claude-opus-4-7"),
+]
 
-    path = Path(args.input)
-    if not path.is_absolute():
-        path = REPO_ROOT / path
+SPLITS = ["test"]
+F1_KEYS = [("samples_f1", "Samples F1"),
+           ("macro_f1",   "Macro F1"),
+           ("micro_f1",   "Micro F1")]
+
+RESULTS_DIR = REPO_ROOT / "data" / "results"
+
+
+def score_one(path: Path) -> dict | None:
+    """Score one result jsonl. Returns dict with parse-fail count + all
+    metrics, or None if file missing."""
     if not path.exists():
-        sys.exit(f"Input not found: {path}")
-
+        return None
     rows = [json.loads(l) for l in open(path)]
+    n = len(rows)
 
-    parse_fail = 0
-    api_error = 0
-    y_true_opp: list[bool] = []
-    y_pred_opp: list[bool] = []
-    y_true_frames: list[list[str]] = []
-    y_pred_frames: list[list[str]] = []
-    y_true_claims: list[list[str]] = []
-    y_pred_claims: list[list[str]] = []
-    failed_rows: list[dict] = []
-
+    api_error = parse_fail = 0
+    yt_op, yp_op = [], []
+    yt_f, yp_f = [], []
+    yt_c, yp_c = [], []
     for r in rows:
         resp = r.get("response", "")
         if isinstance(resp, str) and resp.startswith("ERROR:"):
             api_error += 1
-            failed_rows.append(r)
             continue
         pred = parse_response(resp)
-        if pred["opposition_detected"] is None:
+        if (pred["opposition_detected"] is None
+                or pred["frames"] is None
+                or pred["claims"] is None):
             parse_fail += 1
-            failed_rows.append(r)
             continue
-        y_true_opp.append(bool(r.get("true_opposition_detected", False)))
-        y_pred_opp.append(bool(pred["opposition_detected"]))
-        y_true_frames.append(list(r.get("true_frames") or []))
-        y_pred_frames.append(list(pred["frames"]))
-        y_true_claims.append(list(r.get("true_claims") or []))
-        y_pred_claims.append(list(pred["claims"]))
+        yt_op.append(bool(r.get("true_opposition_detected", False)))
+        yp_op.append(bool(pred["opposition_detected"]))
+        yt_f.append(list(r.get("true_frames") or []))
+        yp_f.append(list(pred["frames"]))
+        yt_c.append(list(r.get("true_claims") or []))
+        yp_c.append(list(pred["claims"]))
 
-    print(f"Rows: {len(rows)}  |  API errors: {api_error}  |  parse failures: {parse_fail}")
-    print(f"Evaluated: {len(y_true_opp)}\n")
+    # Opposition-only subset: rows where gold says opposition was present.
+    opp_idx = [i for i, t in enumerate(yt_op) if t]
+    yt_f_opp = [yt_f[i] for i in opp_idx]
+    yp_f_opp = [yp_f[i] for i in opp_idx]
+    yt_c_opp = [yt_c[i] for i in opp_idx]
+    yp_c_opp = [yp_c[i] for i in opp_idx]
 
-    print("=== DETECTION (binary) ===")
-    for k, v in detection_metrics(y_true_opp, y_pred_opp).items():
-        print(f"  {k}: {v}")
-    print()
+    return {
+        "n_rows": n,
+        "evaluated": len(yt_op),
+        "api_errors": api_error,
+        "parse_failures": parse_fail,
+        "n_opposition_only": len(opp_idx),
+        "detection": detection_metrics(yt_op, yp_op),
+        "frames_all":   multilabel_metrics(yt_f, yp_f),
+        "frames_opp":   multilabel_metrics(yt_f_opp, yp_f_opp),
+        "claims_all":   multilabel_metrics(yt_c, yp_c),
+        "claims_opp":   multilabel_metrics(yt_c_opp, yp_c_opp),
+    }
 
-    print("=== FRAMES — all rows ===")
-    for k, v in multilabel_metrics(y_true_frames, y_pred_frames).items():
-        print(f"  {k}: {v}")
-    print()
 
-    print("=== CLAIMS — all rows ===")
-    for k, v in multilabel_metrics(y_true_claims, y_pred_claims).items():
-        print(f"  {k}: {v}")
-    print()
+def _row(label, cells):
+    return "| " + " | ".join([label] + [str(c) for c in cells]) + " |"
 
-    # Opposition-only view: restrict to rows where gold says opposition_detected=true.
-    # For comparison to evaluations where non-opposition rows were labeled
-    # [C_0_0] and contributed trivial wins to every metric.
-    opp_idx = [i for i, t in enumerate(y_true_opp) if t]
-    yt_f_opp = [y_true_frames[i] for i in opp_idx]
-    yp_f_opp = [y_pred_frames[i] for i in opp_idx]
-    yt_c_opp = [y_true_claims[i] for i in opp_idx]
-    yp_c_opp = [y_pred_claims[i] for i in opp_idx]
 
-    print(f"=== FRAMES — opposition-only (n={len(opp_idx)}) ===")
-    for k, v in multilabel_metrics(yt_f_opp, yp_f_opp).items():
-        print(f"  {k}: {v}")
-    print()
+def write_summary(split: str, summary: dict[str, dict]) -> None:
+    out_dir = RESULTS_DIR / split
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with open(out_dir / "metrics_summary.json", "w") as f:
+        json.dump(summary, f, indent=2)
 
-    print(f"=== CLAIMS — opposition-only (n={len(opp_idx)}) ===")
-    for k, v in multilabel_metrics(yt_c_opp, yp_c_opp).items():
-        print(f"  {k}: {v}")
-    print()
+    labels = list(summary.keys())
+    n_models = len(labels)
+    header = "| " + " | ".join(["Metric"] + labels) + " |"
+    sep    = "|" + "|".join(["---"] * (n_models + 1)) + "|"
 
-    if args.per_code or args.min_support > 0:
-        _print_per_code("FRAMES", y_true_frames, y_pred_frames, args.min_support)
-        _print_per_code("CLAIMS", y_true_claims, y_pred_claims, args.min_support)
+    lines = [f"# Wind — {split} set\n"]
+    # Coverage table
+    lines.append("| Model | Rows | API errors | Parse failures | Opposition-only n |")
+    lines.append("|-------|---|---|---|---|")
+    for lbl in labels:
+        e = summary[lbl]
+        lines.append(f"| {lbl} | {e['n_rows']} | {e['api_errors']} | {e['parse_failures']} | {e['n_opposition_only']} |")
 
-    if args.errors and failed_rows:
-        print("=== FAILED ROWS ===")
-        for r in failed_rows[:10]:
-            print(f"  itemId={r.get('itemId')}  content={str(r.get('content',''))[:80]!r}")
-            resp = r.get("response", "")
-            tail = resp[-200:] if isinstance(resp, str) else repr(resp)
-            print(f"    response tail: {tail!r}")
-        if len(failed_rows) > 10:
-            print(f"  ... {len(failed_rows) - 10} more")
+    # Detection (single F1 row).
+    lines.append("\n## Detection (binary)\n")
+    lines.append(header)
+    lines.append(sep)
+    lines.append(_row("F1", [summary[lbl]["detection"]["f1"] for lbl in labels]))
+
+    # F1 family (samples / macro / micro), each with 4 rows: frames-all,
+    # frames-opp, claims-all, claims-opp.
+    rows = [
+        ("Frames — all rows",       "frames_all"),
+        ("Frames — opposition only","frames_opp"),
+        ("Claims — all rows",       "claims_all"),
+        ("Claims — opposition only","claims_opp"),
+    ]
+    for key, name in F1_KEYS:
+        lines.append(f"\n## {name}\n")
+        lines.append(header.replace("Metric", "View"))
+        lines.append(sep)
+        for view_label, view_key in rows:
+            cells = [summary[lbl][view_key].get(key, "-") for lbl in labels]
+            lines.append(_row(view_label, cells))
+
+    with open(out_dir / "metrics_summary.md", "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+    print(f"  -> {out_dir}/metrics_summary.json")
+    print(f"  -> {out_dir}/metrics_summary.md")
+
+
+def main() -> None:
+    for split in SPLITS:
+        print(f"\n=== {split} ===")
+        summary = {}
+        for label, slug in MODELS:
+            path = RESULTS_DIR / split / f"{slug}.jsonl"
+            scored = score_one(path)
+            if scored is None:
+                print(f"  [{split}] missing: {label}")
+                continue
+            print(f"  [{split}] {label}: {scored['evaluated']}/{scored['n_rows']} rows  "
+                  f"(api_err={scored['api_errors']}, parse_fail={scored['parse_failures']})")
+            summary[label] = scored
+        if summary:
+            write_summary(split, summary)
 
 
 if __name__ == "__main__":

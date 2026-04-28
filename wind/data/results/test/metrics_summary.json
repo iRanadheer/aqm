@@ -1,0 +1,380 @@
+{
+  "Windy-Qwen3.5-4B": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 399,
+      "tn": 234,
+      "fp": 103,
+      "fn": 37,
+      "accuracy": 0.819,
+      "precision": 0.795,
+      "recall": 0.915,
+      "f1": 0.851
+    },
+    "frames_all": {
+      "samples_f1": 0.697,
+      "macro_f1": 0.573,
+      "micro_f1": 0.679,
+      "micro_precision": 0.628,
+      "micro_recall": 0.739,
+      "exact_match": 0.554,
+      "hamming_loss": 0.066
+    },
+    "frames_opp": {
+      "samples_f1": 0.699,
+      "macro_f1": 0.631,
+      "micro_f1": 0.744,
+      "micro_precision": 0.749,
+      "micro_recall": 0.739,
+      "exact_match": 0.445,
+      "hamming_loss": 0.085
+    },
+    "claims_all": {
+      "samples_f1": 0.654,
+      "macro_f1": 0.49,
+      "micro_f1": 0.606,
+      "micro_precision": 0.599,
+      "micro_recall": 0.613,
+      "exact_match": 0.462,
+      "hamming_loss": 0.019
+    },
+    "claims_opp": {
+      "samples_f1": 0.623,
+      "macro_f1": 0.531,
+      "micro_f1": 0.652,
+      "micro_precision": 0.696,
+      "micro_recall": 0.613,
+      "exact_match": 0.282,
+      "hamming_loss": 0.028
+    }
+  },
+  "Windy-Qwen3.5-9B": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 400,
+      "tn": 235,
+      "fp": 102,
+      "fn": 36,
+      "accuracy": 0.821,
+      "precision": 0.797,
+      "recall": 0.917,
+      "f1": 0.853
+    },
+    "frames_all": {
+      "samples_f1": 0.696,
+      "macro_f1": 0.552,
+      "micro_f1": 0.674,
+      "micro_precision": 0.617,
+      "micro_recall": 0.744,
+      "exact_match": 0.561,
+      "hamming_loss": 0.068
+    },
+    "frames_opp": {
+      "samples_f1": 0.695,
+      "macro_f1": 0.606,
+      "micro_f1": 0.74,
+      "micro_precision": 0.736,
+      "micro_recall": 0.744,
+      "exact_match": 0.456,
+      "hamming_loss": 0.088
+    },
+    "claims_all": {
+      "samples_f1": 0.676,
+      "macro_f1": 0.517,
+      "micro_f1": 0.643,
+      "micro_precision": 0.636,
+      "micro_recall": 0.65,
+      "exact_match": 0.489,
+      "hamming_loss": 0.018
+    },
+    "claims_opp": {
+      "samples_f1": 0.66,
+      "macro_f1": 0.559,
+      "micro_f1": 0.69,
+      "micro_precision": 0.736,
+      "micro_recall": 0.65,
+      "exact_match": 0.328,
+      "hamming_loss": 0.026
+    }
+  },
+  "Windy-Qwen3.5-27B": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 400,
+      "tn": 278,
+      "fp": 59,
+      "fn": 36,
+      "accuracy": 0.877,
+      "precision": 0.871,
+      "recall": 0.917,
+      "f1": 0.894
+    },
+    "frames_all": {
+      "samples_f1": 0.781,
+      "macro_f1": 0.622,
+      "micro_f1": 0.752,
+      "micro_precision": 0.719,
+      "micro_recall": 0.788,
+      "exact_match": 0.668,
+      "hamming_loss": 0.049
+    },
+    "frames_opp": {
+      "samples_f1": 0.747,
+      "macro_f1": 0.659,
+      "micro_f1": 0.792,
+      "micro_precision": 0.796,
+      "micro_recall": 0.788,
+      "exact_match": 0.546,
+      "hamming_loss": 0.07
+    },
+    "claims_all": {
+      "samples_f1": 0.741,
+      "macro_f1": 0.578,
+      "micro_f1": 0.686,
+      "micro_precision": 0.689,
+      "micro_recall": 0.684,
+      "exact_match": 0.577,
+      "hamming_loss": 0.015
+    },
+    "claims_opp": {
+      "samples_f1": 0.675,
+      "macro_f1": 0.61,
+      "micro_f1": 0.716,
+      "micro_precision": 0.752,
+      "micro_recall": 0.684,
+      "exact_match": 0.385,
+      "hamming_loss": 0.024
+    }
+  },
+  "Windy-Qwen3.5-27B FP8": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 401,
+      "tn": 281,
+      "fp": 56,
+      "fn": 35,
+      "accuracy": 0.882,
+      "precision": 0.877,
+      "recall": 0.92,
+      "f1": 0.898
+    },
+    "frames_all": {
+      "samples_f1": 0.787,
+      "macro_f1": 0.63,
+      "micro_f1": 0.756,
+      "micro_precision": 0.721,
+      "micro_recall": 0.795,
+      "exact_match": 0.678,
+      "hamming_loss": 0.049
+    },
+    "frames_opp": {
+      "samples_f1": 0.751,
+      "macro_f1": 0.664,
+      "micro_f1": 0.796,
+      "micro_precision": 0.796,
+      "micro_recall": 0.795,
+      "exact_match": 0.557,
+      "hamming_loss": 0.069
+    },
+    "claims_all": {
+      "samples_f1": 0.755,
+      "macro_f1": 0.597,
+      "micro_f1": 0.704,
+      "micro_precision": 0.705,
+      "micro_recall": 0.703,
+      "exact_match": 0.581,
+      "hamming_loss": 0.015
+    },
+    "claims_opp": {
+      "samples_f1": 0.694,
+      "macro_f1": 0.628,
+      "micro_f1": 0.734,
+      "micro_precision": 0.767,
+      "micro_recall": 0.703,
+      "exact_match": 0.385,
+      "hamming_loss": 0.023
+    }
+  },
+  "CARDS-Wind-Qwen3.6-27B": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 397,
+      "tn": 274,
+      "fp": 63,
+      "fn": 39,
+      "accuracy": 0.868,
+      "precision": 0.863,
+      "recall": 0.911,
+      "f1": 0.886
+    },
+    "frames_all": {
+      "samples_f1": 0.766,
+      "macro_f1": 0.615,
+      "micro_f1": 0.737,
+      "micro_precision": 0.705,
+      "micro_recall": 0.772,
+      "exact_match": 0.646,
+      "hamming_loss": 0.052
+    },
+    "frames_opp": {
+      "samples_f1": 0.729,
+      "macro_f1": 0.646,
+      "micro_f1": 0.779,
+      "micro_precision": 0.785,
+      "micro_recall": 0.772,
+      "exact_match": 0.516,
+      "hamming_loss": 0.074
+    },
+    "claims_all": {
+      "samples_f1": 0.735,
+      "macro_f1": 0.555,
+      "micro_f1": 0.687,
+      "micro_precision": 0.688,
+      "micro_recall": 0.687,
+      "exact_match": 0.565,
+      "hamming_loss": 0.015
+    },
+    "claims_opp": {
+      "samples_f1": 0.675,
+      "macro_f1": 0.584,
+      "micro_f1": 0.72,
+      "micro_precision": 0.756,
+      "micro_recall": 0.687,
+      "exact_match": 0.374,
+      "hamming_loss": 0.023
+    }
+  },
+  "CARDS-Wind-Qwen3.6-27B FP8": {
+    "n_rows": 773,
+    "evaluated": 773,
+    "api_errors": 0,
+    "parse_failures": 0,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 773,
+      "tp": 400,
+      "tn": 275,
+      "fp": 62,
+      "fn": 36,
+      "accuracy": 0.873,
+      "precision": 0.866,
+      "recall": 0.917,
+      "f1": 0.891
+    },
+    "frames_all": {
+      "samples_f1": 0.772,
+      "macro_f1": 0.616,
+      "micro_f1": 0.74,
+      "micro_precision": 0.704,
+      "micro_recall": 0.781,
+      "exact_match": 0.651,
+      "hamming_loss": 0.052
+    },
+    "frames_opp": {
+      "samples_f1": 0.739,
+      "macro_f1": 0.657,
+      "micro_f1": 0.783,
+      "micro_precision": 0.784,
+      "micro_recall": 0.781,
+      "exact_match": 0.523,
+      "hamming_loss": 0.073
+    },
+    "claims_all": {
+      "samples_f1": 0.738,
+      "macro_f1": 0.554,
+      "micro_f1": 0.686,
+      "micro_precision": 0.684,
+      "micro_recall": 0.689,
+      "exact_match": 0.55,
+      "hamming_loss": 0.015
+    },
+    "claims_opp": {
+      "samples_f1": 0.677,
+      "macro_f1": 0.57,
+      "micro_f1": 0.717,
+      "micro_precision": 0.746,
+      "micro_recall": 0.689,
+      "exact_match": 0.344,
+      "hamming_loss": 0.023
+    }
+  },
+  "Claude Opus 4.7": {
+    "n_rows": 773,
+    "evaluated": 772,
+    "api_errors": 0,
+    "parse_failures": 1,
+    "n_opposition_only": 436,
+    "detection": {
+      "n": 772,
+      "tp": 388,
+      "tn": 292,
+      "fp": 44,
+      "fn": 48,
+      "accuracy": 0.881,
+      "precision": 0.898,
+      "recall": 0.89,
+      "f1": 0.894
+    },
+    "frames_all": {
+      "samples_f1": 0.793,
+      "macro_f1": 0.664,
+      "micro_f1": 0.757,
+      "micro_precision": 0.734,
+      "micro_recall": 0.781,
+      "exact_match": 0.685,
+      "hamming_loss": 0.048
+    },
+    "frames_opp": {
+      "samples_f1": 0.734,
+      "macro_f1": 0.692,
+      "micro_f1": 0.788,
+      "micro_precision": 0.795,
+      "micro_recall": 0.781,
+      "exact_match": 0.544,
+      "hamming_loss": 0.071
+    },
+    "claims_all": {
+      "samples_f1": 0.755,
+      "macro_f1": 0.559,
+      "micro_f1": 0.698,
+      "micro_precision": 0.695,
+      "micro_recall": 0.7,
+      "exact_match": 0.578,
+      "hamming_loss": 0.015
+    },
+    "claims_opp": {
+      "samples_f1": 0.667,
+      "macro_f1": 0.583,
+      "micro_f1": 0.72,
+      "micro_precision": 0.742,
+      "micro_recall": 0.7,
+      "exact_match": 0.353,
+      "hamming_loss": 0.024
+    }
+  }
+}
