@@ -3,6 +3,10 @@
 Wind-energy opposition classifier. Three-level output:
 `opposition_detected` (binary) / `frames` (N_*) / `claims` (C_*).
 
+Design rationale and pre-registered protocols live in
+[`docs/methodology.md`](docs/methodology.md) and
+[`docs/augmentation.md`](docs/augmentation.md).
+
 ## Pipeline
 
 ```

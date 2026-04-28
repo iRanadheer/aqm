@@ -124,7 +124,7 @@ teach it not to over-apply the code. The two roles are complementary.
 ### Command
 
 ```bash
-uv run scripts/generate_synthetic.py --negatives \
+uv run generate_synthetic.py --negatives \
   --codes N_5,C_2_0,N_6,N_1,N_3,C_32_0,C_33_0 \
   --per-code-target 30 --concurrency 15
 ```
@@ -165,7 +165,7 @@ in a follow-up pass.
 ./run_augment.sh all
 
 # 3. Teacher RECoT reasoning on the combined synthetic labels
-uv run scripts/generate_recot.py --inputs data/train/train_synthetic_labels.jsonl
+uv run teacher.py --inputs data/train/train_synthetic_labels.jsonl
 
 # 4. Merge into training set
 cat data/train/train.jsonl data/train/train_synthetic.jsonl \

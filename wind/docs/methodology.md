@@ -25,16 +25,16 @@ Fallback codes:
 
 ```
 data/raw/aerows_full.jsonl ────────┐
-                                   ├──► create_splits.py ──► val.jsonl + test.jsonl
+                                   ├──► prepare_splits.py ──► val.jsonl + test.jsonl
 data/annotation_patches.json ──────┘                        (with optional patches on val)
 
 data/raw/fine_tuning_data_final_fixed.csv ─┐
 data/train/synthetic_zeros.jsonl ──────────┤
-                                           ├──► create_splits.py ──► train_labels.jsonl
+                                           ├──► prepare_splits.py ──► train_labels.jsonl
                                            │                         + train_eval_labels.jsonl
                                            └──► (90/10 stratified split, seed=42)
 
-train_labels.jsonl ──► generate_recot.py ──► train.jsonl (OpenAI chat messages format)
+train_labels.jsonl ──► teacher.py ──► train.jsonl (OpenAI chat messages format)
                         (teacher = Opus 4.7 + gold labels + RECOT_TRIGGER)
                         |
                         └──► clean_recot.py (drops flaky rows)
@@ -101,7 +101,7 @@ Both produce comparable teacher accuracy. See §7.
 
 ## 4. Training setup (SFT via Unsloth LoRA)
 
-### 4.1 Script: `ft/train_qwen_sft.py`
+### 4.1 Script: `ft/train.py`
 
 - PEP 723 inline deps (self-contained script).
 - Supports `--model 0.8b|2b|4b|9b`.
@@ -139,7 +139,7 @@ Known gotchas:
   chunk_bwd_dqkwg` results. Fix: `pip install tilelang`. Added to PEP
   723 deps so it's auto-installed every `uv run`.
 - vLLM 0.19+: automatic prefix caching is default-on. No flag needed.
-- On H200, with `--max-workers 75` default in `run_benchmark.py`, prefix
+- On H200, with `--max-workers 75` default in `infer.py`, prefix
   cache hit rate collapsed to 0% (eviction under pressure). Dropping
   to `--max-workers 8` restored hit rate to ~99% and didn't hurt total
   wall time — GPU was already the bottleneck.
@@ -166,7 +166,7 @@ on rare codes**.
 
 ## 5. Evaluation
 
-### 5.1 `run_benchmark.py`
+### 5.1 `infer.py`
 
 One script, three backends:
 - `openai` — standard OpenAI API.
@@ -178,7 +178,7 @@ One script, three backends:
 Per-model output paths: `data/results/{slug}.jsonl` (full prompt) or
 `{slug}-slim.jsonl` (slim). No overwrite across models or prompts.
 
-### 5.2 `metrics.py`
+### 5.2 `generate_report.py`
 
 - Detection (binary): acc/prec/rec/F1.
 - Frames & claims (multi-label):
@@ -349,10 +349,10 @@ Tagging for a future codebook pass.
 
 ## 9. Synthetic augmentation plan
 
-### 9.1 `scripts/generate_synthetic.py` (three modes)
+### 9.1 `generate_synthetic.py` (three modes)
 
 - **`--mode zeros`** (legacy, unchanged) — generates C_0_0 thematically
-  adjacent negatives per claim code. Output feeds `create_splits.py`.
+  adjacent negatives per claim code. Output feeds `prepare_splits.py`.
 - **`--mode positives`** (legacy) — generates positives for
   underrepresented claim codes.
 - **`--mode augment`** (new) — weak-code augmentation for
@@ -369,7 +369,7 @@ generate_synthetic.py --mode augment [--negatives]
     │
     └─► train_synthetic_labels.jsonl   (train_labels schema)
             │
-            └─► generate_recot.py       (teacher reasoning + YAML)
+            └─► teacher.py       (teacher reasoning + YAML)
                     │
                     └─► clean_recot.py  (drops flaky)
                             │
