@@ -4,7 +4,7 @@ Canonical list of codes targeted for synthetic augmentation, with the
 rationale for each. This doc is the authoritative source — the commands
 below should match it exactly.
 
-See `pipeline_learnings.md` (§9) for methodology. Summary:
+See `methodology.md` (§9) for methodology. Summary:
 
 - Positives are selected from **train-only** signal (support < 10).
 - Negatives are selected from **val** signal (FP ≥ 12). Val is a dev
@@ -83,10 +83,10 @@ negatives (see below) sharpen the boundary.
 ### Command
 
 ```bash
-./run_augment.sh positives
+python generate_synthetic.py --preset positives
 ```
 
-Full code list is hardcoded in `run_augment.sh::POSITIVES`. Target 30 per code,
+Full code list is hardcoded in `generate_synthetic.py::PRESETS["positives"]`. Target 30 per code,
 ~47 codes → ~1400 target rows. Expected kept (after quality gate): ~1000-1200.
 
 ---
@@ -131,7 +131,7 @@ uv run generate_synthetic.py --negatives \
 
 Or via the bash wrapper:
 ```bash
-./run_augment.sh negatives
+python generate_synthetic.py --preset negatives
 ```
 
 Expected output: ~140-180 kept rows appended to
@@ -150,7 +150,7 @@ val FN > 10:
 | C_26_0 | 22 | 28 | 0.67 | Well-supported; FN but F1 OK |
 | C_20_0 | 15 | 16 | 0.61 | Similar profile |
 
-Not currently in `run_augment.sh::POSITIVES`. Decision pending — the
+Not currently in `generate_synthetic.py::PRESETS["positives"]`. Decision pending — the
 uniform rule argues for inclusion; the prior analysis argued that
 C_27_0's problem is codebook, not data. For now kept out; if frame
 positives improve overall macro but these claims remain weak, add them
@@ -161,8 +161,8 @@ in a follow-up pass.
 ## Running both passes
 
 ```bash
-# 1. Positives + 2. Negatives (code lists hardcoded in run_augment.sh)
-./run_augment.sh all
+# 1. Positives + 2. Negatives (code lists hardcoded in generate_synthetic.py::PRESETS)
+python generate_synthetic.py --preset positives && python generate_synthetic.py --preset negatives
 
 # 3. Teacher RECoT reasoning on the combined synthetic labels
 uv run teacher.py --inputs data/train/train_synthetic_labels.jsonl
