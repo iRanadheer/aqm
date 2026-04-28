@@ -1,0 +1,191 @@
+[
+  {
+    "itemId": "aug_sample_63",
+    "note": "C_2_2 FN#7: pro-transition activist complaining about gas approval; not wind opposition",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "heritage_264",
+    "note": "C_24_0 FN#3: neutral reporting of lobbyist asks; no negative framing",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "instituteforenergyresearch_363",
+    "note": "C_24_0 FN#5 / C_23_0 FN#4: bare bloomberg citation, no argument",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "cei_59",
+    "note": "C_23_0 FN#1: Keystone XL pipeline cancellation; not wind opposition",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "heritage_255",
+    "note": "C_30_0 FN#2: meaningless fragment 'standard in play with regard to...'",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "cei_15",
+    "note": "C_30_0 FN#4: balanced analytical text about barriers to deploying renewables; not wind opposition",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "cei_80",
+    "note": "C_30_0 FN#5: pro-renewable complaint about bureaucratic burden on deployment; not wind opposition",
+    "opposition_detected": false,
+    "frames": [],
+    "claims": []
+  },
+  {
+    "itemId": "heartland_185",
+    "note": "C_2_2 FN#1: pure dismissal of replacement premise; gold C_28_5/C_2_2/C_34_0 all reaches",
+    "opposition_detected": true,
+    "frames": ["N_1"],
+    "claims": ["C_2_0"]
+  },
+  {
+    "itemId": "aug_osample_88",
+    "note": "C_24_0 FN#2: no subsidy language in excerpt; drop C_24_0, keep C_3_0 and C_32_0 (collapsed)",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_6"],
+    "claims": ["C_3_0", "C_32_0"]
+  },
+  {
+    "itemId": "aug_osample_110",
+    "note": "C_28_4 FN#1: nuclear listed as victim industry, not preferred alternative; drop C_28_4 and C_28_5",
+    "opposition_detected": true,
+    "frames": ["N_3"],
+    "claims": ["C_23_0", "C_24_0"]
+  },
+  {
+    "itemId": "heritage_276",
+    "note": "C_28_4 FN#2: LCOE table does not mention nuclear; no onshore/offshore preference argued",
+    "opposition_detected": true,
+    "frames": ["N_3"],
+    "claims": ["C_27_0", "C_28_5"]
+  },
+  {
+    "itemId": "aug_osample_202",
+    "note": "C_2_2 FP#5: textbook causal - 'natural gas is the best form of backup' + 'more co2 emissions'; add C_2_2",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_4"],
+    "claims": ["C_28_5", "C_2_0", "C_2_2"]
+  },
+  {
+    "itemId": "instituteforenergyresearch_308",
+    "note": "C_22_0 FP#1: 'special political favors' implies select-few benefit; add C_22_0",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_4", "N_6"],
+    "claims": ["C_22_0", "C_24_0", "C_2_0", "C_32_0"]
+  },
+  {
+    "itemId": "aug_sample_638",
+    "note": "C_22_0 FP#2: 'green millionaires' is textbook C_22_0",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_3", "N_4"],
+    "claims": ["C_22_0", "C_23_0", "C_24_0", "C_26_0", "C_2_0"]
+  },
+  {
+    "itemId": "heritage_282",
+    "note": "C_22_0 FP#3: 'producers enjoy tax treatment all at consumer expense' = C_22_0",
+    "opposition_detected": true,
+    "frames": ["N_3"],
+    "claims": ["C_20_0", "C_22_0", "C_24_0"]
+  },
+  {
+    "itemId": "texaspolicy_483",
+    "note": "C_22_0 FP#4: utilities doubling profit via regulation; add C_22_0 and C_24_0 (C_3_0 retained pending verification)",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_5"],
+    "claims": ["C_3_0", "C_22_0", "C_24_0"]
+  },
+  {
+    "itemId": "cei_70",
+    "note": "C_22_0 FP#5: 'well-connected government cronies' = C_22_0",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_4", "N_6"],
+    "claims": ["C_22_0", "C_24_0", "C_26_0", "C_27_0"]
+  },
+  {
+    "itemId": "aug_sample_712",
+    "note": "C_22_0 FP#6: 'lavish funds' to named beneficiaries = C_22_0 alongside C_32_0",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_6"],
+    "claims": ["C_22_0", "C_32_0"]
+  },
+  {
+    "itemId": "aug_osample_94",
+    "note": "C_24_0 FP#2: 'floods green energy with billions of subsidies' = C_24_0",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_4"],
+    "claims": ["C_24_0", "C_27_0", "C_28_5"]
+  },
+  {
+    "itemId": "aug_sample_541",
+    "note": "C_24_0 FP#5 + C_4_0 FP#3: 'energy sprawl' = C_4_0; 'taxpayers subsidizing' = C_24_0",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_3"],
+    "claims": ["C_1_1", "C_21_0", "C_24_0", "C_4_0"]
+  },
+  {
+    "itemId": "heritage_227",
+    "note": "C_24_0 FP#8: 'corporate welfare' = C_24_0",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_3", "N_4"],
+    "claims": ["C_20_0", "C_22_0", "C_24_0", "C_26_0", "C_27_0"]
+  },
+  {
+    "itemId": "aug_sample_158",
+    "note": "C_4_0 FP#4: 'forests sacrificed' = C_4_0",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_2"],
+    "claims": ["C_11_0", "C_1_0", "C_29_0", "C_4_0"]
+  },
+  {
+    "itemId": "aug_osample_159",
+    "note": "C_4_0 FP#6 + C_28_4 FP#5: 'millions of acres' = C_4_0; omitting nuclear/fossils = C_28_4 and C_28_5",
+    "opposition_detected": true,
+    "frames": ["N_1", "N_2", "N_3"],
+    "claims": ["C_20_0", "C_27_0", "C_28_4", "C_28_5", "C_4_0"]
+  },
+  {
+    "itemId": "aug_sample_621",
+    "note": "C_23_0 FP#1: 'subsidies outsource american jobs' = C_23_0 alongside C_24_0/C_37_0",
+    "opposition_detected": true,
+    "frames": ["N_3", "N_7"],
+    "claims": ["C_23_0", "C_24_0", "C_37_0"]
+  },
+  {
+    "itemId": "aug_osample_7",
+    "note": "C_23_0 FP#2 (borderline): union warning on RET job loss; reported argument explicitly cites renewable-driven job shift",
+    "opposition_detected": true,
+    "frames": ["N_3"],
+    "claims": ["C_23_0"]
+  },
+  {
+    "itemId": "heritage_289",
+    "note": "C_28_4 FP#1: explicit nuclear advocacy against wind-only mandate",
+    "opposition_detected": true,
+    "frames": ["N_4"],
+    "claims": ["C_28_4"]
+  },
+  {
+    "itemId": "aug_sample_37",
+    "note": "C_28_4 FP#3: direct capital-cost favorable comparison of nuclear to wind",
+    "opposition_detected": true,
+    "frames": ["N_3"],
+    "claims": ["C_27_0", "C_28_4"]
+  }
+]
