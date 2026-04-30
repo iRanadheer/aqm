@@ -1,15 +1,3 @@
-"""Parse YAML predictions and compute metrics.
-
-Reads a results jsonl (produced by run_benchmark.py) that contains both the
-ground truth (`true_opposition_detected`, `true_frames`, `true_claims`) and
-the model's raw `response` string. Parses the response into structured
-predictions, then computes detection, frames, and claims metrics.
-
-Usage:
-    python3 metrics.py
-    python3 metrics.py --input data/results/predictions.jsonl --per-code
-"""
-
 from __future__ import annotations
 
 import json
@@ -146,15 +134,21 @@ def _samples_f1(y_true: list[list[str]], y_pred: list[list[str]]) -> float:
 def multilabel_metrics(
     y_true: list[list[str]], y_pred: list[list[str]]
 ) -> dict:
+    # Strip the parse-failure sentinel from y_pred for macro/micro: keeping
+    # it would inflate the label vocabulary unevenly across models. Samples
+    # F1 still receives the raw y_pred (sentinel needed there to penalize
+    # rows where gold is also []).
+    SENTINEL = "__PARSE_FAIL__"
+    y_pred_mlb = [[x for x in lab if x != SENTINEL] for lab in y_pred]
     labels = set()
-    for lab in y_true + y_pred:
+    for lab in y_true + y_pred_mlb:
         labels.update(lab)
     if not labels:
         return {"note": "no labels observed"}
     mlb = MultiLabelBinarizer()
     mlb.fit([sorted(labels)])
     yt = mlb.transform(y_true)
-    yp = mlb.transform(y_pred)
+    yp = mlb.transform(y_pred_mlb)
     return {
         "samples_f1": round(_samples_f1(y_true, y_pred), 3),
         "macro_f1": round(f1_score(yt, yp, average="macro", zero_division=0), 3),
@@ -180,6 +174,7 @@ MODELS = [
     ("CARDS-Wind-Qwen3.6-27B",   "cards-wind-qwen36-27b"),
     ("CARDS-Wind-Qwen3.6-27B FP8","cards-wind-qwen36-27b-fp8"),
     ("Claude Opus 4.7",          "claude-opus-4-7"),
+    ("GPT-5.5",                  "openai-gpt-5-5"),
 ]
 
 SPLITS = ["test"]
@@ -202,23 +197,38 @@ def score_one(path: Path) -> dict | None:
     yt_op, yp_op = [], []
     yt_f, yp_f = [], []
     yt_c, yp_c = [], []
+    # Penalty applied to API errors and parse failures: flip detection to
+    # guarantee a miss, and emit a sentinel multilabel that can never match
+    # gold (forces samples F1 = 0 on the row). Keeps every row in the eval
+    # so models can't get a free pass by failing on hard cases.
+    SENTINEL = ["__PARSE_FAIL__"]
     for r in rows:
+        gold_op = bool(r.get("true_opposition_detected", False))
+        gold_f = list(r.get("true_frames") or [])
+        gold_c = list(r.get("true_claims") or [])
         resp = r.get("response", "")
+        failed = False
         if isinstance(resp, str) and resp.startswith("ERROR:"):
             api_error += 1
-            continue
-        pred = parse_response(resp)
-        if (pred["opposition_detected"] is None
-                or pred["frames"] is None
-                or pred["claims"] is None):
-            parse_fail += 1
-            continue
-        yt_op.append(bool(r.get("true_opposition_detected", False)))
-        yp_op.append(bool(pred["opposition_detected"]))
-        yt_f.append(list(r.get("true_frames") or []))
-        yp_f.append(list(pred["frames"]))
-        yt_c.append(list(r.get("true_claims") or []))
-        yp_c.append(list(pred["claims"]))
+            failed = True
+        else:
+            pred = parse_response(resp)
+            if (pred["opposition_detected"] is None
+                    or pred["frames"] is None
+                    or pred["claims"] is None):
+                parse_fail += 1
+                failed = True
+        yt_op.append(gold_op)
+        yt_f.append(gold_f)
+        yt_c.append(gold_c)
+        if failed:
+            yp_op.append(not gold_op)
+            yp_f.append(list(SENTINEL))
+            yp_c.append(list(SENTINEL))
+        else:
+            yp_op.append(bool(pred["opposition_detected"]))
+            yp_f.append(list(pred["frames"]))
+            yp_c.append(list(pred["claims"]))
 
     # Opposition-only subset: rows where gold says opposition was present.
     opp_idx = [i for i, t in enumerate(yt_op) if t]
@@ -264,11 +274,13 @@ def write_summary(split: str, summary: dict[str, dict]) -> None:
         e = summary[lbl]
         lines.append(f"| {lbl} | {e['n_rows']} | {e['api_errors']} | {e['parse_failures']} | {e['n_opposition_only']} |")
 
-    # Detection (single F1 row).
+    # Detection — precision, recall, F1.
     lines.append("\n## Detection (binary)\n")
     lines.append(header)
     lines.append(sep)
-    lines.append(_row("F1", [summary[lbl]["detection"]["f1"] for lbl in labels]))
+    lines.append(_row("Precision", [summary[lbl]["detection"]["precision"] for lbl in labels]))
+    lines.append(_row("Recall",    [summary[lbl]["detection"]["recall"]    for lbl in labels]))
+    lines.append(_row("F1",        [summary[lbl]["detection"]["f1"]        for lbl in labels]))
 
     # F1 family (samples / macro / micro), each with 4 rows: frames-all,
     # frames-opp, claims-all, claims-opp.

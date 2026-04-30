@@ -56,8 +56,10 @@ if key_env:
     api_key = os.environ.get(key_env)
     if not api_key:
         sys.exit(f"{key_env} not set")
+    print(f"{key_env}: set ({api_key[:7]}…{api_key[-4:]})")
 else:
     api_key = "dummy"
+    print(f"{args.backend}: no API key required")
 
 input_path = Path(args.input) if Path(args.input).is_absolute() else ROOT / args.input
 if not input_path.exists():
