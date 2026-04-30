@@ -69,11 +69,18 @@ def truncate_to_level(codes, level):
 
 
 def binarize(y_true_lists, y_pred_lists, min_support=0):
+    # Fix the label vocab to gold codes only. Hallucinated labels in y_pred
+    # are dropped silently — keeping them inflates each model's macro
+    # denominator differently and breaks cross-model comparison. The model
+    # is still penalized for hallucinating: the correct gold label gets an
+    # FN since the model didn't predict it.
+    gold_labels = sorted({l for row in y_true_lists for l in row})
     mlb = MultiLabelBinarizer()
-    all_labels = sorted({l for row in y_true_lists + y_pred_lists for l in row})
-    mlb.fit([all_labels])
+    mlb.fit([gold_labels])
+    gold_set = set(gold_labels)
+    y_pred_clean = [[l for l in row if l in gold_set] for row in y_pred_lists]
     y_t = mlb.transform(y_true_lists)
-    y_p = mlb.transform(y_pred_lists)
+    y_p = mlb.transform(y_pred_clean)
     if min_support > 0:
         mask = y_t.sum(axis=0) >= min_support
         y_t, y_p = y_t[:, mask], y_p[:, mask]

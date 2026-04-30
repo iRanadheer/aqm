@@ -12,20 +12,20 @@
       "accuracy": 0.601
     },
     "level_2_all": {
-      "samples_f1": 0.592,
-      "macro_f1": 0.251,
-      "micro_f1": 0.597,
-      "micro_precision": 0.62,
+      "samples_f1": 0.594,
+      "macro_f1": 0.28,
+      "micro_f1": 0.605,
+      "micro_precision": 0.638,
       "micro_recall": 0.576,
-      "accuracy": 0.556
+      "accuracy": 0.558
     },
     "level_3_all": {
-      "samples_f1": 0.577,
-      "macro_f1": 0.192,
-      "micro_f1": 0.529,
-      "micro_precision": 0.505,
+      "samples_f1": 0.578,
+      "macro_f1": 0.23,
+      "micro_f1": 0.539,
+      "micro_precision": 0.523,
       "micro_recall": 0.555,
-      "accuracy": 0.545
+      "accuracy": 0.547
     },
     "level_1_minsup_3": {
       "samples_f1": 0.621,
@@ -65,20 +65,20 @@
       "accuracy": 0.694
     },
     "level_2_all": {
-      "samples_f1": 0.689,
-      "macro_f1": 0.334,
-      "micro_f1": 0.635,
-      "micro_precision": 0.601,
+      "samples_f1": 0.69,
+      "macro_f1": 0.373,
+      "micro_f1": 0.646,
+      "micro_precision": 0.621,
       "micro_recall": 0.673,
-      "accuracy": 0.637
+      "accuracy": 0.639
     },
     "level_3_all": {
-      "samples_f1": 0.657,
-      "macro_f1": 0.23,
-      "micro_f1": 0.546,
-      "micro_precision": 0.477,
+      "samples_f1": 0.66,
+      "macro_f1": 0.277,
+      "micro_f1": 0.574,
+      "micro_precision": 0.522,
       "micro_recall": 0.637,
-      "accuracy": 0.61
+      "accuracy": 0.611
     },
     "level_1_minsup_3": {
       "samples_f1": 0.732,
@@ -119,19 +119,19 @@
     },
     "level_2_all": {
       "samples_f1": 0.808,
-      "macro_f1": 0.33,
-      "micro_f1": 0.784,
-      "micro_precision": 0.801,
+      "macro_f1": 0.359,
+      "micro_f1": 0.785,
+      "micro_precision": 0.802,
       "micro_recall": 0.769,
       "accuracy": 0.76
     },
     "level_3_all": {
-      "samples_f1": 0.78,
-      "macro_f1": 0.276,
-      "micro_f1": 0.738,
-      "micro_precision": 0.752,
+      "samples_f1": 0.782,
+      "macro_f1": 0.323,
+      "micro_f1": 0.75,
+      "micro_precision": 0.778,
       "micro_recall": 0.725,
-      "accuracy": 0.741
+      "accuracy": 0.743
     },
     "level_1_minsup_3": {
       "samples_f1": 0.838,
