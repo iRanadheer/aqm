@@ -5,14 +5,13 @@ Hierarchical climate-discourse claim classifier. Per-stage docs live in
 
 | Doc | Covers |
 |---|---|
-| [docs/data_pipeline.md](docs/data_pipeline.md) | `teacher.py` + `prepare_splits.py` — raw labels → SFT JSONL |
+| [docs/data.md](docs/data.md) | All data: training, congressional benchmark, Twitter benchmark |
 | [docs/training.md](docs/training.md) | `ft/train.py` — Unsloth + LoRA SFT |
 | [docs/quantization.md](docs/quantization.md) | `ft/quantize.py` — FP8_DYNAMIC |
 | [docs/inference.md](docs/inference.md) | `infer.py` — run a model on a benchmark JSONL |
 | [docs/reports.md](docs/reports.md) | `generate_report.py` — strict-parsed metrics + ablations |
 | [docs/prompts.md](docs/prompts.md) | `prompts.py` — codebooks, system prompt, triggers |
 | [docs/serving.md](docs/serving.md) | `serve/start_cards_vllm.sh` — vLLM launcher |
-| [docs/sampling.md](docs/sampling.md) | Twitter eval set construction |
 
 ## Pipeline at a glance
 
