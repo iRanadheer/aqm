@@ -6,7 +6,8 @@ python-dotenv
 scikit-learn
 tenacity
 litellm
-tabulate 
+tabulate
+krippendorff
 flash-linear-attention
 vllm
 openai

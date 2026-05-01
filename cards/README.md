@@ -5,7 +5,7 @@ Hierarchical climate-discourse claim classifier. Per-stage docs live in
 
 | Doc | Covers |
 |---|---|
-| [docs/data.md](docs/data.md) | All data: training, congressional benchmark, Twitter benchmark |
+| [docs/data.md](docs/data.md) | All data: training, congressional benchmark, Twitter benchmark, intercoder reliability |
 | [docs/training.md](docs/training.md) | `ft/train.py` — Unsloth + LoRA SFT |
 | [docs/quantization.md](docs/quantization.md) | `ft/quantize.py` — FP8_DYNAMIC |
 | [docs/inference.md](docs/inference.md) | `infer.py` — run a model on a benchmark JSONL |

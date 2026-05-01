@@ -157,6 +157,29 @@ Stage 1 outputs:
 Of these ~730 chapter rows, **172** end up in the final benchmark (those
 tagged `source = "cards-chapter"`).
 
+#### Intercoder reliability on the chapter sample
+
+Two coders (`travcoan`, `mirjamnanko`) independently applied taxonomy codes
+to a 50-item subset of the chapter sample. Source labels live in
+`data/cards_icr.json`; running `python icr_analysis.py` writes:
+
+- [`docs/icr_report.md`](icr_report.md) — Krippendorff's Alpha, percent
+  exact agreement, and mean Jaccard at each hierarchy level, plus per-claim
+  frequencies.
+- `data/icr_disagreements.csv` — per-item disagreements at Level 3.
+
+Headline numbers from the checked-in report:
+
+| Level | Krippendorff's Alpha | % Exact Agreement | Mean Jaccard |
+|-------|----------------------|-------------------|--------------|
+| 1 (top-level) | 0.81 | 68.0% | 0.81 |
+| 2 (sub-category) | 0.82 | 62.0% | 0.78 |
+| 3 (claim) | 0.79 | 54.0% | 0.73 |
+
+Codes are normalized before scoring — redundant parent codes are dropped
+when a strictly more specific child is present in the same set (e.g. `2_1_0`
+is dropped when `2_1_4` is also present).
+
 ### Stage 2 — assembly
 
 `cards_twitter.jsonl` (744 rows) combines:
