@@ -1,10 +1,16 @@
 """Compute metrics for CARDS result jsonls.
 
-Writes four reports, all to data/results/<split>/:
-  test/metrics_summary.{json,md}     — headline FT vs API lineup
-  twitter/metrics_summary.{json,md}  — headline FT vs API lineup
-  test/recot_ablation.{json,md}      — 4B inner: Base vs No-RECoT vs RECoT
-  test/scaling_ablation.{json,md}    — Base vs RECoT-FT across sizes
+Writes the following reports under data/results/<split>/:
+  test/metrics_summary.{json,md}         — full FT vs API headline (10 models)
+  twitter/metrics_summary.{json,md}      — full FT vs API headline (10 models)
+  test/metrics_summary_lineup.{json,md}  — paper lineup (6 + No-RECoT 4B + 3 bases)
+  twitter/metrics_summary_lineup.{json,md} — paper lineup (6 models)
+  test/recot_ablation.{json,md}          — 4B inner: Base vs No-RECoT vs RECoT
+  test/scaling_ablation.{json,md}        — Base vs RECoT-FT across sizes
+
+The lineup files are the cross-benchmark comparison set shared with the
+Wind paper (Opus 4.7, GPT-5.5, plus FT Qwen3.5 4B/9B/27B/27B-FP8); the test
+lineup additionally includes the base Qwen 4B/9B/27B rows.
 
 Re-running overwrites. Per-variant classification reports are NOT written.
 
@@ -170,6 +176,43 @@ def report_for_split(split):
     write_summary(f"CARDS — {split} set", summary, split_dir, "metrics_summary")
 
 
+# Cross-benchmark paper lineup — same six models reported for Wind/test and
+# Cards/twitter. On test we also include the base Qwen rows for 4B / 9B / 27B
+# plus the No-RECoT 4B ablation.
+LINEUP_HEADLINE = [
+    ("CARDS-Qwen3.5-4B",      "cards-qwen35-4b"),
+    ("CARDS-Qwen3.5-9B",      "cards-qwen35-9b"),
+    ("CARDS-Qwen3.5-27B",     "cards-qwen35-27b"),
+    ("CARDS-Qwen3.5-27B FP8", "cards-qwen35-27b-fp8"),
+    ("Claude Opus 4.7",       "claude-opus-4-7"),
+    ("GPT-5.5",               "gpt-5-5"),
+]
+LINEUP_TEST_EXTRAS = [
+    ("CARDS-Qwen3.5-4B No RECoT", "cards-qwen35-4b-norecot"),
+    ("Qwen3.5-4B Base",           "qwen35-4b-base"),
+    ("Qwen3.5-9B Base",           "qwen35-9b-base"),
+    ("Qwen3.5-27B Base",          "qwen35-27b-base"),
+]
+
+
+def report_lineup(split):
+    """Restricted cross-benchmark lineup. test gets bases appended."""
+    split_dir = os.path.join(RESULTS_DIR, split)
+    label_field = "labels" if split == "twitter" else "true_claims"
+    entries = LINEUP_HEADLINE + (LINEUP_TEST_EXTRAS if split == "test" else [])
+    summary = {}
+    for label, stem in entries:
+        path = os.path.join(split_dir, f"{stem}.jsonl")
+        if not os.path.exists(path):
+            print(f"  [lineup/{split}] missing: {label}")
+            continue
+        summary[label] = score_one(path, label_field, label, prefix=f"[lineup/{split}] ")
+    write_summary(
+        f"CARDS — {split} set (paper lineup)",
+        summary, split_dir, "metrics_summary_lineup",
+    )
+
+
 # Inner ablation (4B only): does FT alone help? does RECoT-FT help further?
 RECOT_ABLATION = [
     ("Qwen3.5-4B Base",          "qwen35-4b-base"),
@@ -204,8 +247,11 @@ def report_ablation(entries, title, basename, tag):
 
 if __name__ == "__main__":
     for split in SPLITS:
-        print(f"\n=== {split} ===")
+        print(f"\n=== {split} (full headline) ===")
         report_for_split(split)
+    for split in SPLITS:
+        print(f"\n=== {split} (paper lineup) ===")
+        report_lineup(split)
     print("\n=== recot ablation (4B inner, test) ===")
     report_ablation(RECOT_ABLATION,
                     "CARDS — RECoT-FT inner ablation (Qwen3.5-4B, test set)",

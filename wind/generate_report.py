@@ -177,6 +177,18 @@ MODELS = [
     ("GPT-5.5",                  "openai-gpt-5-5"),
 ]
 
+# Cross-benchmark paper lineup — same six models reported for CARDS test and
+# CARDS twitter. CARDS-Wind joint variants and the FP8 ablations live in the
+# full MODELS list above.
+LINEUP_HEADLINE = [
+    ("Windy-Qwen3.5-4B",      "windy-qwen35-4b"),
+    ("Windy-Qwen3.5-9B",      "windy-qwen35-9b"),
+    ("Windy-Qwen3.5-27B",     "windy-qwen35-27b"),
+    ("Windy-Qwen3.5-27B FP8", "windy-qwen35-27b-fp8"),
+    ("Claude Opus 4.7",       "claude-opus-4-7"),
+    ("GPT-5.5",               "openai-gpt-5-5"),
+]
+
 SPLITS = ["test"]
 F1_KEYS = [("samples_f1", "Samples F1"),
            ("macro_f1",   "Macro F1"),
@@ -255,10 +267,10 @@ def _row(label, cells):
     return "| " + " | ".join([label] + [str(c) for c in cells]) + " |"
 
 
-def write_summary(split: str, summary: dict[str, dict]) -> None:
+def write_summary(split: str, summary: dict[str, dict], basename: str = "metrics_summary") -> None:
     out_dir = RESULTS_DIR / split
     out_dir.mkdir(parents=True, exist_ok=True)
-    with open(out_dir / "metrics_summary.json", "w") as f:
+    with open(out_dir / f"{basename}.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     labels = list(summary.keys())
@@ -298,28 +310,34 @@ def write_summary(split: str, summary: dict[str, dict]) -> None:
             cells = [summary[lbl][view_key].get(key, "-") for lbl in labels]
             lines.append(_row(view_label, cells))
 
-    with open(out_dir / "metrics_summary.md", "w") as f:
+    with open(out_dir / f"{basename}.md", "w") as f:
         f.write("\n".join(lines) + "\n")
 
-    print(f"  -> {out_dir}/metrics_summary.json")
-    print(f"  -> {out_dir}/metrics_summary.md")
+    print(f"  -> {out_dir}/{basename}.json")
+    print(f"  -> {out_dir}/{basename}.md")
+
+
+def _run(split: str, models: list[tuple[str, str]], basename: str) -> None:
+    summary: dict = {}
+    for label, slug in models:
+        path = RESULTS_DIR / split / f"{slug}.jsonl"
+        scored = score_one(path)
+        if scored is None:
+            print(f"  [{split}/{basename}] missing: {label}")
+            continue
+        print(f"  [{split}/{basename}] {label}: {scored['evaluated']}/{scored['n_rows']} rows  "
+              f"(api_err={scored['api_errors']}, parse_fail={scored['parse_failures']})")
+        summary[label] = scored
+    if summary:
+        write_summary(split, summary, basename=basename)
 
 
 def main() -> None:
     for split in SPLITS:
-        print(f"\n=== {split} ===")
-        summary = {}
-        for label, slug in MODELS:
-            path = RESULTS_DIR / split / f"{slug}.jsonl"
-            scored = score_one(path)
-            if scored is None:
-                print(f"  [{split}] missing: {label}")
-                continue
-            print(f"  [{split}] {label}: {scored['evaluated']}/{scored['n_rows']} rows  "
-                  f"(api_err={scored['api_errors']}, parse_fail={scored['parse_failures']})")
-            summary[label] = scored
-        if summary:
-            write_summary(split, summary)
+        print(f"\n=== {split} (full headline) ===")
+        _run(split, MODELS, "metrics_summary")
+        print(f"\n=== {split} (paper lineup) ===")
+        _run(split, LINEUP_HEADLINE, "metrics_summary_lineup")
 
 
 if __name__ == "__main__":
