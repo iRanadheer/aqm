@@ -1,16 +1,9 @@
 """Compute metrics for CARDS result jsonls.
 
-Writes the following reports under data/results/<split>/:
-  test/metrics_summary.{json,md}         — full FT vs API headline (10 models)
-  twitter/metrics_summary.{json,md}      — full FT vs API headline (10 models)
-  test/metrics_summary_lineup.{json,md}  — paper lineup (6 + No-RECoT 4B + 3 bases)
-  twitter/metrics_summary_lineup.{json,md} — paper lineup (6 models)
-  test/recot_ablation.{json,md}          — 4B inner: Base vs No-RECoT vs RECoT
+Writes three reports under data/results/<split>/ (test + twitter):
+  metrics_summary.{json,md}              — headline FT + API across all models
+  test/recot_ablation.{json,md}          — 4B + 9B: Base vs No-RECoT vs RECoT
   test/scaling_ablation.{json,md}        — Base vs RECoT-FT across sizes
-
-The lineup files are the cross-benchmark comparison set shared with the
-Wind paper (Opus 4.7, GPT-5.5, plus FT Qwen3.5 4B/9B/27B/27B-FP8); the test
-lineup additionally includes the base Qwen 4B/9B/27B rows.
 
 Re-running overwrites. Per-variant classification reports are NOT written.
 
@@ -30,7 +23,7 @@ BASE_DIR = os.path.dirname(__file__)
 RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
 SPLITS = ["test", "twitter"]
 LEVELS = [1, 2, 3]
-MIN_SUPPORTS = [0, 3]  # 0 = all labels
+MIN_SUPPORTS = [3]  # 0 = all labels (dropped — too noisy on long-tail rare classes)
 
 # Headline lineup: FT'd CARDS variants vs API models. Base entries live in
 # the ablation, not here.
@@ -51,22 +44,34 @@ MODELS = [
 _CODE_RE = re.compile(r"<?(\d[\d_]+\d)>?")
 
 
-def parse_response(response):
-    """Strict parse: require </think> followed by a categories: YAML block.
+def parse_response(response, require_think=True):
+    """Parse a model response into a list of category codes.
 
-    Anything else returns [] and counts as a parse failure. Pre-parsed
-    list-shape responses (legacy base-model outputs) are accepted as-is.
+    require_think=True (default, for RECoT-trained models): require </think>
+    followed by a categories: YAML block. Anything else returns [].
+
+    require_think=False (for no-RECoT-trained models): accept the categories:
+    block anywhere in the response. The no-RECoT training data has no
+    <think>...</think>, so models trained on it shouldn't be required to
+    emit one at inference.
+
+    Pre-parsed list-shape responses (legacy base-model outputs) are accepted
+    as-is in either mode.
     """
-    # Pre-parsed list (legacy base outputs): list of code strings, or [text, usage].
     if isinstance(response, list):
         if response and isinstance(response[0], str) and not _CODE_RE.fullmatch(response[0]):
-            return parse_response(response[0])  # [text, usage_dict] form
+            return parse_response(response[0], require_think=require_think)
         return [_CODE_RE.match(str(c).strip()).group(1)
                 for c in response if _CODE_RE.match(str(c).strip())]
-    if not isinstance(response, str) or "</think>" not in response:
+    if not isinstance(response, str):
         return []
-    after = response.split("</think>")[-1].strip()
-    m = re.search(r"categories:\s*\n((?:\s*-\s*.+\n?)+)", after)
+    if require_think:
+        if "</think>" not in response:
+            return []
+        body = response.split("</think>")[-1].strip()
+    else:
+        body = response.split("</think>")[-1].strip() if "</think>" in response else response.strip()
+    m = re.search(r"categories:\s*\n((?:\s*-\s*.+\n?)+)", body)
     return re.findall(r"-\s*<?(\d[\d_]+\d)>?", m.group(1)) if m else []
 
 
@@ -111,7 +116,12 @@ def score_one(path, label_field, label, prefix=""):
     df = pd.read_json(path, lines=True)
     if label_field != "true_claims":
         df["true_claims"] = df[label_field]
-    df["pred_claims"] = df["response"].apply(parse_response)
+    # Slugs that opt into the relaxed parser (no </think> required):
+    #   *norecot* — FT models trained without RECoT
+    #   *nothink* — base models run with --no-recot (thinking-off inference)
+    name = os.path.basename(path).lower()
+    require_think = "norecot" not in name and "nothink" not in name
+    df["pred_claims"] = df["response"].apply(lambda r: parse_response(r, require_think=require_think))
     parse_failures = int((df["pred_claims"].map(len) == 0).sum())
     print(f"  {prefix}{label}: {len(df)} rows, {parse_failures} parse failures")
 
@@ -176,48 +186,24 @@ def report_for_split(split):
     write_summary(f"CARDS — {split} set", summary, split_dir, "metrics_summary")
 
 
-# Cross-benchmark paper lineup — same six models reported for Wind/test and
-# Cards/twitter. On test we also include the base Qwen rows for 4B / 9B / 27B
-# plus the No-RECoT 4B ablation.
-LINEUP_HEADLINE = [
-    ("CARDS-Qwen3.5-4B",      "cards-qwen35-4b"),
-    ("CARDS-Qwen3.5-9B",      "cards-qwen35-9b"),
-    ("CARDS-Qwen3.5-27B",     "cards-qwen35-27b"),
-    ("CARDS-Qwen3.5-27B FP8", "cards-qwen35-27b-fp8"),
-    ("Claude Opus 4.7",       "claude-opus-4-7"),
-    ("GPT-5.5",               "gpt-5-5"),
-]
-LINEUP_TEST_EXTRAS = [
-    ("CARDS-Qwen3.5-4B No RECoT", "cards-qwen35-4b-norecot"),
-    ("Qwen3.5-4B Base",           "qwen35-4b-base"),
-    ("Qwen3.5-9B Base",           "qwen35-9b-base"),
-    ("Qwen3.5-27B Base",          "qwen35-27b-base"),
-]
-
-
-def report_lineup(split):
-    """Restricted cross-benchmark lineup. test gets bases appended."""
-    split_dir = os.path.join(RESULTS_DIR, split)
-    label_field = "labels" if split == "twitter" else "true_claims"
-    entries = LINEUP_HEADLINE + (LINEUP_TEST_EXTRAS if split == "test" else [])
-    summary = {}
-    for label, stem in entries:
-        path = os.path.join(split_dir, f"{stem}.jsonl")
-        if not os.path.exists(path):
-            print(f"  [lineup/{split}] missing: {label}")
-            continue
-        summary[label] = score_one(path, label_field, label, prefix=f"[lineup/{split}] ")
-    write_summary(
-        f"CARDS — {split} set (paper lineup)",
-        summary, split_dir, "metrics_summary_lineup",
-    )
-
-
-# Inner ablation (4B only): does FT alone help? does RECoT-FT help further?
+# Inner ablation (4B + 9B): four columns per size — does base + simpler
+# prompt close the gap? does FT add value? does RECoT-FT help further?
 RECOT_ABLATION = [
-    ("Qwen3.5-4B Base",          "qwen35-4b-base"),
-    ("CARDS-Qwen3.5-4B No RECoT","cards-qwen35-4b-norecot"),
-    ("CARDS-Qwen3.5-4B",         "cards-qwen35-4b"),
+    ("Qwen3.5-4B Base (think)",                  "qwen35-4b-base"),
+    ("Qwen3.5-4B Base (no-think)",               "qwen35-4b-base-nothink"),
+    ("CARDS-Qwen3.5-4B No RECoT (no-think)",     "cards-qwen35-4b-norecot-nothink"),
+    ("CARDS-Qwen3.5-4B No RECoT (think)",        "cards-qwen35-4b-norecot"),
+    ("CARDS-Qwen3.5-4B",                         "cards-qwen35-4b"),
+    ("Qwen3.5-9B Base (think)",                  "qwen35-9b-base"),
+    ("Qwen3.5-9B Base (no-think)",               "qwen35-9b-base-nothink"),
+    ("CARDS-Qwen3.5-9B No RECoT (no-think)",     "cards-qwen35-9b-norecot-nothink"),
+    ("CARDS-Qwen3.5-9B No RECoT (think)",        "cards-qwen35-9b-norecot"),
+    ("CARDS-Qwen3.5-9B",                         "cards-qwen35-9b"),
+    ("Qwen3.5-27B Base (think)",                 "qwen35-27b-base"),
+    ("Qwen3.5-27B Base (no-think)",              "qwen35-27b-base-nothink"),
+    ("CARDS-Qwen3.5-27B No RECoT (no-think)",    "cards-qwen35-27b-norecot-nothink"),
+    ("CARDS-Qwen3.5-27B No RECoT (think)",       "cards-qwen35-27b-norecot"),
+    ("CARDS-Qwen3.5-27B",                        "cards-qwen35-27b"),
 ]
 
 # Scaling ablation: base vs RECoT-FT across model sizes.
@@ -247,14 +233,11 @@ def report_ablation(entries, title, basename, tag):
 
 if __name__ == "__main__":
     for split in SPLITS:
-        print(f"\n=== {split} (full headline) ===")
+        print(f"\n=== {split} ===")
         report_for_split(split)
-    for split in SPLITS:
-        print(f"\n=== {split} (paper lineup) ===")
-        report_lineup(split)
-    print("\n=== recot ablation (4B inner, test) ===")
+    print("\n=== recot ablation (4B + 9B, test) ===")
     report_ablation(RECOT_ABLATION,
-                    "CARDS — RECoT-FT inner ablation (Qwen3.5-4B, test set)",
+                    "CARDS — RECoT-FT ablation (Qwen3.5 4B + 9B, test set)",
                     "recot_ablation", "recot")
     print("\n=== scaling ablation (base vs RECoT-FT, test) ===")
     report_ablation(SCALING_ABLATION,

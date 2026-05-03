@@ -92,10 +92,13 @@ def load(slug: str, split: str, level: int):
     # by the input text — which is unique per row in both splits.
     rows.sort(key=lambda r: r.get("text") or "")
     label_field = "labels" if split == "twitter" else "true_claims"
+    # No-RECoT models weren't trained to emit </think>; relax the parser
+    # for those slugs to match generate_report.score_one().
+    require_think = "norecot" not in slug.lower()
     yt, yp = [], []
     for r in rows:
         gold = list(r.get(label_field) or [])
-        pred = parse_response(r.get("response", ""))
+        pred = parse_response(r.get("response", ""), require_think=require_think)
         yt.append(["_".join(c.split("_")[:level]) for c in gold])
         yp.append(["_".join(c.split("_")[:level]) for c in pred])
     return yt, yp

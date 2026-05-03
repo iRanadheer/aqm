@@ -3,30 +3,6 @@
     "label": "Qwen3.5-2B Base",
     "n_samples": 1436,
     "parse_failures": 1413,
-    "level_1_all": {
-      "samples_f1": 0.003,
-      "macro_f1": 0.001,
-      "micro_f1": 0.008,
-      "micro_precision": 0.122,
-      "micro_recall": 0.004,
-      "accuracy": 0.003
-    },
-    "level_2_all": {
-      "samples_f1": 0.003,
-      "macro_f1": 0.0,
-      "micro_f1": 0.007,
-      "micro_precision": 0.039,
-      "micro_recall": 0.004,
-      "accuracy": 0.003
-    },
-    "level_3_all": {
-      "samples_f1": 0.003,
-      "macro_f1": 0.0,
-      "micro_f1": 0.006,
-      "micro_precision": 0.018,
-      "micro_recall": 0.004,
-      "accuracy": 0.003
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.003,
       "macro_f1": 0.001,
@@ -56,30 +32,6 @@
     "label": "CARDS-Qwen3.5-2B",
     "n_samples": 1436,
     "parse_failures": 1,
-    "level_1_all": {
-      "samples_f1": 0.758,
-      "macro_f1": 0.528,
-      "micro_f1": 0.746,
-      "micro_precision": 0.76,
-      "micro_recall": 0.733,
-      "accuracy": 0.73
-    },
-    "level_2_all": {
-      "samples_f1": 0.726,
-      "macro_f1": 0.315,
-      "micro_f1": 0.7,
-      "micro_precision": 0.725,
-      "micro_recall": 0.676,
-      "accuracy": 0.687
-    },
-    "level_3_all": {
-      "samples_f1": 0.703,
-      "macro_f1": 0.258,
-      "micro_f1": 0.668,
-      "micro_precision": 0.701,
-      "micro_recall": 0.637,
-      "accuracy": 0.672
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.758,
       "macro_f1": 0.528,
@@ -109,30 +61,6 @@
     "label": "Qwen3.5-4B Base",
     "n_samples": 1436,
     "parse_failures": 376,
-    "level_1_all": {
-      "samples_f1": 0.621,
-      "macro_f1": 0.473,
-      "micro_f1": 0.696,
-      "micro_precision": 0.829,
-      "micro_recall": 0.6,
-      "accuracy": 0.601
-    },
-    "level_2_all": {
-      "samples_f1": 0.594,
-      "macro_f1": 0.28,
-      "micro_f1": 0.605,
-      "micro_precision": 0.638,
-      "micro_recall": 0.576,
-      "accuracy": 0.558
-    },
-    "level_3_all": {
-      "samples_f1": 0.578,
-      "macro_f1": 0.23,
-      "micro_f1": 0.539,
-      "micro_precision": 0.523,
-      "micro_recall": 0.555,
-      "accuracy": 0.547
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.621,
       "macro_f1": 0.473,
@@ -162,30 +90,6 @@
     "label": "CARDS-Qwen3.5-4B",
     "n_samples": 1436,
     "parse_failures": 1,
-    "level_1_all": {
-      "samples_f1": 0.838,
-      "macro_f1": 0.632,
-      "micro_f1": 0.828,
-      "micro_precision": 0.84,
-      "micro_recall": 0.816,
-      "accuracy": 0.804
-    },
-    "level_2_all": {
-      "samples_f1": 0.808,
-      "macro_f1": 0.359,
-      "micro_f1": 0.785,
-      "micro_precision": 0.802,
-      "micro_recall": 0.769,
-      "accuracy": 0.76
-    },
-    "level_3_all": {
-      "samples_f1": 0.782,
-      "macro_f1": 0.323,
-      "micro_f1": 0.75,
-      "micro_precision": 0.778,
-      "micro_recall": 0.725,
-      "accuracy": 0.743
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.838,
       "macro_f1": 0.632,
@@ -215,30 +119,6 @@
     "label": "Qwen3.5-9B Base",
     "n_samples": 1436,
     "parse_failures": 247,
-    "level_1_all": {
-      "samples_f1": 0.721,
-      "macro_f1": 0.629,
-      "micro_f1": 0.775,
-      "micro_precision": 0.866,
-      "micro_recall": 0.701,
-      "accuracy": 0.698
-    },
-    "level_2_all": {
-      "samples_f1": 0.693,
-      "macro_f1": 0.402,
-      "micro_f1": 0.709,
-      "micro_precision": 0.749,
-      "micro_recall": 0.674,
-      "accuracy": 0.653
-    },
-    "level_3_all": {
-      "samples_f1": 0.679,
-      "macro_f1": 0.342,
-      "micro_f1": 0.665,
-      "micro_precision": 0.684,
-      "micro_recall": 0.648,
-      "accuracy": 0.637
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.721,
       "macro_f1": 0.629,
@@ -268,30 +148,6 @@
     "label": "CARDS-Qwen3.5-9B",
     "n_samples": 1436,
     "parse_failures": 0,
-    "level_1_all": {
-      "samples_f1": 0.872,
-      "macro_f1": 0.663,
-      "micro_f1": 0.862,
-      "micro_precision": 0.875,
-      "micro_recall": 0.849,
-      "accuracy": 0.842
-    },
-    "level_2_all": {
-      "samples_f1": 0.839,
-      "macro_f1": 0.428,
-      "micro_f1": 0.816,
-      "micro_precision": 0.836,
-      "micro_recall": 0.797,
-      "accuracy": 0.793
-    },
-    "level_3_all": {
-      "samples_f1": 0.814,
-      "macro_f1": 0.321,
-      "micro_f1": 0.777,
-      "micro_precision": 0.807,
-      "micro_recall": 0.75,
-      "accuracy": 0.774
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.872,
       "macro_f1": 0.663,
@@ -321,30 +177,6 @@
     "label": "Qwen3.5-27B Base",
     "n_samples": 1436,
     "parse_failures": 86,
-    "level_1_all": {
-      "samples_f1": 0.844,
-      "macro_f1": 0.71,
-      "micro_f1": 0.854,
-      "micro_precision": 0.87,
-      "micro_recall": 0.838,
-      "accuracy": 0.813
-    },
-    "level_2_all": {
-      "samples_f1": 0.823,
-      "macro_f1": 0.597,
-      "micro_f1": 0.813,
-      "micro_precision": 0.82,
-      "micro_recall": 0.806,
-      "accuracy": 0.771
-    },
-    "level_3_all": {
-      "samples_f1": 0.806,
-      "macro_f1": 0.502,
-      "micro_f1": 0.78,
-      "micro_precision": 0.783,
-      "micro_recall": 0.777,
-      "accuracy": 0.751
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.844,
       "macro_f1": 0.71,
@@ -374,30 +206,6 @@
     "label": "CARDS-Qwen3.5-27B",
     "n_samples": 1436,
     "parse_failures": 0,
-    "level_1_all": {
-      "samples_f1": 0.884,
-      "macro_f1": 0.766,
-      "micro_f1": 0.877,
-      "micro_precision": 0.879,
-      "micro_recall": 0.874,
-      "accuracy": 0.854
-    },
-    "level_2_all": {
-      "samples_f1": 0.857,
-      "macro_f1": 0.618,
-      "micro_f1": 0.837,
-      "micro_precision": 0.84,
-      "micro_recall": 0.834,
-      "accuracy": 0.807
-    },
-    "level_3_all": {
-      "samples_f1": 0.834,
-      "macro_f1": 0.499,
-      "micro_f1": 0.8,
-      "micro_precision": 0.809,
-      "micro_recall": 0.791,
-      "accuracy": 0.787
-    },
     "level_1_minsup_3": {
       "samples_f1": 0.884,
       "macro_f1": 0.766,

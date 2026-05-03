@@ -29,7 +29,7 @@ import re
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from prompts import slim_system_instruction, cot_trigger
+from prompts import slim_system_instruction, slim_system_instruction_norecot, cot_trigger
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 RANDOM_STATE = 42
@@ -38,16 +38,20 @@ RANDOM_STATE = 42
 def build_sft_record(text, response, use_recot=True):
     """Wrap (text, response) as an OpenAI chat fine-tune record.
 
-    use_recot=False strips <think>...</think> and drops the CoT trigger from
-    the user message — same boundary, just no reasoning shown.
+    use_recot=False strips <think>...</think>, drops the CoT trigger from
+    the user message, AND swaps the system prompt to the no-RECoT variant
+    (no `<think>` directive in OUTPUT FORMAT) so all three layers agree:
+    system, user, and target.
     """
     if use_recot:
+        sys_prompt = slim_system_instruction
         user_content = f"### Text:\n{text}\n\n{cot_trigger}"
     else:
+        sys_prompt = slim_system_instruction_norecot
         response = strip_reasoning(response)
         user_content = f"### Text:\n{text}"
     return {"messages": [
-        {"role": "system", "content": slim_system_instruction},
+        {"role": "system", "content": sys_prompt},
         {"role": "user", "content": user_content},
         {"role": "assistant", "content": response},
     ]}

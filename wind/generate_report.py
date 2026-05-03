@@ -65,13 +65,37 @@ def _extract_list(block: str, key: str) -> list[str] | None:
 
 
 def parse_response(response: str) -> dict:
-    """Parse YAML output into {opposition_detected, frames, claims}.
+    """Parse YAML or JSON output into {opposition_detected, frames, claims}.
 
     Strict: any of the three keys missing → that field is None. The
     driver treats any None as a parse failure (no silent crediting).
+
+    JSON path: responses produced by `infer.py --structured` (Pydantic
+    response_format) are pure JSON like
+    `{"opposition_detected":true,"frames":[...],"claims":[...]}`. We try
+    JSON first (cheap), fall through to YAML.
     """
-    block = _extract_yaml_block(response)
     parsed: dict = {"opposition_detected": None, "frames": None, "claims": None}
+    if not isinstance(response, str):
+        return parsed
+
+    # Structured (JSON) path
+    s = response.strip()
+    if s.startswith("{"):
+        try:
+            obj = json.loads(s)
+            if isinstance(obj, dict) and "opposition_detected" in obj:
+                parsed["opposition_detected"] = bool(obj["opposition_detected"])
+                fr = obj.get("frames")
+                cl = obj.get("claims")
+                parsed["frames"] = list(fr) if isinstance(fr, list) else None
+                parsed["claims"] = list(cl) if isinstance(cl, list) else None
+                return parsed
+        except json.JSONDecodeError:
+            pass  # fall through to YAML
+
+    # YAML path (legacy / unstructured runs)
+    block = _extract_yaml_block(response)
     if not block:
         return parsed
 
@@ -81,6 +105,15 @@ def parse_response(response: str) -> dict:
 
     parsed["frames"] = _extract_list(block, "frames")
     parsed["claims"] = _extract_list(block, "claims")
+
+    # Charitable fallback: if the model emitted valid frames/claims but
+    # forgot the explicit `opposition_detected: true/false` line, infer
+    # the boolean from list contents. Common with base models that follow
+    # the reasoning structure but skip the boolean header.
+    if (parsed["opposition_detected"] is None
+            and parsed["frames"] is not None
+            and parsed["claims"] is not None):
+        parsed["opposition_detected"] = bool(parsed["frames"] or parsed["claims"])
     return parsed
 
 

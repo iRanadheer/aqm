@@ -7,6 +7,7 @@
 #   "transformers>=5.2.0",
 #   "huggingface_hub[hf_transfer]",
 #   "flash-linear-attention",
+#   "triton<3.4",  # Hopper backward path is incorrect on >=3.4 (FLA #640); pre-3.4 is correct
 #   "tensorboard",
 # ]
 #
@@ -62,6 +63,11 @@ ap.add_argument("--variant", default=None,
                 help="Override variant name (default: derived from model + flags)")
 ap.add_argument("--epochs", type=int, default=3)
 ap.add_argument("--lr", type=float, default=2e-4)
+ap.add_argument("--lora-rank", type=int, default=16,
+                help="LoRA rank r. Effective update scale is alpha/r.")
+ap.add_argument("--lora-alpha", type=int, default=16,
+                help="LoRA alpha. Lower = less perturbation of the base prior "
+                     "(useful for strong-base scales where vanilla SFT regresses).")
 args = ap.parse_args()
 
 
@@ -113,9 +119,9 @@ hf_token = os.environ.get("HF_TOKEN")
 if hf_token:
     login(token=hf_token)
 
+from unsloth import FastLanguageModel  # must precede trl/transformers/peft
 from datasets import concatenate_datasets, load_dataset
 from trl import SFTConfig, SFTTrainer
-from unsloth import FastLanguageModel
 
 
 # ---------------------------------------------------------------------------
@@ -134,8 +140,8 @@ model, tokenizer = FastLanguageModel.from_pretrained(
 )
 model = FastLanguageModel.get_peft_model(
     model,
-    r=16,
-    lora_alpha=16,
+    r=args.lora_rank,
+    lora_alpha=args.lora_alpha,
     lora_dropout=0,
     bias="none",
     target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
@@ -171,10 +177,14 @@ print(f"  train: {len(train_ds)}, eval: {len(eval_ds)}")
 
 
 def apply_template(examples):
+    # enable_thinking matches the variant: True for RECoT (target includes
+    # <think>...</think>), False for no-RECoT (target is YAML only — no
+    # auto-injected <think>\n means train and inference are aligned).
     out = []
     for msgs in examples["messages"]:
         text = tokenizer.apply_chat_template(
-            msgs, tokenize=False, add_generation_prompt=False, enable_thinking=True,
+            msgs, tokenize=False, add_generation_prompt=False,
+            enable_thinking=args.recot,
         )
         if tokenizer.bos_token and text.startswith(tokenizer.bos_token):
             text = text[len(tokenizer.bos_token):]
@@ -193,12 +203,21 @@ print(f"  sample: {train_ds[0]['text'][:200]}...")
 # ---------------------------------------------------------------------------
 print("\n[3/5] Configuring trainer ...")
 
+# Multimodal Qwen ships a Processor (not a Tokenizer); unwrap to the inner
+# text tokenizer for fields TRL reads directly. TRL >=0.18 defaults
+# SFTConfig.eos_token to a literal "<EOS_TOKEN>" sentinel that fails on
+# any processor whose vocab doesn't contain that string — pass the real
+# EOS explicitly to bypass it.
+text_tok = tokenizer if hasattr(tokenizer, "encode") else tokenizer.tokenizer
+eos_token = text_tok.eos_token
+
 config = SFTConfig(
     output_dir=OUTPUT_DIR,
     dataset_text_field="text",
     push_to_hub=True,
     hub_model_id=LORA_REPO,
     hub_private_repo=False,
+    eos_token=eos_token,
 
     num_train_epochs=args.epochs,
     per_device_train_batch_size=1,
@@ -230,7 +249,7 @@ config = SFTConfig(
 
 trainer = SFTTrainer(
     model=model,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     train_dataset=train_ds,
     eval_dataset=eval_ds,
     args=config,

@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["openai", "tenacity", "tqdm", "pandas", "python-dotenv"]
+# dependencies = ["openai", "tenacity", "tqdm", "pandas", "python-dotenv", "pydantic>=2"]
 # ///
 """Run a chat-completion model on a benchmark jsonl and save responses.
 
@@ -23,8 +23,20 @@ from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel, Field
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
+
+
+class WindOutput(BaseModel):
+    """Structured output for wind opposition classification.
+
+    Frames are N_* codes (e.g. N_1, N_2). Claims are C_*_* codes (e.g. C_1_1).
+    Both lists are empty when opposition_detected=False.
+    """
+    opposition_detected: bool
+    frames: list[str] = Field(default_factory=list)
+    claims: list[str] = Field(default_factory=list)
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -48,6 +60,11 @@ ap.add_argument("--prompt", choices=list(PROMPT_VARIANTS), default="slim")
 ap.add_argument("--max-workers", type=int, default=40)
 ap.add_argument("--max-tokens", type=int, default=1500)
 ap.add_argument("--limit", type=int, default=None, help="Only process first N rows")
+ap.add_argument("--no-think", dest="think", action="store_false", default=True,
+                help="Disable Qwen3 thinking-mode at inference (chat_template_kwargs.enable_thinking=False).")
+ap.add_argument("--structured", action="store_true",
+                help="Constrain output to the WindOutput Pydantic schema via "
+                     "client.beta.chat.completions.parse(). Bypasses YAML parsing.")
 args = ap.parse_args()
 
 load_dotenv(ROOT / ".env")
@@ -85,7 +102,7 @@ system_content = [{
        wait=wait_exponential(multiplier=5, min=5, max=60),
        retry=retry_if_exception_type(Exception))
 def query(text: str) -> str:
-    resp = client.chat.completions.create(
+    kwargs = dict(
         model=args.model,
         messages=[
             {"role": "system", "content": system_content},
@@ -94,6 +111,20 @@ def query(text: str) -> str:
         temperature=0,
         max_tokens=args.max_tokens,
     )
+    if not args.think:
+        kwargs.setdefault("extra_body", {})["chat_template_kwargs"] = {"enable_thinking": False}
+    if args.structured:
+        # parse() returns the Pydantic instance via message.parsed; serialize
+        # to JSON so the stored response stays a string for downstream tools.
+        completion = client.chat.completions.parse(
+            response_format=WindOutput,
+            **kwargs,
+        )
+        msg = completion.choices[0].message
+        if msg.parsed is not None:
+            return msg.parsed.model_dump_json()
+        return msg.refusal or msg.content or ""
+    resp = client.chat.completions.create(**kwargs)
     return resp.choices[0].message.content
 
 
@@ -124,7 +155,7 @@ with ThreadPoolExecutor(max_workers=args.max_workers) as pool:
 output_path.parent.mkdir(parents=True, exist_ok=True)
 with open(output_path, "w") as f:
     for r in results:
-        f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        f.write(json.dumps(r, ensure_ascii=False, default=str) + "\n")
 
 ok = sum(1 for r in results if r and not str(r["response"]).startswith("ERROR:"))
 err = len(results) - ok

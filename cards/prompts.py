@@ -22,12 +22,7 @@ slim_codebook = "\n".join(_slim_codebook_list)
 # System instructions (pre-formatted with codebook, ready to use)
 # ---------------------------------------------------------------------------
 
-_instruction_template = """You are an expert in climate communication. Your task is to classify the given text into categories based on the provided codebook. This is a multi-label classification task.
-
-### CODEBOOK:
-{codebook}
-
-### INSTRUCTIONS:
+_INSTRUCTIONS_BODY = """### INSTRUCTIONS:
 
 1. **Hierarchical Classification**:
    - The codebook is hierarchical. Superclaims end with `_0_0`, subclaims end with `_0`.
@@ -57,8 +52,9 @@ _instruction_template = """You are an expert in climate communication. Your task
    - Global cooling / natural variation: also check natural drivers (2_1_0, 2_1_1, 2_1_3).
    - Renewable energy feasibility: check both 4_2_7_2 and 7_3_0.
    - Fossil fuel benefits: check all 7_X_X claims.
+"""
 
-### OUTPUT FORMAT:
+_OUTPUT_FORMAT_RECOT = """### OUTPUT FORMAT:
 Reason inside <think> tags following this structure, then output YAML:
 
 <think>
@@ -77,8 +73,31 @@ STRICT RULES:
 - Be concise. VERIFY entries must be one line each.
 """
 
-system_instruction = _instruction_template.format(codebook=codebook)
-slim_system_instruction = _instruction_template.format(codebook=slim_codebook)
+_OUTPUT_FORMAT_NORECOT = """### OUTPUT FORMAT:
+Output only a YAML block listing the categories. No reasoning, no commentary, no other text.
+
+```yaml
+categories:
+  - <category_code>
+```
+"""
+
+_HEADER = """You are an expert in climate communication. Your task is to classify the given text into categories based on the provided codebook. This is a multi-label classification task.
+
+### CODEBOOK:
+{codebook}
+
+"""
+
+
+def _build(codebook_str: str, output_format: str) -> str:
+    return _HEADER.format(codebook=codebook_str) + _INSTRUCTIONS_BODY + "\n" + output_format
+
+
+system_instruction         = _build(codebook,      _OUTPUT_FORMAT_RECOT)
+system_instruction_norecot = _build(codebook,      _OUTPUT_FORMAT_NORECOT)
+slim_system_instruction         = _build(slim_codebook, _OUTPUT_FORMAT_RECOT)
+slim_system_instruction_norecot = _build(slim_codebook, _OUTPUT_FORMAT_NORECOT)
 
 # ---------------------------------------------------------------------------
 # Triggers (final user messages)
