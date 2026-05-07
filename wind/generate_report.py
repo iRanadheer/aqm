@@ -15,6 +15,37 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 REPO_ROOT = Path(__file__).resolve().parent
 
+# Lazy-loaded codebook sets — populated on first use to avoid importing
+# `prompts` at module load time (keeps tests/imports fast).
+_VALID_FRAMES: set[str] | None = None
+_VALID_CLAIMS: set[str] | None = None
+
+
+def _load_codebook() -> tuple[set[str], set[str]]:
+    global _VALID_FRAMES, _VALID_CLAIMS
+    if _VALID_FRAMES is None or _VALID_CLAIMS is None:
+        import sys
+        sys.path.insert(0, str(REPO_ROOT))
+        from prompts import slim_frames_codebook, slim_claims_codebook  # noqa: E402
+        _VALID_FRAMES = set(re.findall(r"<(N_\d+)>", slim_frames_codebook))
+        _VALID_CLAIMS = set(re.findall(r"<(C_\d+(?:_\d+)?)>", slim_claims_codebook))
+    return _VALID_FRAMES, _VALID_CLAIMS
+
+
+def _normalize_code(code: str, valid: set[str]) -> str:
+    """Charitably promote a missing `_0` subindex to the canonical form.
+
+    Only rewrites `X_N` → `X_N_0` when the canonical parent exists in the
+    codebook (e.g. `C_14` → `C_14_0`). Garbage like `C_149_1` is returned
+    unchanged so it stays as a wrong prediction and penalizes the model.
+    """
+    if code in valid:
+        return code
+    candidate = f"{code}_0"
+    if candidate in valid:
+        return candidate
+    return code
+
 
 # ---------------------------------------------------------------------------
 # Response parsing
@@ -81,6 +112,7 @@ def parse_response(response: str) -> dict:
 
     # Structured (JSON) path
     s = response.strip()
+    json_handled = False
     if s.startswith("{"):
         try:
             obj = json.loads(s)
@@ -90,30 +122,45 @@ def parse_response(response: str) -> dict:
                 cl = obj.get("claims")
                 parsed["frames"] = list(fr) if isinstance(fr, list) else None
                 parsed["claims"] = list(cl) if isinstance(cl, list) else None
-                return parsed
+                json_handled = True
         except json.JSONDecodeError:
             pass  # fall through to YAML
 
-    # YAML path (legacy / unstructured runs)
-    block = _extract_yaml_block(response)
-    if not block:
-        return parsed
+    if not json_handled:
+        # YAML path (legacy / unstructured runs)
+        block = _extract_yaml_block(response)
+        if block:
+            m = re.search(r"opposition_detected\s*:\s*(\w+)", block, re.IGNORECASE)
+            if m:
+                parsed["opposition_detected"] = m.group(1).lower() == "true"
+            parsed["frames"] = _extract_list(block, "frames")
+            parsed["claims"] = _extract_list(block, "claims")
 
-    m = re.search(r"opposition_detected\s*:\s*(\w+)", block, re.IGNORECASE)
-    if m:
-        parsed["opposition_detected"] = m.group(1).lower() == "true"
+            # Charitable fallback: if the model emitted valid frames/claims but
+            # forgot the explicit `opposition_detected: true/false` line, infer
+            # the boolean from list contents.
+            if (parsed["opposition_detected"] is None
+                    and parsed["frames"] is not None
+                    and parsed["claims"] is not None):
+                parsed["opposition_detected"] = bool(parsed["frames"] or parsed["claims"])
 
-    parsed["frames"] = _extract_list(block, "frames")
-    parsed["claims"] = _extract_list(block, "claims")
-
-    # Charitable fallback: if the model emitted valid frames/claims but
-    # forgot the explicit `opposition_detected: true/false` line, infer
-    # the boolean from list contents. Common with base models that follow
-    # the reasoning structure but skip the boolean header.
-    if (parsed["opposition_detected"] is None
-            and parsed["frames"] is not None
-            and parsed["claims"] is not None):
-        parsed["opposition_detected"] = bool(parsed["frames"] or parsed["claims"])
+    # Charitable subindex completion: C_14 → C_14_0 when the parent exists.
+    # Garbage codes (C_149_1, N_28_5) are left as-is so they never match
+    # gold and correctly penalize the model.
+    valid_frames, valid_claims = _load_codebook()
+    def _norm_dedupe(codes: list[str], valid: set[str]) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        for c in codes:
+            n = _normalize_code(c, valid)
+            if n not in seen:
+                seen.add(n)
+                out.append(n)
+        return out
+    if parsed["frames"] is not None:
+        parsed["frames"] = _norm_dedupe(parsed["frames"], valid_frames)
+    if parsed["claims"] is not None:
+        parsed["claims"] = _norm_dedupe(parsed["claims"], valid_claims)
     return parsed
 
 
