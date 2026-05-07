@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["openai", "tenacity", "tqdm", "pandas", "python-dotenv", "pydantic>=2"]
+# dependencies = ["openai", "tenacity", "tqdm", "pandas", "python-dotenv", "pydantic>=2", "transformers"]
 # ///
 """Run a chat-completion model on a benchmark jsonl and save responses.
 
@@ -60,6 +60,9 @@ ap.add_argument("--prompt", choices=list(PROMPT_VARIANTS), default="slim")
 ap.add_argument("--max-workers", type=int, default=40)
 ap.add_argument("--max-tokens", type=int, default=1500)
 ap.add_argument("--limit", type=int, default=None, help="Only process first N rows")
+ap.add_argument("--max-input-tokens", type=int, default=None,
+                help="Truncate user content to N tokens (using the model's "
+                     "own HuggingFace tokenizer). Off by default.")
 ap.add_argument("--no-think", dest="think", action="store_false", default=True,
                 help="Disable Qwen3 thinking-mode at inference (chat_template_kwargs.enable_thinking=False).")
 ap.add_argument("--structured", action="store_true",
@@ -128,10 +131,24 @@ def query(text: str) -> str:
     return resp.choices[0].message.content
 
 
+if args.max_input_tokens:
+    from transformers import AutoTokenizer
+    _tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+
+    def _truncate(text: str) -> str:
+        ids = _tok.encode(text, add_special_tokens=False)
+        if len(ids) <= args.max_input_tokens:
+            return text
+        return _tok.decode(ids[: args.max_input_tokens], skip_special_tokens=True)
+else:
+    def _truncate(text: str) -> str:
+        return text
+
+
 def process(row: dict) -> dict:
     out = dict(row)
     try:
-        out["response"] = query(row["content"])
+        out["response"] = query(_truncate(row["content"]))
     except Exception as e:
         out["response"] = f"ERROR: {e}"
     return out
@@ -141,22 +158,48 @@ df = pd.read_json(input_path, lines=True).reset_index(drop=True)
 if args.limit:
     df = df.head(args.limit)
 
+# Resume support: stable per-row key. Prefer `url`, fall back to row index.
+KEY = "url" if "url" in df.columns else None
+def row_key(row: dict, idx: int):
+    return row[KEY] if KEY and row.get(KEY) else f"#{idx}"
+
+output_path.parent.mkdir(parents=True, exist_ok=True)
+done_keys: set = set()
+if output_path.exists():
+    with open(output_path) as f:
+        for ln in f:
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                r = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            if KEY and r.get(KEY):
+                done_keys.add(r[KEY])
+
 print(f"Backend: {args.backend} ({base_url})")
 print(f"Model:   {args.model}  prompt={args.prompt}")
 print(f"Input:   {input_path}  ({len(df)} rows)")
-print(f"Output:  {output_path}")
+print(f"Output:  {output_path} (resuming, {len(done_keys)} already done)")
 
-results: list[dict | None] = [None] * len(df)
-with ThreadPoolExecutor(max_workers=args.max_workers) as pool:
-    futs = {pool.submit(process, row.to_dict()): i for i, row in df.iterrows()}
+todo = [(i, row.to_dict()) for i, row in df.iterrows()
+        if row_key(row.to_dict(), i) not in done_keys]
+print(f"Todo:    {len(todo)} rows")
+
+import threading
+write_lock = threading.Lock()
+ok = err = 0
+with open(output_path, "a", buffering=1) as f, \
+     ThreadPoolExecutor(max_workers=args.max_workers) as pool:
+    futs = {pool.submit(process, row): i for i, row in todo}
     for fut in tqdm(as_completed(futs), total=len(futs), desc=slug):
-        results[futs[fut]] = fut.result()
+        r = fut.result()
+        with write_lock:
+            f.write(json.dumps(r, ensure_ascii=False, default=str) + "\n")
+        if not str(r["response"]).startswith("ERROR:"):
+            ok += 1
+        else:
+            err += 1
 
-output_path.parent.mkdir(parents=True, exist_ok=True)
-with open(output_path, "w") as f:
-    for r in results:
-        f.write(json.dumps(r, ensure_ascii=False, default=str) + "\n")
-
-ok = sum(1 for r in results if r and not str(r["response"]).startswith("ERROR:"))
-err = len(results) - ok
-print(f"\nDone. ok={ok}, errors={err}")
+print(f"\nDone this run. ok={ok}, errors={err}")
