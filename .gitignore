@@ -10,6 +10,7 @@ __pycache__/
 .archives/
 unsloth_compiled_cache/
 
+kb_combined.jsonl
 oss/
 predictions/
 archive_ft/

@@ -213,6 +213,62 @@
         "TRUE->TRUE": 11
       }
     },
+    "GPT-4o-mini offline": {
+      "n_rows": 160,
+      "evaluated": 160,
+      "api_errors": 0,
+      "parse_failures": 0,
+      "oov": 0,
+      "mcc": 0.352,
+      "accuracy": 0.688,
+      "baseline_acc": 0.775,
+      "baseline_label": "FALSE",
+      "macro_f1_present": 0.62,
+      "per_class": {
+        "TRUE": {
+          "precision": 1.0,
+          "recall": 0.571,
+          "f1": 0.727,
+          "support": 14
+        },
+        "MISLEADING": {
+          "precision": 0.239,
+          "recall": 0.5,
+          "f1": 0.324,
+          "support": 22
+        },
+        "FALSE": {
+          "precision": 0.901,
+          "recall": 0.734,
+          "f1": 0.809,
+          "support": 124
+        },
+        "UNVERIFIABLE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        }
+      },
+      "raw_pred_counts": {
+        "MISLEADING": 46,
+        "FALSE": 101,
+        "TRUE": 8,
+        "UNVERIFIABLE": 5
+      },
+      "confusion": {
+        "FALSE->FALSE": 91,
+        "FALSE->MISLEADING": 31,
+        "FALSE->UNVERIFIABLE": 2,
+        "MISLEADING->FALSE": 9,
+        "MISLEADING->MISLEADING": 11,
+        "MISLEADING->UNVERIFIABLE": 2,
+        "TRUE->FALSE": 1,
+        "TRUE->MISLEADING": 4,
+        "TRUE->TRUE": 8,
+        "TRUE->UNVERIFIABLE": 1
+      }
+    },
     "GPT-5.5 online": {
       "n_rows": 160,
       "evaluated": 160,
@@ -1901,6 +1957,401 @@
             "CREDIBLE->NOT CREDIBLE": 1,
             "NOT CREDIBLE->CREDIBLE": 1,
             "NOT CREDIBLE->NOT CREDIBLE": 145
+          }
+        }
+      }
+    },
+    "GPT-4o-mini offline": {
+      "n_rows": 160,
+      "evaluated": 160,
+      "api_errors": 0,
+      "parse_failures": 0,
+      "oov": 0,
+      "mcc": 0.061,
+      "accuracy": 0.225,
+      "baseline_acc": 0.35,
+      "baseline_label": "INACCURATE",
+      "macro_f1_present": 0.1,
+      "per_class": {
+        "CORRECT": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "ACCURATE": {
+          "precision": 0.5,
+          "recall": 0.4,
+          "f1": 0.444,
+          "support": 5
+        },
+        "MOSTLY CORRECT": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 3
+        },
+        "MOSTLY ACCURATE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 3
+        },
+        "CORRECT BUT": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        },
+        "IMPRECISE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "LACKS CONTEXT": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "UNSUPPORTED": {
+          "precision": 0.2,
+          "recall": 0.1,
+          "f1": 0.133,
+          "support": 10
+        },
+        "MISLEADING": {
+          "precision": 0.138,
+          "recall": 0.562,
+          "f1": 0.222,
+          "support": 16
+        },
+        "INCORRECT": {
+          "precision": 0.348,
+          "recall": 0.471,
+          "f1": 0.4,
+          "support": 51
+        },
+        "INACCURATE": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 56
+        },
+        "FLAWED REASONING": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 9
+        }
+      },
+      "raw_pred_counts": {
+        "INCORRECT": 69,
+        "UNSUPPORTED": 5,
+        "MISLEADING": 65,
+        "MOSTLY CORRECT": 8,
+        "LACKS CONTEXT": 4,
+        "ACCURATE": 4,
+        "CORRECT": 2,
+        "MOSTLY ACCURATE": 3
+      },
+      "confusion": {
+        "ACCURATE->ACCURATE": 2,
+        "ACCURATE->CORRECT": 1,
+        "ACCURATE->MOSTLY CORRECT": 2,
+        "CORRECT->MISLEADING": 1,
+        "CORRECT->MOSTLY CORRECT": 1,
+        "CORRECT BUT->MOSTLY CORRECT": 1,
+        "FLAWED REASONING->INCORRECT": 3,
+        "FLAWED REASONING->MISLEADING": 6,
+        "IMPRECISE->INCORRECT": 1,
+        "IMPRECISE->MOSTLY CORRECT": 1,
+        "INACCURATE->INCORRECT": 30,
+        "INACCURATE->LACKS CONTEXT": 3,
+        "INACCURATE->MISLEADING": 20,
+        "INACCURATE->MOSTLY ACCURATE": 1,
+        "INACCURATE->UNSUPPORTED": 2,
+        "INCORRECT->INCORRECT": 24,
+        "INCORRECT->MISLEADING": 24,
+        "INCORRECT->MOSTLY ACCURATE": 1,
+        "INCORRECT->UNSUPPORTED": 2,
+        "LACKS CONTEXT->MISLEADING": 2,
+        "MISLEADING->INCORRECT": 4,
+        "MISLEADING->LACKS CONTEXT": 1,
+        "MISLEADING->MISLEADING": 9,
+        "MISLEADING->MOSTLY ACCURATE": 1,
+        "MISLEADING->MOSTLY CORRECT": 1,
+        "MOSTLY ACCURATE->ACCURATE": 1,
+        "MOSTLY ACCURATE->CORRECT": 1,
+        "MOSTLY ACCURATE->MOSTLY CORRECT": 1,
+        "MOSTLY CORRECT->ACCURATE": 1,
+        "MOSTLY CORRECT->INCORRECT": 1,
+        "MOSTLY CORRECT->MISLEADING": 1,
+        "UNSUPPORTED->INCORRECT": 6,
+        "UNSUPPORTED->MISLEADING": 2,
+        "UNSUPPORTED->MOSTLY CORRECT": 1,
+        "UNSUPPORTED->UNSUPPORTED": 1
+      },
+      "levels": {
+        "1": {
+          "n_rows": 160,
+          "evaluated": 160,
+          "api_errors": 0,
+          "parse_failures": 0,
+          "oov": 0,
+          "mcc": 0.061,
+          "accuracy": 0.225,
+          "baseline_acc": 0.35,
+          "baseline_label": "INACCURATE",
+          "macro_f1_present": 0.1,
+          "per_class": {
+            "CORRECT": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "ACCURATE": {
+              "precision": 0.5,
+              "recall": 0.4,
+              "f1": 0.444,
+              "support": 5
+            },
+            "MOSTLY CORRECT": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "MOSTLY ACCURATE": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 3
+            },
+            "CORRECT BUT": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 1
+            },
+            "IMPRECISE": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "LACKS CONTEXT": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "UNSUPPORTED": {
+              "precision": 0.2,
+              "recall": 0.1,
+              "f1": 0.133,
+              "support": 10
+            },
+            "MISLEADING": {
+              "precision": 0.138,
+              "recall": 0.562,
+              "f1": 0.222,
+              "support": 16
+            },
+            "INCORRECT": {
+              "precision": 0.348,
+              "recall": 0.471,
+              "f1": 0.4,
+              "support": 51
+            },
+            "INACCURATE": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 56
+            },
+            "FLAWED REASONING": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 9
+            }
+          },
+          "confusion": {
+            "ACCURATE->ACCURATE": 2,
+            "ACCURATE->CORRECT": 1,
+            "ACCURATE->MOSTLY CORRECT": 2,
+            "CORRECT->MISLEADING": 1,
+            "CORRECT->MOSTLY CORRECT": 1,
+            "CORRECT BUT->MOSTLY CORRECT": 1,
+            "FLAWED REASONING->INCORRECT": 3,
+            "FLAWED REASONING->MISLEADING": 6,
+            "IMPRECISE->INCORRECT": 1,
+            "IMPRECISE->MOSTLY CORRECT": 1,
+            "INACCURATE->INCORRECT": 30,
+            "INACCURATE->LACKS CONTEXT": 3,
+            "INACCURATE->MISLEADING": 20,
+            "INACCURATE->MOSTLY ACCURATE": 1,
+            "INACCURATE->UNSUPPORTED": 2,
+            "INCORRECT->INCORRECT": 24,
+            "INCORRECT->MISLEADING": 24,
+            "INCORRECT->MOSTLY ACCURATE": 1,
+            "INCORRECT->UNSUPPORTED": 2,
+            "LACKS CONTEXT->MISLEADING": 2,
+            "MISLEADING->INCORRECT": 4,
+            "MISLEADING->LACKS CONTEXT": 1,
+            "MISLEADING->MISLEADING": 9,
+            "MISLEADING->MOSTLY ACCURATE": 1,
+            "MISLEADING->MOSTLY CORRECT": 1,
+            "MOSTLY ACCURATE->ACCURATE": 1,
+            "MOSTLY ACCURATE->CORRECT": 1,
+            "MOSTLY ACCURATE->MOSTLY CORRECT": 1,
+            "MOSTLY CORRECT->ACCURATE": 1,
+            "MOSTLY CORRECT->INCORRECT": 1,
+            "MOSTLY CORRECT->MISLEADING": 1,
+            "UNSUPPORTED->INCORRECT": 6,
+            "UNSUPPORTED->MISLEADING": 2,
+            "UNSUPPORTED->MOSTLY CORRECT": 1,
+            "UNSUPPORTED->UNSUPPORTED": 1
+          }
+        },
+        "2": {
+          "n_rows": 160,
+          "evaluated": 160,
+          "api_errors": 0,
+          "parse_failures": 0,
+          "oov": 0,
+          "mcc": 0.141,
+          "accuracy": 0.463,
+          "baseline_acc": 0.725,
+          "baseline_label": "VERY LOW CREDIBILITY",
+          "macro_f1_present": 0.31,
+          "per_class": {
+            "VERY HIGH CREDIBILITY": {
+              "precision": 0.5,
+              "recall": 0.429,
+              "f1": 0.462,
+              "support": 7
+            },
+            "HIGH CREDIBILITY": {
+              "precision": 0.182,
+              "recall": 0.286,
+              "f1": 0.222,
+              "support": 7
+            },
+            "NEUTRAL CREDIBILITY": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 4
+            },
+            "LOW CREDIBILITY": {
+              "precision": 0.171,
+              "recall": 0.462,
+              "f1": 0.25,
+              "support": 26
+            },
+            "VERY LOW CREDIBILITY": {
+              "precision": 0.826,
+              "recall": 0.491,
+              "f1": 0.616,
+              "support": 116
+            }
+          },
+          "confusion": {
+            "HIGH CREDIBILITY->HIGH CREDIBILITY": 2,
+            "HIGH CREDIBILITY->LOW CREDIBILITY": 1,
+            "HIGH CREDIBILITY->VERY HIGH CREDIBILITY": 3,
+            "HIGH CREDIBILITY->VERY LOW CREDIBILITY": 1,
+            "LOW CREDIBILITY->HIGH CREDIBILITY": 3,
+            "LOW CREDIBILITY->LOW CREDIBILITY": 12,
+            "LOW CREDIBILITY->NEUTRAL CREDIBILITY": 1,
+            "LOW CREDIBILITY->VERY LOW CREDIBILITY": 10,
+            "NEUTRAL CREDIBILITY->HIGH CREDIBILITY": 1,
+            "NEUTRAL CREDIBILITY->LOW CREDIBILITY": 2,
+            "NEUTRAL CREDIBILITY->VERY LOW CREDIBILITY": 1,
+            "VERY HIGH CREDIBILITY->HIGH CREDIBILITY": 3,
+            "VERY HIGH CREDIBILITY->LOW CREDIBILITY": 1,
+            "VERY HIGH CREDIBILITY->VERY HIGH CREDIBILITY": 3,
+            "VERY LOW CREDIBILITY->HIGH CREDIBILITY": 2,
+            "VERY LOW CREDIBILITY->LOW CREDIBILITY": 54,
+            "VERY LOW CREDIBILITY->NEUTRAL CREDIBILITY": 3,
+            "VERY LOW CREDIBILITY->VERY LOW CREDIBILITY": 57
+          }
+        },
+        "3": {
+          "n_rows": 160,
+          "evaluated": 160,
+          "api_errors": 0,
+          "parse_failures": 0,
+          "oov": 0,
+          "mcc": 0.546,
+          "accuracy": 0.9,
+          "baseline_acc": 0.887,
+          "baseline_label": "LOW CREDIBILITY",
+          "macro_f1_present": 0.552,
+          "per_class": {
+            "HIGH CREDIBILITY": {
+              "precision": 0.647,
+              "recall": 0.786,
+              "f1": 0.71,
+              "support": 14
+            },
+            "MODERATE CREDIBILITY": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 4
+            },
+            "LOW CREDIBILITY": {
+              "precision": 0.957,
+              "recall": 0.937,
+              "f1": 0.947,
+              "support": 142
+            }
+          },
+          "confusion": {
+            "HIGH CREDIBILITY->HIGH CREDIBILITY": 11,
+            "HIGH CREDIBILITY->LOW CREDIBILITY": 3,
+            "LOW CREDIBILITY->HIGH CREDIBILITY": 5,
+            "LOW CREDIBILITY->LOW CREDIBILITY": 133,
+            "LOW CREDIBILITY->MODERATE CREDIBILITY": 4,
+            "MODERATE CREDIBILITY->HIGH CREDIBILITY": 1,
+            "MODERATE CREDIBILITY->LOW CREDIBILITY": 3
+          }
+        },
+        "4": {
+          "n_rows": 160,
+          "evaluated": 160,
+          "api_errors": 0,
+          "parse_failures": 0,
+          "oov": 0,
+          "mcc": 0.683,
+          "accuracy": 0.944,
+          "baseline_acc": 0.912,
+          "baseline_label": "NOT CREDIBLE",
+          "macro_f1_present": 0.839,
+          "per_class": {
+            "CREDIBLE": {
+              "precision": 0.647,
+              "recall": 0.786,
+              "f1": 0.71,
+              "support": 14
+            },
+            "NOT CREDIBLE": {
+              "precision": 0.979,
+              "recall": 0.959,
+              "f1": 0.969,
+              "support": 146
+            }
+          },
+          "confusion": {
+            "CREDIBLE->CREDIBLE": 11,
+            "CREDIBLE->NOT CREDIBLE": 3,
+            "NOT CREDIBLE->CREDIBLE": 6,
+            "NOT CREDIBLE->NOT CREDIBLE": 140
           }
         }
       }

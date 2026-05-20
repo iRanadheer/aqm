@@ -46,6 +46,7 @@ MODELS: list[tuple[str, str]] = [
     ("Claude Haiku 4.5 online",      "anthropic-claude-haiku-4-5-online"),
     ("Claude Opus 4.7 online",       "anthropic-claude-opus-4-7-online"),
     ("Claude Opus 4.7 offline",      "anthropic-claude-opus-4-7"),
+    ("GPT-4o-mini offline",          "openai-gpt-4o-mini"),
     ("GPT-5.4-mini online",          "openai-gpt-5-4-mini-online"),
     ("GPT-5.5 online",               "openai-gpt-5-5-online"),
     ("GPT-5.5 offline",              "openai-gpt-5-5"),
