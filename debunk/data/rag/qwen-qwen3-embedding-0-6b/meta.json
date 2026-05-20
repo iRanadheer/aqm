@@ -1,0 +1,7 @@
+{
+  "embedder": "Qwen/Qwen3-Embedding-0.6B",
+  "dim": 1024,
+  "count": 171668,
+  "max_seq": 2048,
+  "built_at": "2026-05-20T20:28:13"
+}

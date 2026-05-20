@@ -1,3 +1,4 @@
+# Core
 pandas>=2.0.0
 python-dotenv>=1.0.0
 scikit-learn>=1.3.0
@@ -5,3 +6,11 @@ openai
 tenacity
 tqdm
 transformers
+pydantic>=2.0
+matplotlib>=3.7
+
+# RAG pipeline (debunk/rag/)
+tiktoken>=0.7              # chunk-length budgeting against the o200k tokenizer
+sentence-transformers>=3   # local embedder + cross-encoder reranker
+faiss-cpu>=1.8             # dense vector index (CPU at serve; one-time build on GPU box)
+rank-bm25>=0.2.2           # sparse / lexical retrieval
