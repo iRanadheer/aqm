@@ -1,0 +1,7 @@
+{
+  "embedder": "perplexity-ai/pplx-embed-context-v1-0.6b",
+  "dim": 1024,
+  "count": 65953,
+  "max_seq": 2048,
+  "built_at": "2026-05-21T17:46:07"
+}

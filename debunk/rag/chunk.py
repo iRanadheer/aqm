@@ -76,12 +76,11 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None,
                     help="Process only the first N documents (debugging).")
     ap.add_argument("--exclude-source", action="append",
-                    default=["science_feedback_org"],
+                    default=["science_feedback_org", "snopes_com"],
                     help="Drop documents whose `source` field matches. "
-                         "Repeatable. Default: science_feedback_org — that's "
-                         "where Climate Feedback's gold-label reviews come "
-                         "from, so leaving it in is data leakage for this "
-                         "benchmark.")
+                         "Repeatable. Defaults: science_feedback_org (gold-"
+                         "label leakage) and snopes_com (general fact-check, "
+                         "most non-climate, ~63%% of the corpus by count).")
     args = ap.parse_args()
     excluded = set(args.exclude_source)
 

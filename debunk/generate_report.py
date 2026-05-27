@@ -46,15 +46,35 @@ MODELS: list[tuple[str, str]] = [
     ("Claude Haiku 4.5 online",      "anthropic-claude-haiku-4-5-online"),
     ("Claude Opus 4.7 online",       "anthropic-claude-opus-4-7-online"),
     ("Claude Opus 4.7 offline",      "anthropic-claude-opus-4-7"),
+    ("Claude Opus 4.7 + RAG (pplx-ctx)", "anthropic-claude-opus-4-7-rag-pplx-ctx"),
     ("GPT-4o-mini offline",          "openai-gpt-4o-mini"),
-    ("GPT-4o-mini + RAG",            "openai-gpt-4o-mini-rag"),
+    ("GPT-4o-mini + RAG (Qwen)",     "openai-gpt-4o-mini-rag-qwen"),
+    ("GPT-4o-mini + RAG (pplx-ctx)", "openai-gpt-4o-mini-rag-pplx-ctx"),
     ("GPT-4o-mini + Exa evidence",   "openai-gpt-4o-mini-exa"),
+    ("DeepSeek V4 Flash offline",    "deepseek-deepseek-v4-flash"),
+    ("DeepSeek V4 Flash + RAG (pplx-ctx)", "deepseek-deepseek-v4-flash-rag-pplx-ctx"),
+    ("DeepSeek V4 Pro offline",      "deepseek-deepseek-v4-pro"),
+    ("DeepSeek V4 Pro + RAG (pplx-ctx)",   "deepseek-deepseek-v4-pro-rag-pplx-ctx"),
     ("GPT-5.4-mini online",          "openai-gpt-5-4-mini-online"),
     ("GPT-5.5 online",               "openai-gpt-5-5-online"),
     ("GPT-5.5 offline",              "openai-gpt-5-5"),
+    ("GPT-5.5 + RAG (pplx-ctx)",     "openai-gpt-5-5-rag-pplx-ctx"),
     ("Gemini 3.1 Flash-Lite online", "google-gemini-3-1-flash-lite-online"),
     ("Gemini 3.1 Pro online",        "google-gemini-3-1-pro-preview-online"),
     ("Exa Answer",                   "exa"),
+    ("Qwen3.5-4B offline",           "qwen-qwen3-5-4b"),
+    ("Qwen3.5-4B + RAG (pplx-ctx)",  "qwen-qwen3-5-4b-rag-pplx-ctx"),
+    ("Qwen3.5-9B offline",           "qwen-qwen3-5-9b"),
+    ("Qwen3.5-9B + RAG (pplx-ctx)",  "qwen-qwen3-5-9b-rag-pplx-ctx"),
+    ("Qwen3.5-27B offline",          "qwen-qwen3-5-27b"),
+    ("Qwen3.5-27B + RAG (pplx-ctx)", "qwen-qwen3-5-27b-rag-pplx-ctx"),
+    # Paper baseline — Leippold 2025's CLIM predictions are baked into
+    # test.jsonl as `true_climinator`. Scored against `true_cfb_label` gold on
+    # our exact 160-row subset, so the comparison is strictly fair (same rows,
+    # same scoring code, no trust in the paper's reported denominator).
+    # Special slug "__paper__" tells main() to synthesise rows instead of
+    # reading a result file. Only meaningful for the climinator variants.
+    ("Paper CLIM (recomputed)",      "__paper__"),
 ]
 
 
@@ -63,15 +83,20 @@ MODELS: list[tuple[str, str]] = [
 # ---------------------------------------------------------------------------
 
 def score_one(
-    path: Path,
+    path: Path | None,
     variant: str,
     *,
     rollup=None,
     label_set_override: tuple[str, ...] | None = None,
+    rows: list[dict] | None = None,
 ) -> dict | None:
-    if not path.exists():
-        return None
-    rows = [json.loads(l) for l in open(path)]
+    """Score a result file. If `rows` is passed, skip the file read entirely
+    (used by the paper-baseline pseudo-model, which synthesises rows from the
+    test set's `true_climinator` column)."""
+    if rows is None:
+        if path is None or not path.exists():
+            return None
+        rows = [json.loads(l) for l in open(path)]
     if not rows:
         return None
 
@@ -277,18 +302,54 @@ def main() -> None:
         for variant in LABEL_SETS:
             summary: dict = {}
             for label, slug in MODELS:
-                path = RESULTS_DIR / split / f"{slug}-{variant}.jsonl"
-                scored = score_one(path, variant)
-                if scored is None:
-                    print(f"  [{variant}] missing: {label} ({path.name})")
-                    continue
+                synth_rows: list[dict] | None = None
+                path: Path | None = None
+                if slug == "__paper__":
+                    # Score the paper's CLIM predictions (baked into the test
+                    # set as `true_climinator`) against `true_cfb_label` gold,
+                    # using the same scoring code as every other model.
+                    # Only meaningful for the climinator variants — for
+                    # veracityV1 there's no paper-equivalent prediction.
+                    if not variant.startswith("climinator"):
+                        continue
+                    test_path = REPO_ROOT / "data" / split / f"{split}.jsonl"
+                    if not test_path.exists():
+                        continue
+                    test_rows = [json.loads(l) for l in open(test_path)]
+                    # Build synthetic result rows where `response` is a YAML
+                    # block of the paper's predicted label, so the existing
+                    # parser path treats it like any model output. Rows with
+                    # `true_climinator == "NEI"` are passed through as a
+                    # synthetic "ERROR" so they count as parse failures
+                    # (paper actually abstains on these).
+                    synth = []
+                    for r in test_rows:
+                        clim = (r.get("true_climinator") or "").strip()
+                        if not clim or clim.upper() == "NEI":
+                            resp = "ERROR: paper emitted NEI"
+                        else:
+                            # Normalise to upper + space-separated, then wrap
+                            # as our YAML format so extract_raw_label finds it.
+                            upper = clim.upper().replace("_", " ").replace("-", " ")
+                            resp = f"```yaml\nassessment: {upper}\n```"
+                        synth.append({**r, "response": resp})
+                    synth_rows = synth
+                    scored = score_one(None, variant, rows=synth_rows)
+                    if scored is None:
+                        continue
+                else:
+                    path = RESULTS_DIR / split / f"{slug}-{variant}.jsonl"
+                    scored = score_one(path, variant)
+                    if scored is None:
+                        print(f"  [{variant}] missing: {label} ({path.name})")
+                        continue
                 print(f"  [{variant}] {label}: {scored['evaluated']}/{scored['n_rows']} rows  "
                       f"MCC={scored['mcc']:.3f}  acc={scored['accuracy']:.3f} "
                       f"(baseline={scored['baseline_acc']:.3f})  "
                       f"macroF1={scored['macro_f1_present']:.3f}  "
                       f"[api_err={scored['api_errors']}, parse_fail={scored['parse_failures']}, "
                       f"oov={scored['oov']}]")
-                if variant == "climinator":
+                if variant in ("climinator", "climinator_v2", "climinator_v3", "climinator_v4"):
                     # Climinator has a 4-level credibility hierarchy (Leippold 2024
                     # Fig. 3). Score each rollup level so we can see how the
                     # metrics improve as the taxonomy is coarsened. L1 already
@@ -303,6 +364,7 @@ def main() -> None:
                             path, variant,
                             rollup=lambda x, _l=lvl: climinator_rollup(x, _l),
                             label_set_override=lvl_set,
+                            rows=synth_rows,
                         )
                         if lvl_scored is None:
                             continue

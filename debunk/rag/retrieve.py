@@ -47,10 +47,24 @@ class HybridRetriever:
     ):
         self.dir = Path(index_dir)
         meta = json.loads((self.dir / "meta.json").read_text())
-        self.embedder = SentenceTransformer(meta["embedder"], device=device,
-                                              trust_remote_code=True)
-        if hasattr(self.embedder, "max_seq_length"):
-            self.embedder.max_seq_length = meta.get("max_seq", 1024)
+        self.embedder_name = meta["embedder"]
+        # Pplx-context indices are query-embedded via the Perplexity API; all
+        # other indices use the local sentence-transformers model.
+        self._use_pplx_api = "pplx-embed-context" in self.embedder_name.lower()
+        if self._use_pplx_api:
+            import os
+            from dotenv import load_dotenv
+            # debunk/.env (two levels up from rag/retrieve.py)
+            load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+            self._pplx_key = os.environ.get("PERPLEXITY_API_KEY")
+            if not self._pplx_key:
+                sys.exit("PERPLEXITY_API_KEY not set — needed for pplx-context query embeddings")
+            self.embedder = None
+        else:
+            self.embedder = SentenceTransformer(self.embedder_name, device=device,
+                                                  trust_remote_code=True)
+            if hasattr(self.embedder, "max_seq_length"):
+                self.embedder.max_seq_length = meta.get("max_seq", 1024)
         self.faiss = faiss.read_index(str(self.dir / "dense.faiss"))
         with open(self.dir / "bm25.pkl", "rb") as f:
             bm = pickle.load(f)
@@ -66,10 +80,10 @@ class HybridRetriever:
         self._reranker_name = reranker
         self._reranker_device = device
         self._reranker: CrossEncoder | None = None
-        # Serialize GPU-bound work so a multi-threaded caller (e.g. infer.py
-        # with --max-workers > 1) shares one device without OOMing. The API
-        # call is still parallel — only embed+rerank serializes.
-        self._gpu_lock = threading.Lock()
+        # Lock only the GPU-bound cross-encoder forward pass. The pplx API
+        # call and FAISS search are network/CPU and run concurrently across
+        # worker threads.
+        self._rerank_lock = threading.Lock()
 
     # ------------------------------------------------------------------
     # Lazy reranker
@@ -82,7 +96,8 @@ class HybridRetriever:
         if self._reranker is None:
             self._reranker = CrossEncoder(self._reranker_name,
                                             device=self._reranker_device,
-                                            trust_remote_code=True)
+                                            trust_remote_code=True,
+                                            model_kwargs={"torch_dtype": "float16"})
         return self._reranker
 
     # ------------------------------------------------------------------
@@ -90,8 +105,31 @@ class HybridRetriever:
     # ------------------------------------------------------------------
 
     def _dense_topk(self, query: str, n: int) -> list[tuple[int, float]]:
-        q = self.embedder.encode([query], normalize_embeddings=True,
-                                  convert_to_numpy=True).astype(np.float32)
+        if self._use_pplx_api:
+            import base64
+            import requests
+            # Use the same contextualized endpoint as indexing (with query as
+            # a single-chunk "document") so vectors are in the exact same
+            # space the chunks were embedded in.
+            r = requests.post(
+                "https://api.perplexity.ai/v1/contextualizedembeddings",
+                headers={"Authorization": f"Bearer {self._pplx_key}",
+                         "Content-Type": "application/json"},
+                json={"model": self.embedder_name.split("/")[-1],
+                      "input": [[query]]},
+                timeout=30,
+            )
+            if r.status_code != 200:
+                raise RuntimeError(f"Perplexity API {r.status_code}: {r.text[:300]}")
+            b64 = r.json()["data"][0]["data"][0]["embedding"]
+            vec = np.frombuffer(base64.b64decode(b64), dtype=np.int8).astype(np.float32)
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                vec = vec / norm
+            q = vec.reshape(1, -1)
+        else:
+            q = self.embedder.encode([query], normalize_embeddings=True,
+                                      convert_to_numpy=True).astype(np.float32)
         scores, idxs = self.faiss.search(q, n)
         return list(zip(idxs[0].tolist(), scores[0].tolist()))
 
@@ -126,16 +164,19 @@ class HybridRetriever:
     ) -> list[dict]:
         """Return top-k chunks for `query`. Each result carries the chunk
         record plus a `score` field (RRF score, or reranker score if used)."""
-        with self._gpu_lock:
-            dense = self._dense_topk(query, candidate_pool)
-        sparse = self._bm25_topk(query, candidate_pool)  # CPU; lock-free
+        # No lock — pplx API call (network) + FAISS search (CPU) can run
+        # concurrently across worker threads.
+        dense = self._dense_topk(query, candidate_pool)
+        sparse = self._bm25_topk(query, candidate_pool)
         merged = self._rrf_merge([dense, sparse])
 
         if use_reranker and self.reranker is not None:
             pool_idx = [i for i, _ in merged[:candidate_pool]]
             pairs = [(query, self.chunks[i]["text"]) for i in pool_idx]
-            with self._gpu_lock:
-                scores = self.reranker.predict(pairs, show_progress_bar=False)
+            # Cross-encoder is the only GPU step — serialise it.
+            with self._rerank_lock:
+                scores = self.reranker.predict(pairs, show_progress_bar=False,
+                                                batch_size=8)
             order = np.argsort(-np.asarray(scores))[:k]
             return [
                 {**self.chunks[pool_idx[o]], "score": float(scores[o])}

@@ -42,14 +42,38 @@ BACKENDS = {
     "exa":        ("https://api.exa.ai",           "EXA_API_KEY"),
 }
 
-USER_TEMPLATE = "### Claim:\n{claim}\n\n### Source:\n{source}"
+USER_TEMPLATE = "### Claim:\n{claim}"
 USER_TEMPLATE_RAG = (
-    "### Claim:\n{claim}\n\n### Source:\n{source}\n\n"
-    "### Evidence (retrieved from a vetted climate-science knowledge base):\n"
+    "### Claim:\n{claim}\n\n"
+    "### Retrieved evidence (top-k chunks from a climate-science knowledge base; quality varies):\n"
     "{evidence}\n\n"
-    "Use the evidence above to ground your assessment. Cite chunks by their "
-    "[id] when relevant. Evidence may be incomplete or off-topic — apply the "
-    "force-fit guard from the codebook if so."
+    "### How to use the evidence above\n"
+    "1. **Read the evidence first, then decide if it actually helps.** When a "
+    "chunk directly addresses the claim's substantive assertions, prefer it "
+    "over your training knowledge and cite it inline as a clickable markdown "
+    "link `[<source-name>](<URL>)` using URLs taken verbatim from the chunks. "
+    "Numbered references like `[1]`, `[3]`, `[1][2]` are not admissible — "
+    "users cannot click them; only full markdown links count as citations.\n"
+    "2. **Ignore the evidence if it is off-topic, too sparse, or "
+    "contradictory.** In that case, fall back on your internal knowledge of "
+    "climate science (IPCC AR6, NASA, NOAA, peer-reviewed literature) and "
+    "reason from there. Do NOT bail out to LACKS CONTEXT or IMPRECISE just "
+    "because retrieval missed — those labels are reserved for claims that "
+    "are *intrinsically* vague or under-specified, not for retrieval "
+    "failures. A confident verdict from training knowledge is preferred "
+    "over a hedged verdict from irrelevant evidence.\n"
+    "3. **Declare your source of truth.** As the FIRST line of the EVIDENCE "
+    "step inside <think>, write exactly one of:\n"
+    "     EVIDENCE USE: relied-on — <one-line why>\n"
+    "     EVIDENCE USE: partial   — <one-line why>\n"
+    "     EVIDENCE USE: ignored   — <one-line why>\n"
+    "   `relied-on` = the verdict is anchored in the retrieved chunks. "
+    "`partial` = some chunks helped, supplemented with training knowledge. "
+    "`ignored` = retrieval was unhelpful, verdict comes from training. Be "
+    "honest — `ignored` is a valid and correct choice when the chunks do "
+    "not address the claim.\n"
+    "4. The label must still be exactly one of the 12 codebook labels — "
+    "these rules constrain *how* you reach the label, not the label set."
 )
 
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -118,7 +142,18 @@ if not input_path.exists():
 
 slug = re.sub(r"[^a-z0-9]+", "-", args.model.lower()).strip("-")
 if args.rag_index:
-    slug = f"{slug}-rag"
+    # Tag the output by the index dir's short name so multiple RAG indices
+    # (e.g. qwen / pplx-context / bge) don't collide in the results dir.
+    idx_name = Path(args.rag_index).name.lower()
+    if "pplx" in idx_name and ("context" in idx_name or "ctx" in idx_name):
+        tag = "rag-pplx-ctx"
+    elif "pplx" in idx_name:
+        tag = "rag-pplx"
+    elif "qwen" in idx_name:
+        tag = "rag-qwen"
+    else:
+        tag = f"rag-{idx_name[:20]}"
+    slug = f"{slug}-{tag}"
 elif args.exa_evidence:
     slug = f"{slug}-exa"
 split = input_path.stem  # test -> test, val -> val
@@ -215,17 +250,22 @@ def _build_exa_evidence(claim: str) -> str:
        wait=wait_exponential(multiplier=5, min=5, max=60),
        retry=retry_if_exception_type(Exception))
 def query(claim: str, source: str):
-    """Return the full assistant `message` object (content + annotations)."""
+    """Return the full assistant `message` object (content + annotations).
+
+    Note: `source` (the byline metadata) is intentionally NOT passed to the
+    model — that would leak speaker identity into the verdict (e.g. "Joe
+    Rogan" priming the model to expect skepticism). The paper's Advocate
+    prompt only sees the claim text; we match that."""
     if _retriever is not None:
         user_text = USER_TEMPLATE_RAG.format(
-            claim=claim, source=source, evidence=_build_evidence(claim),
+            claim=claim, evidence=_build_evidence(claim),
         )
     elif _exa_client is not None:
         user_text = USER_TEMPLATE_RAG.format(
-            claim=claim, source=source, evidence=_build_exa_evidence(claim),
+            claim=claim, evidence=_build_exa_evidence(claim),
         )
     else:
-        user_text = USER_TEMPLATE.format(claim=claim, source=source)
+        user_text = USER_TEMPLATE.format(claim=claim)
     kwargs = dict(
         model=args.model,
         messages=[
@@ -295,9 +335,21 @@ def process(row: dict) -> dict:
     pred_label: str | None = None
     try:
         msg = query(_truncate(row["claim"]), row.get("source", ""))
-        out["response"] = msg.content
+        # DeepSeek/o-series reasoning models expose chain-of-thought in a
+        # non-standard `reasoning` field on the message (not in `content`).
+        # When present, fold it into `response` as a <think>…</think> block
+        # so we keep a single response field that contains the full output.
+        content = msg.content or ""
+        reasoning = (getattr(msg, "reasoning", None)
+                     or (msg.model_extra or {}).get("reasoning")
+                     or "")
+        if reasoning and "<think>" not in content:
+            full_response = f"<think>\n{reasoning.strip()}\n</think>\n\n{content}"
+        else:
+            full_response = content
+        out["response"] = full_response
         out["citations"] = _extract_citations(msg)
-        pred_label = extract_raw_label(msg.content)
+        pred_label = extract_raw_label(full_response)
     except Exception as e:
         out["response"] = f"ERROR: {e}"
         out["citations"] = []
@@ -352,10 +404,10 @@ if args.dump_prompt_md:
             f.write("```text\n" + evidence_block + "\n```\n\n")
         f.write("---\n\n## Assembled user message (verbatim, what the model sees)\n\n")
         if evidence_block is not None:
-            user_text = USER_TEMPLATE_RAG.format(claim=claim, source=src,
+            user_text = USER_TEMPLATE_RAG.format(claim=claim,
                                                   evidence=evidence_block)
         else:
-            user_text = USER_TEMPLATE.format(claim=claim, source=src)
+            user_text = USER_TEMPLATE.format(claim=claim)
         f.write("```text\n" + user_text + "\n```\n")
     print(f"Wrote prompt dump → {out_path}")
     sys.exit(0)
@@ -372,16 +424,14 @@ if args.dry_run:
         claim = _truncate(row["claim"])
         if _retriever is not None:
             user_text = USER_TEMPLATE_RAG.format(
-                claim=claim, source=row.get("source", ""),
-                evidence=_build_evidence(claim),
+                claim=claim, evidence=_build_evidence(claim),
             )
         elif _exa_client is not None:
             user_text = USER_TEMPLATE_RAG.format(
-                claim=claim, source=row.get("source", ""),
-                evidence=_build_exa_evidence(claim),
+                claim=claim, evidence=_build_exa_evidence(claim),
             )
         else:
-            user_text = USER_TEMPLATE.format(claim=claim, source=row.get("source", ""))
+            user_text = USER_TEMPLATE.format(claim=claim)
         print(f"\n----- ROW {i} (itemId={row.get('itemId')}) -----")
         print(f"gold true_cfb_label = {row.get('true_cfb_label')}")
         print(f"gold true_veracity  = {row.get('true_veracity')}")
