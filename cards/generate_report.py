@@ -102,14 +102,13 @@ def compute_metrics(df, level, min_support):
     y_true = df["true_claims"].apply(lambda x: truncate_to_level(x, level)).tolist()
     y_pred = df["pred_claims"].apply(lambda x: truncate_to_level(x, level)).tolist()
     y_t, y_p = binarize(y_true, y_pred, min_support)
-    return {
-        "samples_f1":      round(f1_score(y_t, y_p, average="samples", zero_division=0), 3),
-        "macro_f1":        round(f1_score(y_t, y_p, average="macro",   zero_division=0), 3),
-        "micro_f1":        round(f1_score(y_t, y_p, average="micro",   zero_division=0), 3),
-        "micro_precision": round(precision_score(y_t, y_p, average="micro", zero_division=0), 3),
-        "micro_recall":    round(recall_score(y_t, y_p, average="micro",    zero_division=0), 3),
-        "accuracy":        round(accuracy_score(y_t, y_p), 3),
-    }
+    out = {}
+    for avg in ("samples", "macro", "micro"):
+        out[f"{avg}_f1"]        = round(f1_score(y_t, y_p, average=avg, zero_division=0), 3)
+        out[f"{avg}_precision"] = round(precision_score(y_t, y_p, average=avg, zero_division=0), 3)
+        out[f"{avg}_recall"]    = round(recall_score(y_t, y_p, average=avg, zero_division=0), 3)
+    out["accuracy"] = round(accuracy_score(y_t, y_p), 3)
+    return out
 
 
 def score_one(path, label_field, label, prefix=""):
@@ -133,9 +132,19 @@ def score_one(path, label_field, label, prefix=""):
     return entry
 
 
-F1_METRICS = [("samples_f1", "Samples F1"),
-              ("macro_f1",   "Macro F1"),
-              ("micro_f1",   "Micro F1")]
+# Metric families surfaced in the markdown, one sub-table each. Precision and
+# recall accompany F1 at the samples and macro averages; micro p/r round it out.
+DISPLAY_METRICS = [
+    ("samples_f1",        "Samples F1"),
+    ("samples_precision", "Samples Precision"),
+    ("samples_recall",    "Samples Recall"),
+    ("macro_f1",          "Macro F1"),
+    ("macro_precision",   "Macro Precision"),
+    ("macro_recall",      "Macro Recall"),
+    ("micro_f1",          "Micro F1"),
+    ("micro_precision",   "Micro Precision"),
+    ("micro_recall",      "Micro Recall"),
+]
 
 
 def write_summary(title, summary, out_dir, basename):
@@ -157,7 +166,7 @@ def write_summary(title, summary, out_dir, basename):
         suffix = "all" if ms == 0 else f"minsup_{ms}"
         section = "All labels" if ms == 0 else f"Support ≥ {ms}"
         lines.append(f"\n## {section}\n")
-        for key, name in F1_METRICS:
+        for key, name in DISPLAY_METRICS:
             lines.append(f"### {name}\n")
             lines.append(header_row)
             lines.append(sep_row)
