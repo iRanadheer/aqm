@@ -1,17 +1,28 @@
-"""Paired bootstrap (BCa) + sign-flip permutation tests for CARDS results.
+"""Bootstrap confidence intervals for CARDS results — the simple, defensible view.
 
-Reads two model result jsonls and reports samples/micro/macro F1 differences
-together with a 95% BCa bootstrap CI on the difference and a sign-flip
-permutation p-value (where applicable).
+Headline metric is **samples-F1** (per-document tagging quality); micro- and
+macro-F1 are reported alongside for completeness (macro is lower because rare
+categories are harder). Everything is a 95% **BCa bootstrap confidence
+interval**, computed with `scipy.stats.bootstrap` — no hand-rolled resampling,
+no p-values, no corrections. This follows the recommendation to report the
+difference and its confidence interval rather than significance-test verdicts
+(Ulmer et al., LREC 2022; Koehn 2004 for the paired bootstrap).
 
-Per arXiv:2511.19794, claim a significant improvement only when the BCa CI
-excludes 0 AND the permutation p-value is below alpha.
+Model comparisons report the gap (A − B) and its CI, labelled:
+    improves    — CI entirely above 0
+    lower       — CI entirely below 0
+    comparable  — CI includes 0 (too close to call)
 
 Usage:
-    python evals/significance.py test cards-qwen35-27b-fp8 claude-opus-4-7
-    python evals/significance.py twitter cards-qwen36-27b claude-opus-4-7
+    python evals/significance.py              # -> data/significance/summary_{test,twitter}.md
+    python evals/significance.py pair test cards-qwen35-27b claude-opus-4-7
 
-Optional flags: --level 3  --n-boot 2000  --n-perm 10000  --alpha 0.05
+Flags: --level 3  --min-support 3  --n-resamples 9999  --confidence 0.95
+       --seed 42  --out-dir data/significance
+
+(We use scipy because it returns confidence intervals. `deep-significance`
+[deepsig] is the NLP-specific alternative, but it returns p-values / ASO scores,
+not CIs, so it doesn't fit this CI-based reporting.)
 """
 
 from __future__ import annotations
@@ -19,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -29,179 +41,294 @@ sys.path.insert(0, str(ROOT))
 
 from generate_report import parse_response  # noqa: E402
 
-
-# ---------------------------------------------------------------------------
-# Per-row metric helpers
-# ---------------------------------------------------------------------------
-
-def per_row_f1(t_set: set, p_set: set) -> float:
-    """sklearn samples-F1 convention: empty/empty → 0 (not 1).
-    CARDS test/twitter have no empty-gold rows, so this is moot in practice."""
-    if not t_set and not p_set:
-        return 0.0
-    inter = len(t_set & p_set)
-    if inter == 0:
-        return 0.0
-    prec = inter / len(p_set)
-    rec = inter / len(t_set)
-    return 2 * prec * rec / (prec + rec)
-
-
-def samples_f1(yt, yp) -> float:
-    if not yt:
-        return 0.0
-    return float(np.mean([per_row_f1(set(t), set(p)) for t, p in zip(yt, yp)]))
-
-
-def micro_f1(yt, yp, vocab: set[str]) -> float:
-    tp = fp = fn = 0
-    for t, p in zip(yt, yp):
-        ts = set(t) & vocab
-        ps = set(p) & vocab
-        tp += len(ts & ps)
-        fp += len(ps - ts)
-        fn += len(ts - ps)
-    P = tp / (tp + fp) if tp + fp else 0.0
-    R = tp / (tp + fn) if tp + fn else 0.0
-    return 2 * P * R / (P + R) if P + R else 0.0
-
-
-def macro_f1(yt, yp, vocab: list[str]) -> float:
-    f1s = []
-    for L in vocab:
-        tp = sum(1 for t, p in zip(yt, yp) if L in t and L in p)
-        fp = sum(1 for t, p in zip(yt, yp) if L not in t and L in p)
-        fn = sum(1 for t, p in zip(yt, yp) if L in t and L not in p)
-        P = tp / (tp + fp) if tp + fp else 0.0
-        R = tp / (tp + fn) if tp + fn else 0.0
-        f1s.append(2 * P * R / (P + R) if P + R else 0.0)
-    return float(np.mean(f1s)) if f1s else 0.0
+OUT_DIR = ROOT / "data" / "significance"
+METRICS = [("samples", "Samples-F1"), ("micro", "Micro-F1"), ("macro", "Macro-F1")]
 
 
 # ---------------------------------------------------------------------------
-# Loader
+# Final reported lineup and the comparisons we care about
 # ---------------------------------------------------------------------------
 
-def load(slug: str, split: str, level: int):
+LINEUP = [
+    ("Qwen3.5-4B (base, zero-shot)",  "qwen35-4b-base"),
+    ("Qwen3.5-9B (base, zero-shot)",  "qwen35-9b-base"),
+    ("Qwen3.5-27B (base, zero-shot)", "qwen35-27b-base"),
+    ("CARDS-Qwen3.5-4B (ours)",       "cards-qwen35-4b"),
+    ("CARDS-Qwen3.5-9B (ours)",       "cards-qwen35-9b"),
+    ("CARDS-Qwen3.5-27B (ours)",      "cards-qwen35-27b"),
+    ("GPT-4o-mini (zero-shot)",       "gpt-4o-mini"),
+    ("CARDS-mini-opus (ours)",        "cards-mini-opus"),
+    ("Claude Opus 4.7 (zero-shot)",   "claude-opus-4-7"),
+    ("GPT-5.5 (zero-shot)",           "gpt-5-5"),
+]
+
+# Each comparison is gap = A - B on the chosen metric. slug_a is always a
+# CARDS/API file (canonical gold); the other file's gold is ignored.
+COMPARISONS = [
+    ("Fine-tuning helps (open)", [
+        ("CARDS-4B vs base",  "cards-qwen35-4b",  "qwen35-4b-base"),
+        ("CARDS-9B vs base",  "cards-qwen35-9b",  "qwen35-9b-base"),
+        ("CARDS-27B vs base", "cards-qwen35-27b", "qwen35-27b-base")]),
+    ("Fine-tuning helps (closed)", [
+        ("CARDS-mini-opus vs GPT-4o-mini", "cards-mini-opus", "gpt-4o-mini")]),
+    ("Does scale help?", [
+        ("CARDS-9B vs 4B",  "cards-qwen35-9b",  "cards-qwen35-4b"),
+        ("CARDS-27B vs 9B", "cards-qwen35-27b", "cards-qwen35-9b")]),
+    ("RECoT format helps", [
+        ("CARDS-4B vs No-RECoT",  "cards-qwen35-4b",  "cards-qwen35-4b-norecot"),
+        ("CARDS-9B vs No-RECoT",  "cards-qwen35-9b",  "cards-qwen35-9b-norecot"),
+        ("CARDS-27B vs No-RECoT", "cards-qwen35-27b", "cards-qwen35-27b-norecot")]),
+    ("Vs frontier APIs", [
+        ("CARDS-27B vs Claude Opus 4.7",       "cards-qwen35-27b", "claude-opus-4-7"),
+        ("CARDS-27B vs GPT-5.5",               "cards-qwen35-27b", "gpt-5-5"),
+        ("CARDS-mini-opus vs Claude Opus 4.7", "cards-mini-opus",  "claude-opus-4-7"),
+        ("CARDS-mini-opus vs GPT-5.5",         "cards-mini-opus",  "gpt-5-5")]),
+    ("FP8 quantization", [
+        ("CARDS-27B FP8 vs full", "cards-qwen35-27b-fp8", "cards-qwen35-27b")]),
+]
+
+
+# ---------------------------------------------------------------------------
+# Loader (rows aligned by unique input text; labels truncated + deduped)
+# ---------------------------------------------------------------------------
+
+def load(slug, split, level):
     path = ROOT / "data" / "results" / split / f"{slug}.jsonl"
     if not path.exists():
-        sys.exit(f"missing: {path}")
+        raise FileNotFoundError(f"missing: {path}")
     rows = [json.loads(l) for l in open(path)]
-    # Align row order across files (threadpool writes in completion order).
-    # `id` isn't unique on twitter (172/744 None, only 513 distinct), so sort
-    # by the input text — which is unique per row in both splits.
-    rows.sort(key=lambda r: r.get("text") or "")
+    rows.sort(key=lambda r: r.get("text") or "")          # align across files
     label_field = "labels" if split == "twitter" else "true_claims"
-    # No-RECoT models weren't trained to emit </think>; relax the parser
-    # for those slugs to match generate_report.score_one().
-    require_think = "norecot" not in slug.lower()
+    require_think = "norecot" not in slug.lower() and "nothink" not in slug.lower()
     yt, yp = [], []
     for r in rows:
         gold = list(r.get(label_field) or [])
         pred = parse_response(r.get("response", ""), require_think=require_think)
-        yt.append(["_".join(c.split("_")[:level]) for c in gold])
-        yp.append(["_".join(c.split("_")[:level]) for c in pred])
+        yt.append(list(dict.fromkeys("_".join(c.split("_")[:level]) for c in gold)))
+        yp.append(list(dict.fromkeys("_".join(c.split("_")[:level]) for c in pred)))
     return yt, yp
 
 
 # ---------------------------------------------------------------------------
-# Paired tests
+# Metrics as functions of row indices (so scipy can resample by index)
+#
+# Each metric is a function of summed per-row pieces, so a metric over any
+# subset of rows is computed by indexing precomputed arrays — which is exactly
+# what scipy.stats.bootstrap needs to resample efficiently.
 # ---------------------------------------------------------------------------
 
-def paired_bca_ci(yt, yp_a, yp_b, metric_fn, n_boot=2000, alpha=0.05, seed=42):
+def row_stats(yt, yp, vocab):
+    idx = {l: j for j, l in enumerate(vocab)}
+
+    def mat(rows):
+        M = np.zeros((len(rows), len(vocab)))
+        for i, r in enumerate(rows):
+            for l in r:
+                if l in idx:
+                    M[i, idx[l]] = 1.0
+        return M
+
+    Yt, P = mat(yt), mat(yp)
+    inter = (Yt * P).sum(1)
+    den = Yt.sum(1) + P.sum(1)
+    return {
+        "f1": np.divide(2 * inter, den, out=np.zeros_like(den), where=den > 0),
+        "tp": inter, "fp": (P * (1 - Yt)).sum(1), "fn": (Yt * (1 - P)).sum(1),
+        "TP": Yt * P, "FP": P * (1 - Yt), "FN": Yt * (1 - P),
+    }
+
+
+def _f1(tp, fp, fn):
+    den = np.asarray(2 * tp + fp + fn, dtype=float)
+    return np.divide(2 * np.asarray(tp, dtype=float), den,
+                     out=np.zeros_like(den), where=den > 0)
+
+
+def metric(s, ii, name):
+    if name == "samples":
+        return float(s["f1"][ii].mean())
+    if name == "micro":
+        return float(_f1(s["tp"][ii].sum(), s["fp"][ii].sum(), s["fn"][ii].sum()))
+    return float(_f1(s["TP"][ii].sum(0), s["FP"][ii].sum(0), s["FN"][ii].sum(0)).mean())
+
+
+# ---------------------------------------------------------------------------
+# Bootstrap CI via scipy (BCa, percentile fallback if degenerate)
+# ---------------------------------------------------------------------------
+
+def boot_ci(stat_of_idx, n, n_resamples, confidence, seed):
+    """95% (or `confidence`) BCa CI for a statistic that takes an index array."""
+    idx = np.arange(n)
+
+    def statistic(resampled):
+        return stat_of_idx(resampled.astype(np.intp))
+
+    for method in ("BCa", "percentile"):
+        res = bootstrap((idx,), statistic, n_resamples=n_resamples,
+                        confidence_level=confidence, method=method,
+                        rng=np.random.default_rng(seed), vectorized=False)
+        lo, hi = res.confidence_interval.low, res.confidence_interval.high
+        if np.isfinite(lo) and np.isfinite(hi):
+            return float(lo), float(hi)
+    return float("nan"), float("nan")
+
+
+def support_vocab(yt, min_support):
+    sup = Counter(l for row in yt for l in row)
+    return sorted([l for l, c in sup.items() if c >= min_support])
+
+
+def filter_to(rows, vset):
+    return [[l for l in r if l in vset] for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# Per-model scores and paired comparisons
+# ---------------------------------------------------------------------------
+
+def model_scores(slug, split, level, min_support, n_resamples, confidence, seed):
+    yt, yp = load(slug, split, level)
+    vocab = support_vocab(yt, min_support)
+    vset = set(vocab)
+    s = row_stats(filter_to(yt, vset), filter_to(yp, vset), vocab)
     n = len(yt)
-    rng = np.random.default_rng(seed)
-    indices = np.arange(n)
-
-    def stat(idx_arr):
-        idx = np.asarray(idx_arr).astype(int)
-        yt_s = [yt[i]  for i in idx]
-        a_s  = [yp_a[i] for i in idx]
-        b_s  = [yp_b[i] for i in idx]
-        return metric_fn(yt_s, a_s) - metric_fn(yt_s, b_s)
-
-    point = metric_fn(yt, yp_a) - metric_fn(yt, yp_b)
-    res = bootstrap(
-        (indices,), stat,
-        n_resamples=n_boot, method="BCa",
-        confidence_level=1 - alpha, random_state=rng,
-        vectorized=False,
-    )
-    return point, float(res.confidence_interval.low), float(res.confidence_interval.high)
+    idx = np.arange(n)
+    out = {"n": n}
+    for name, _ in METRICS:
+        point = metric(s, idx, name)
+        lo, hi = boot_ci(lambda ii, nm=name: metric(s, ii, nm),
+                         n, n_resamples, confidence, seed)
+        out[name] = (point, lo, hi)
+    return out
 
 
-def sign_flip_pvalue(per_row_diffs: np.ndarray, n_perm=10000, seed=42) -> float:
-    rng = np.random.default_rng(seed)
-    obs = abs(per_row_diffs.mean())
-    n = len(per_row_diffs)
-    signs = rng.choice([-1.0, 1.0], size=(n_perm, n))
-    perm_means = np.abs((signs * per_row_diffs).mean(axis=1))
-    return float((perm_means >= obs).mean())
+def compare(split, slug_a, slug_b, level, min_support, n_resamples, confidence, seed):
+    yt, ya = load(slug_a, split, level)
+    _, yb = load(slug_b, split, level)              # gold from slug_a is canonical
+    vocab = support_vocab(yt, min_support)
+    vset = set(vocab)
+    yt = filter_to(yt, vset)
+    sA = row_stats(yt, filter_to(ya, vset), vocab)
+    sB = row_stats(yt, filter_to(yb, vset), vocab)
+    n = len(yt)
+    idx = np.arange(n)
+    out = {"n": n}
+    for name, _ in METRICS:
+        a, b = metric(sA, idx, name), metric(sB, idx, name)
+        lo, hi = boot_ci(lambda ii, nm=name: metric(sA, ii, nm) - metric(sB, ii, nm),
+                         n, n_resamples, confidence, seed)
+        out[name] = {"a": a, "b": b, "delta": a - b, "lo": lo, "hi": hi}
+    return out
+
+
+def verdict(M):
+    if M["lo"] > 0:
+        return "improves"
+    if M["hi"] < 0:
+        return "lower"
+    return "comparable"
 
 
 # ---------------------------------------------------------------------------
-# Driver
+# Markdown report (one file per split)
 # ---------------------------------------------------------------------------
 
-def report(label_a, label_b, comps, n_boot, n_perm, alpha):
-    print(f"\n{label_a}  vs  {label_b}")
-    print(f"  n_boot={n_boot}  n_perm={n_perm}  alpha={alpha}\n")
-    print(f"  {'metric':30s}  {'A':>7}  {'B':>7}  {'Δ':>8}  {'95% CI on Δ':>22}  {'p (sign-flip)':>14}  significant?")
-    print(f"  {'-'*30}  {'-'*7}  {'-'*7}  {'-'*8}  {'-'*22}  {'-'*14}  ------------")
-    for name, a, b, delta, lo, hi, p in comps:
-        ci_str = f"[{lo:+.4f}, {hi:+.4f}]"
-        ci_excludes_zero = (lo > 0) or (hi < 0)
-        p_str = f"{p:.4f}" if p is not None else "  n/a"
-        is_sig = ci_excludes_zero and (p is None or p < alpha)
-        sig = "yes" if is_sig else ("border" if ci_excludes_zero else "no")
-        print(f"  {name:30s}  {a:>7.4f}  {b:>7.4f}  {delta:+8.4f}  {ci_str:>22}  {p_str:>14}  {sig}")
+def build_split(split, cfg):
+    pct = int(round(cfg["confidence"] * 100))
+    L = [f"# CARDS results — {split} set\n",
+         f"Headline metric: **samples-F1** (how well each document is tagged), "
+         f"with a {pct}% BCa bootstrap confidence interval "
+         f"(`scipy.stats.bootstrap`, {cfg['n_resamples']} resamples). Micro/macro "
+         f"shown for completeness; macro is lower because rare categories are "
+         f"harder.\n",
+         "## Model scores\n",
+         f"| Model | Samples-F1 ({pct}% CI) | Micro-F1 | Macro-F1 |",
+         "|---|---|---|---|"]
+    for name, slug in LINEUP:
+        try:
+            r = model_scores(slug, split, cfg["level"], cfg["min_support"],
+                             cfg["n_resamples"], cfg["confidence"], cfg["seed"])
+        except FileNotFoundError:
+            continue
+        sp, mi, ma = r["samples"], r["micro"], r["macro"]
+        L.append(f"| {name} | {sp[0]:.3f} [{sp[1]:.3f}, {sp[2]:.3f}] | "
+                 f"{mi[0]:.3f} | {ma[0]:.3f} |")
+
+    L += [f"\n## Comparisons (samples-F1)\n",
+          f"Gap = A − B with a {pct}% CI. `improves`/`lower` = CI clears 0; "
+          f"`comparable` = CI includes 0 (too close to call).\n",
+          f"| Comparison | A | B | Gap ({pct}% CI) | Verdict |",
+          "|---|---|---|---|---|"]
+    for group, pairs in COMPARISONS:
+        rows = []
+        for label, sa, sb in pairs:
+            try:
+                res = compare(split, sa, sb, cfg["level"], cfg["min_support"],
+                              cfg["n_resamples"], cfg["confidence"], cfg["seed"])
+            except FileNotFoundError:
+                continue
+            M = res["samples"]
+            rows.append(f"| {label} | {M['a']:.3f} | {M['b']:.3f} | "
+                        f"{M['delta']:+.3f} [{M['lo']:+.3f}, {M['hi']:+.3f}] | "
+                        f"{verdict(M)} |")
+        if rows:
+            L.append(f"| **{group}** | | | | |")
+            L += rows
+    return "\n".join(L) + "\n"
 
 
-def run(split, slug_a, slug_b, level, n_boot, n_perm, alpha):
-    yt_a, ya = load(slug_a, split, level)
-    yt_b, yb = load(slug_b, split, level)
-    # Sanity: gold should match across the two files row-for-row.
-    n_mismatch = sum(1 for x, y in zip(yt_a, yt_b) if sorted(x) != sorted(y))
-    if n_mismatch:
-        print(f"WARNING: {n_mismatch}/{len(yt_a)} gold mismatches across files —"
-              f" results not directly comparable.", file=sys.stderr)
-    yt = yt_a
-    vocab = sorted({l for row in yt for l in row})
+def run_report(cfg, out_dir):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for split in ("test", "twitter"):
+        print(f"  computing {split} ...")
+        (out_dir / f"summary_{split}.md").write_text(build_split(split, cfg))
+        print(f"  -> {out_dir}/summary_{split}.md")
 
-    comps = []
-    pt, lo, hi = paired_bca_ci(yt, ya, yb, samples_f1, n_boot=n_boot)
-    row_a = np.array([per_row_f1(set(t), set(p)) for t, p in zip(yt, ya)])
-    row_b = np.array([per_row_f1(set(t), set(p)) for t, p in zip(yt, yb)])
-    p = sign_flip_pvalue(row_a - row_b, n_perm=n_perm)
-    comps.append(("Claims samples F1",
-                  samples_f1(yt, ya), samples_f1(yt, yb), pt, lo, hi, p))
 
-    mfn_micro = lambda t, q, V=set(vocab): micro_f1(t, q, V)
-    pt, lo, hi = paired_bca_ci(yt, ya, yb, mfn_micro, n_boot=n_boot)
-    comps.append(("Claims micro F1",
-                  mfn_micro(yt, ya), mfn_micro(yt, yb), pt, lo, hi, None))
+def run_pair(split, slug_a, slug_b, cfg):
+    res = compare(split, slug_a, slug_b, cfg["level"], cfg["min_support"],
+                  cfg["n_resamples"], cfg["confidence"], cfg["seed"])
+    pct = int(round(cfg["confidence"] * 100))
+    print(f"\n{slug_a}  vs  {slug_b}  ({split}, n={res['n']})\n")
+    print(f"  {'metric':12s}  {'A':>7}  {'B':>7}  {'gap':>8}  {f'{pct}% CI':>22}  verdict")
+    print("  " + "-" * 70)
+    for name, disp in METRICS:
+        M = res[name]
+        ci = f"[{M['lo']:+.4f}, {M['hi']:+.4f}]"
+        print(f"  {disp:12s}  {M['a']:>7.4f}  {M['b']:>7.4f}  "
+              f"{M['delta']:+8.4f}  {ci:>22}  {verdict(M)}")
 
-    mfn_macro = lambda t, q, V=vocab: macro_f1(t, q, V)
-    pt, lo, hi = paired_bca_ci(yt, ya, yb, mfn_macro, n_boot=n_boot)
-    comps.append(("Claims macro F1",
-                  mfn_macro(yt, ya), mfn_macro(yt, yb), pt, lo, hi, None))
 
-    report(f"{slug_a} ({split}, L{level})", slug_b, comps, n_boot, n_perm, alpha)
-
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("split", choices=["test", "twitter"])
-    ap.add_argument("slug_a")
-    ap.add_argument("slug_b")
-    ap.add_argument("--level", type=int, default=3)
-    ap.add_argument("--n-boot", type=int, default=2000)
-    ap.add_argument("--n-perm", type=int, default=10000)
-    ap.add_argument("--alpha", type=float, default=0.05)
+    sub = ap.add_subparsers(dest="mode")
+    sub.add_parser("report", help="write data/significance/summary_{test,twitter}.md (default)")
+    pr = sub.add_parser("pair", help="one A vs B comparison, console output")
+    pr.add_argument("split", choices=["test", "twitter"])
+    pr.add_argument("slug_a")
+    pr.add_argument("slug_b")
+
+    for p in (ap, pr):
+        p.add_argument("--level", type=int, default=3)
+        p.add_argument("--min-support", type=int, default=3)
+        p.add_argument("--n-resamples", type=int, default=9999)
+        p.add_argument("--confidence", type=float, default=0.95)
+        p.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--out-dir", default=str(OUT_DIR))
+
     args = ap.parse_args()
-    run(args.split, args.slug_a, args.slug_b, args.level,
-        args.n_boot, args.n_perm, args.alpha)
+    cfg = {"level": args.level, "min_support": args.min_support,
+           "n_resamples": args.n_resamples, "confidence": args.confidence,
+           "seed": args.seed}
+    if args.mode == "pair":
+        run_pair(args.split, args.slug_a, args.slug_b, cfg)
+    else:
+        run_report(cfg, Path(args.out_dir))
 
 
 if __name__ == "__main__":
