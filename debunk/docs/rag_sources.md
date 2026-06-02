@@ -51,3 +51,36 @@ a crawl of 22 climate-science and fact-checking domains. Counts below:
   `kb_combined.jsonl`; chunk counts are `source` tallies over
   `data/rag/chunks.jsonl`. Re-derive both by grouping each file on its
   `source` field.
+
+## Collection — scrapai-cli
+
+The 22 domains were crawled with
+[scrapai-cli](https://github.com/discourselab/scrapai-cli), an AI-assisted
+Scrapy wrapper. Key points:
+
+- **AI at build time, not run time.** You describe a target site in plain
+  English; an agent analyses it and emits a JSON spider config (CSS/XPath
+  selectors + extraction rules). Scrapy then runs that config
+  deterministically — no LLM call per page, so re-crawls have no per-page
+  model cost. Configs are database rows loaded by a generic
+  `DatabaseSpider`, not per-site Python files.
+- **Article extraction.** Built on `newspaper4k` + `trafilatura`, pulling
+  `title` / `content` / `author` / `published_date` — exactly the fields
+  carried in `kb_combined.jsonl`. Non-article pages use custom CSS/XPath
+  callbacks.
+- **Cloudflare / anti-bot.** This is what let us crawl the protected
+  domains. scrapai-cli uses **CloakBrowser** (a patched Chromium) to clear
+  Cloudflare Turnstile challenges, with **cookie-cached bypass** — the
+  clearance cookie is reused instead of re-launching a browser per request
+  (~0.1–0.5 s/page vs 5–10 s). On `403` / `429` it does **smart proxy
+  escalation**: direct → datacenter → residential. It handles Cloudflare
+  only — *not* DataDome / PerimeterX / Akamai — and does no auth or paywall
+  bypass.
+- **Incremental + resumable.** DeltaFetch skips already-scraped URLs, and
+  crawls checkpoint so they can pause/resume — useful for the large
+  multi-thousand-page sources (`snopes_com`, `wmo_int`, `carbonbrief_org`).
+- **Output.** Exports CSV / JSON / JSONL / Parquet; we took **JSONL** and
+  concatenated the per-source dumps into `kb_combined.jsonl`.
+
+Stack: Scrapy + CloakBrowser/Playwright (rendering), SQLAlchemy/Alembic
+(spider + item store), Click (CLI), Pydantic (config validation).
