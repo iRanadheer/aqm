@@ -20,7 +20,8 @@ data/raw/kb_combined.jsonl ──chunk.py──> data/rag/chunks.jsonl ──ind
 
 ## 1. Chunking — `chunk.py`
 
-Splits `kb_combined.jsonl` (51,035 docs) into ~500-token windows
+Splits `kb_combined.jsonl` (51,035 docs across 22 sources — see
+[rag_sources.md](rag_sources.md)) into ~500-token windows
 (`CHUNK_TOKENS=500`, `OVERLAP_TOKENS=100`) using the `o200k_base` tiktoken
 tokenizer. Each chunk gets a `[Source: source | title | date]` header so a
 retrieved snippet is self-describing. Output `data/rag/chunks.jsonl`
@@ -32,8 +33,9 @@ retrieved snippet is self-describing. Output `data/rag/chunks.jsonl`
  "text": "[Source: ...]\n<chunk text>"}
 ```
 
-Some sources (e.g. `science_feedback_org`, `snopes_com`) are excluded by
-default to avoid leaking fact-check verdicts into the evidence.
+Some sources (`science_feedback_org`, `snopes_com`) are excluded by default
+to avoid leaking fact-check verdicts into the evidence — see the full
+per-source doc/chunk breakdown in [rag_sources.md](rag_sources.md).
 
 ## 2. Indexing — `index.py`
 

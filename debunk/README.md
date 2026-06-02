@@ -11,6 +11,7 @@ Per-stage docs live in [docs/](docs/).
 | [docs/prompts.md](docs/prompts.md) | `prompts.py` — veracity + climinator taxonomies, the v1→v5 prompt lineage, credibility hierarchy, parser |
 | [docs/inference.md](docs/inference.md) | `infer.py` — backends, RAG / Exa evidence, output slugs, resume |
 | [docs/rag.md](docs/rag.md) | `rag/` — chunk → index → hybrid retrieve (pplx-ctx + qwen indices) |
+| [docs/rag_sources.md](docs/rag_sources.md) | the 22 knowledge-base sources with per-source doc + chunk counts |
 | [docs/reports.md](docs/reports.md) | `generate_report.py`, `plot_hierarchy.py`, `evals/significance.py` |
 
 ## Two benchmarks
