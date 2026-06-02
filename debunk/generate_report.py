@@ -2,13 +2,17 @@
 
 Two independent benchmarks — no cross-mapping between taxonomies:
 
-  veracityV1  → scored against `true_veracity` (4-class)
-  climinator  → scored against `true_cfb_label` (12-class Climate Feedback)
+  veracityV2     → scored against `true_veracity` (4-class)
+  climinator_v4  → scored against `true_cfb_label` (12-class Climate Feedback)
 
-Reads every result file under `data/results/<split>/`, infers the prompt
-variant from the filename suffix (`*-veracityV1.jsonl` / `*-climinator.jsonl`),
-parses each model response with `extract_raw_label`, and writes ONE summary
-per prompt variant: `metrics_summary_<variant>.{json,md}`.
+These are the two production prompts. Earlier/experimental variants
+(veracityV1, climinator v1/v2/v3/v5) are still defined in prompts.py but are
+NOT reported — see REPORT_VARIANTS below. Reads each model's result file under
+`data/results/<split>/<slug>-<variant>.jsonl`, parses each response with
+`extract_raw_label`, and writes ONE combined summary (models as rows, variants
+as column groups) to `metrics_summary.{json,md}`. Version suffixes are dropped
+in the rendered tables (`climinator_v4` → "climinator", `veracityV2` →
+"veracity").
 
 Usage:
   python generate_report.py
@@ -36,6 +40,14 @@ from prompts import (  # noqa: E402
 RESULTS_DIR = REPO_ROOT / "data" / "results"
 SPLITS = ["test"]
 PARSE_FAIL = "__PARSE_FAIL__"
+
+# Only the production prompt pair is scored/reported. Keys are the internal
+# variant ids (matching prompts.py and the result-file suffixes); values are
+# the clean display names used in the summary tables (version suffix dropped).
+REPORT_VARIANTS: dict[str, str] = {
+    "veracityV2":    "veracity",
+    "climinator_v4": "climinator",
+}
 
 # Headline lineup. Each tuple is (display_label, slug). Files at
 # data/results/<split>/<slug>-<prompt>.jsonl — one row in each per-prompt
@@ -205,8 +217,9 @@ def write_combined_summary(split: str, all_summaries: dict[str, dict]) -> None:
     metric_cols = [("MCC", "mcc"), ("Acc", "accuracy"), ("F1", "macro_f1_present")]
     header_cells = ["Model"]
     for v in variants:
+        disp = REPORT_VARIANTS.get(v, v)
         for short, _ in metric_cols:
-            header_cells.append(f"{v} {short}")
+            header_cells.append(f"{disp} {short}")
     header = "| " + " | ".join(header_cells) + " |"
     sep = "|" + "|".join(["---"] * len(header_cells)) + "|"
 
@@ -236,12 +249,12 @@ def write_combined_summary(split: str, all_summaries: dict[str, dict]) -> None:
     notes = []
     for v in variants:
         any_model = next(iter(all_summaries[v].values()))
-        notes.append(f"`{v}` majority class: `{any_model['baseline_label']}`")
+        notes.append(f"`{REPORT_VARIANTS.get(v, v)}` majority class: `{any_model['baseline_label']}`")
     lines += ["", "*" + "; ".join(notes) + "*"]
 
     # Climinator-by-level breakdown (L1=12, L2=5, L3=3, L4=2)
-    if "climinator" in all_summaries:
-        clim = all_summaries["climinator"]
+    if "climinator_v4" in all_summaries:
+        clim = all_summaries["climinator_v4"]
         any_entry = next(iter(clim.values()))
         if "levels" in any_entry:
             lines += ["", "## Climinator hierarchy (Leippold 2024 Fig. 3)",
@@ -299,7 +312,7 @@ def main() -> None:
         print(f"\n=== {split} ===")
         _discover_extras(split)
         all_summaries: dict[str, dict] = {}
-        for variant in LABEL_SETS:
+        for variant in REPORT_VARIANTS:
             summary: dict = {}
             for label, slug in MODELS:
                 synth_rows: list[dict] | None = None

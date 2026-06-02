@@ -284,7 +284,7 @@ def plot_veracity() -> Path:
         ax.set_ylim(-0.10, 1.0)
 
     axes[0].set_ylabel("Score")
-    fig.suptitle("veracityV2 (4-class) — accuracy + macro-F1 by model and RAG",
+    fig.suptitle("veracity (4-class) — accuracy + macro-F1 by model and RAG",
                  y=1.00, fontsize=12)
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.22)
@@ -396,14 +396,14 @@ def plot_combined() -> Path:
                 dcol = "darkgreen" if delta > 0 else "darkred"
                 ax.text(x_ver[fi], -0.08, f"{sign}{abs(delta):.2f}",
                         ha="center", fontsize=9, color=dcol, fontweight="bold")
-        ax.set_title(f"veracityV2 · {title}", fontsize=12)
+        ax.set_title(f"veracity · {title}", fontsize=12)
         ax.set_xticks(x_ver)
         ax.set_xticklabels([f[0] for f in FAMILIES], fontsize=9)
         ax.spines[["top", "right"]].set_visible(False)
         ax.set_ylim(-0.12, 1.05)
     axes[1, 0].set_ylabel("Score")
 
-    fig.suptitle("Debunk benchmark — climinator (top) and veracityV2 (bottom). "
+    fig.suptitle("Debunk benchmark — climinator (top) and veracity (bottom). "
                  "Black ticks on the climinator panels mark Paper CLIM (recomputed).",
                  y=0.995, fontsize=11)
     fig.tight_layout()
