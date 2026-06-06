@@ -4,8 +4,9 @@ Writes three reports under data/results/<split>/ (test + twitter):
   metrics_summary.{json,md}              — headline FT + API across all models
   test/recot_ablation.{json,md}          — 4B + 9B: Base vs No-RECoT vs RECoT
   test/scaling_ablation.{json,md}        — Base vs RECoT-FT across sizes
-plus LaTeX row fragments for the chapter tables (test only):
+plus LaTeX row fragments for the chapter tables:
   test/{recot_ablation,scaling_frontier,quantization}.tex
+  twitter/twitter_results.tex
 
 Re-running overwrites. Per-variant classification reports are NOT written.
 
@@ -273,6 +274,18 @@ SCALING_TEX = [
 QUANT_TEX = [("CARDS-Qwen3.5-27B (BF16)", "cards-qwen35-27b"),
              ("CARDS-Qwen3.5-27B FP8",    "cards-qwen35-27b-fp8")]
 
+# twitter/twitter_results.tex — chapter Table 4 (same group order as Table 2)
+TWITTER_TEX = [
+    ("Open-source RECoT fine-tuned",
+     [("CARDS-Qwen3.5-4B", "cards-qwen35-4b"), ("CARDS-Qwen3.5-9B", "cards-qwen35-9b"),
+      ("CARDS-Qwen3.5-27B", "cards-qwen35-27b"), ("CARDS-Qwen3.5-27B FP8", "cards-qwen35-27b-fp8")]),
+    ("Closed-source (zero-shot)",
+     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.7", "claude-opus-4-7"),
+      ("GPT-5.5", "gpt-5-5")]),
+    ("Closed-source RECoT fine-tuned",
+     [("CARDS-mini-opus", "cards-mini-opus")]),
+]
+
 
 def fmt_row(name, m, pad=33):
     cells = [m[f"level_{l}_minsup_3"]["samples_f1"] for l in (1, 2, 3)] + \
@@ -281,44 +294,51 @@ def fmt_row(name, m, pad=33):
 
 
 def write_tex_fragments():
-    split_dir = os.path.join(RESULTS_DIR, "test")
     gold = load_canonical_gold()
     memo = {}
 
-    def entry(stem):
-        if stem not in memo:
-            path = os.path.join(split_dir, f"{stem}.jsonl")
-            memo[stem] = (score_one(path, "true_claims", stem, prefix="[tex] ", gold=gold)
-                          if os.path.exists(path) else None)
-            if memo[stem] is None:
-                print(f"  [tex] missing: {stem}")
-        return memo[stem]
+    def entry(stem, split="test"):
+        key = (split, stem)
+        if key not in memo:
+            path = os.path.join(RESULTS_DIR, split, f"{stem}.jsonl")
+            label_field = "labels" if split == "twitter" else "true_claims"
+            memo[key] = (score_one(path, label_field, stem, prefix=f"[tex/{split}] ",
+                                   gold=gold if split == "test" else None)
+                         if os.path.exists(path) else None)
+            if memo[key] is None:
+                print(f"  [tex] missing: {split}/{stem}")
+        return memo[key]
 
-    def emit(basename, lines):
-        out_path = os.path.join(split_dir, f"{basename}.tex")
+    def emit(split, basename, lines):
+        out_path = os.path.join(RESULTS_DIR, split, f"{basename}.tex")
         with open(out_path, "w") as f:
             f.write("\n".join(lines) + "\n")
         print(f"  -> {out_path}")
+
+    def grouped_rows(groups, split):
+        lines = []
+        for group, models in groups:
+            rows = [fmt_row(name, e) for name, stem in models if (e := entry(stem, split))]
+            if rows:
+                if lines:
+                    lines.append(r"\midrule")
+                lines.append(rf"\multicolumn{{7}}{{l}}{{\textit{{{group}}}}} \\")
+                lines += rows
+        return lines
 
     lines = []
     for i, group in enumerate(ABLATION_TEX):
         if i:
             lines.append(r"\midrule")
         lines += [fmt_row(name, e) for name, stem in group if (e := entry(stem))]
-    emit("recot_ablation", lines)
+    emit("test", "recot_ablation", lines)
 
-    lines = []
-    for group, models in SCALING_TEX:
-        rows = [fmt_row(name, e) for name, stem in models if (e := entry(stem))]
-        if rows:
-            if lines:
-                lines.append(r"\midrule")
-            lines.append(rf"\multicolumn{{7}}{{l}}{{\textit{{{group}}}}} \\")
-            lines += rows
-    emit("scaling_frontier", lines)
+    emit("test", "scaling_frontier", grouped_rows(SCALING_TEX, "test"))
 
-    emit("quantization",
+    emit("test", "quantization",
          [fmt_row(name, e) for name, stem in QUANT_TEX if (e := entry(stem))])
+
+    emit("twitter", "twitter_results", grouped_rows(TWITTER_TEX, "twitter"))
 
 
 # Scaling ablation: base vs RECoT-FT across model sizes.
