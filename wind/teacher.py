@@ -89,6 +89,17 @@ def build_client() -> OpenAI:
     return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=key)
 
 
+def supports_temperature(model: str) -> bool:
+    """Opus 4.7+ removed sampling params — sending `temperature` returns a 400.
+
+    Older models (Opus 4.6 and earlier, Sonnet, etc.) still accept it; we keep
+    temperature=0 there to match how the published data was generated.
+    Handles both `4-7` and `4.7` style ids (OpenRouter slugs vary).
+    Date-suffixed ids like `claude-opus-4-20250514` (Opus 4.0) keep it.
+    """
+    return re.search(r"opus-4[.-](?:[7-9]|[1-9]\d)(?!\d)", model) is None
+
+
 def make_query(client: OpenAI, model: str, max_tokens: int, chat: bool = False):
     # cache_control on the system prompt → ~10x cheaper after warmup.
     system_content = [{
@@ -96,6 +107,7 @@ def make_query(client: OpenAI, model: str, max_tokens: int, chat: bool = False):
         "text": full_chat_system_instruction if chat else full_system_instruction,
         "cache_control": {"type": "ephemeral"},
     }]
+    sampling = {"temperature": 0} if supports_temperature(model) else {}
 
     def _call(user_text: str) -> str:
         resp = client.chat.completions.create(
@@ -104,8 +116,8 @@ def make_query(client: OpenAI, model: str, max_tokens: int, chat: bool = False):
                 {"role": "system", "content": system_content},
                 {"role": "user", "content": user_text},
             ],
-            temperature=0,
             max_tokens=max_tokens,
+            **sampling,
         )
         return resp.choices[0].message.content
 

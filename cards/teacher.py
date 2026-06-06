@@ -48,6 +48,17 @@ load_dotenv()
     retry=tenacity.retry_if_exception_type(RateLimitError),
     reraise=False,
 )
+def supports_temperature(model: str) -> bool:
+    """Opus 4.7+ removed sampling params — sending `temperature` returns a 400.
+
+    Older models (Opus 4.6 and earlier, Sonnet, etc.) still accept it; we keep
+    temperature=0 there to match how the published data was generated.
+    Handles both `4-7` and `4.7` style ids (litellm/OpenRouter slugs vary).
+    Date-suffixed ids like `claude-opus-4-20250514` (Opus 4.0) keep it.
+    """
+    return re.search(r"opus-4[.-](?:[7-9]|[1-9]\d)(?!\d)", model) is None
+
+
 def call_teacher(model: str, text: str, true_labels, max_tokens: int, chat: bool = False) -> dict:
     system_text = chat_system_instruction if chat else system_instruction
     messages = [
@@ -66,13 +77,15 @@ def call_teacher(model: str, text: str, true_labels, max_tokens: int, chat: bool
             "content": f"### Text:\n{text}\n\n### True Labels:\n{true_labels}\n\n{recot_trigger}",
         },
     ]
-    response = litellm.completion(
+    kwargs = dict(
         model=model,
         messages=messages,
-        temperature=0,
         max_tokens=max_tokens,
         timeout=120,
     )
+    if supports_temperature(model):
+        kwargs["temperature"] = 0
+    response = litellm.completion(**kwargs)
     return {
         "response": response.choices[0].message.content,
         "usage": response.usage.model_dump(),
@@ -82,9 +95,11 @@ def call_teacher(model: str, text: str, true_labels, max_tokens: int, chat: bool
 def validate_chat_response(response: str, true_labels) -> str | None:
     """Validate a chat-format teacher response against gold. None = OK.
 
-    Checks: a parseable YAML block after </think>, exactly one claim entry
-    (single-text input = single claim), and the set of emitted codes equal
-    to the gold label set.
+    Checks: a parseable YAML block after </think>, at least one claim entry,
+    and the union of emitted codes across all entries equal to the gold
+    label set. Multi-claim entries are allowed — the model may legitimately
+    segment a multi-claim text; gold is text-level, so the check is
+    union-based (same standard as the wind chat validator demos).
     """
     after = response.split("</think>")[-1] if "</think>" in response else response
     m = re.search(r"```yaml\s*\n(.*?)```", after, re.DOTALL)
@@ -95,12 +110,15 @@ def validate_chat_response(response: str, true_labels) -> str | None:
     except yaml.YAMLError as e:
         return f"YAML parse error: {e}"
     claims = doc.get("claims") if isinstance(doc, dict) else None
-    if not isinstance(claims, list) or len(claims) != 1:
-        return f"expected exactly 1 claim entry, got {len(claims) if isinstance(claims, list) else 'none'}"
+    if not isinstance(claims, list) or len(claims) < 1:
+        return "expected at least 1 claim entry"
     # Codes via regex on the raw YAML text — yaml.safe_load would parse the
     # unquoted code 4_1_1 as the integer 411 (YAML 1.1 digit separators).
     codes = set(re.findall(r"code:\s*['\"]?([\d_]+)", m.group(1)))
-    gold = {str(c).rstrip(",").strip() for c in (true_labels if isinstance(true_labels, list) else [true_labels])}
+    # Gold may arrive as a list or as its string repr (jsonl input skips
+    # parse_labels), with stray trailing commas — extract code tokens the
+    # same way prepare_splits.parse_true_claims does.
+    gold = set(re.findall(r"[\d_]+", str(true_labels)))
     if codes != gold:
         return f"codes {sorted(codes)} != gold {sorted(gold)}"
     return None

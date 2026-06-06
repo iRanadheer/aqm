@@ -98,6 +98,29 @@ def parse_true_claims(val):
     return sorted(re.findall(r"[\d_]+", str(val)))
 
 
+def _norm_text(t):
+    """Whitespace-collapsed, lowercased text — for contamination matching.
+
+    Benchmark and train-pool copies of the same passage differ in whitespace
+    and quoting, so exact matching misses them.
+    """
+    return re.sub(r"\s+", " ", str(t)).strip().lower()
+
+
+def load_benchmark_texts():
+    """Normalized texts of cards_val + cards_test, for train decontamination."""
+    texts = set()
+    for name in ("cards_val.jsonl", "cards_test.jsonl"):
+        path = os.path.join(DATA_DIR, name)
+        if not os.path.exists(path):
+            print(f"  WARNING: {name} not found — decontamination check incomplete")
+            continue
+        with open(path) as f:
+            for line in f:
+                texts.add(_norm_text(json.loads(line)["text"]))
+    return texts
+
+
 def load_api_teacher_rows():
     path = os.path.join(DATA_DIR, "training_recot_opus.jsonl")
     with open(path) as f:
@@ -134,18 +157,26 @@ def prepare_train_splits():
     print(f"Loaded {len(raw)} RECoT training samples from training_recot_opus.jsonl")
 
     train_idx, eval_idx = stratified_train_eval_indices(raw)
+    bench = load_benchmark_texts()
 
     for name, indices in [("cards_train", train_idx), ("cards_train_eval", eval_idx)]:
+        # Decontaminate AFTER the split: rows whose normalized text appears in
+        # val/test are dropped; the partition of all other rows is unchanged.
+        kept = [i for i in indices if _norm_text(raw[i]["text"]) not in bench]
+        dropped = len(indices) - len(kept)
         for suffix, use_recot in [("", True), ("_norecot", False)]:
             records = [
                 build_sft_record(raw[i]["text"], raw[i]["response"], use_recot=use_recot)
-                for i in indices
+                for i in kept
             ]
             out_path = os.path.join(DATA_DIR, f"{name}{suffix}.jsonl")
             with open(out_path, "w") as f:
                 for r in records:
                     f.write(json.dumps(r) + "\n")
-            print(f"  {name}{suffix}.jsonl: {len(records)} samples")
+            msg = f"  {name}{suffix}.jsonl: {len(records)} samples"
+            if dropped:
+                msg += f" ({dropped} dropped: text appears in val/test)"
+            print(msg)
 
 
 def prepare_chat_train_splits():
@@ -166,11 +197,16 @@ def prepare_chat_train_splits():
 
     api_raw = load_api_teacher_rows()
     train_idx, eval_idx = stratified_train_eval_indices(api_raw)
+    bench = load_benchmark_texts()
 
     for name, indices in [("cards_train_chat", train_idx), ("cards_train_eval_chat", eval_idx)]:
-        records, missing = [], 0
+        records, missing, dropped = [], 0, 0
         for i in indices:
             text = api_raw[i]["text"]
+            # Same decontamination as the API splits — keeps partitions identical.
+            if _norm_text(text) in bench:
+                dropped += 1
+                continue
             response = chat_by_text.get(text)
             if response is None:
                 missing += 1
@@ -181,6 +217,8 @@ def prepare_chat_train_splits():
             for r in records:
                 f.write(json.dumps(r) + "\n")
         msg = f"  {name}.jsonl: {len(records)} samples"
+        if dropped:
+            msg += f" ({dropped} dropped: text appears in val/test)"
         if missing:
             msg += f" (WARNING: {missing} rows missing from chat teacher file — rerun teacher.py --chat)"
         print(msg)

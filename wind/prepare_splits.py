@@ -299,10 +299,23 @@ def main() -> None:
     print(f"  Train:      {len(df_train)} rows")
     print(f"  Train eval: {len(df_train_eval)} rows")
 
+    # Benchmark texts (normalized) — train rows matching val/test are dropped
+    # AFTER the split, so the partition of all other rows is unchanged. The
+    # benchmark-side dedup above uses exact strip-matching and misses
+    # whitespace/quote near-dupes (e.g. real_106 ≈ heartland_171).
+    def _norm(t: str) -> str:
+        import re as _re
+        return _re.sub(r"\s+", " ", str(t)).strip().lower()
+
+    bench_norm = {_norm(c) for c in df_val["content"]} | {_norm(c) for c in df_test["content"]}
+
     def finalize_train(frame: pd.DataFrame, out_path: Path) -> None:
         stats: Counter = Counter()
         with open(out_path, "w") as f:
             for _, row in frame.iterrows():
+                if _norm(row["content"]) in bench_norm:
+                    stats["dropped_in_benchmark"] += 1
+                    continue
                 lab = to_labels(row["raw_narratives"], row["raw_claims"])
                 rec = {
                     "itemId": row["itemId"],
