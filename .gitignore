@@ -9,6 +9,7 @@ __pycache__/
 
 .archives/
 unsloth_compiled_cache/
+vast_cards_chatbot
 
 kb_combined.jsonl
 oss/

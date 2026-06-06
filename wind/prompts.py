@@ -272,3 +272,64 @@ full_system_instruction = _instruction_template.format(
 
 # Default export
 system_prompt = full_system_instruction
+
+
+# ---------------------------------------------------------------------------
+# Chat variant (for the wind-chat model) — same philosophy as cards-chat.
+# ---------------------------------------------------------------------------
+# Input is a single claim or a list of claims (any format) — e.g. extracted
+# from a long text or pasted directly. Each claim gets the full three-level
+# cascade independently. Output is one YAML entry per claim, with its codes
+# (code + reason) nested under `categories`; codebook labels are joined by
+# code at render time, not emitted. A claim with no opposition gets
+# `frames: []` and `categories: []` (the per-claim equivalent of
+# `opposition_detected: false`).
+#
+# Derived from _instruction_template: identical header + codebooks +
+# instructions, ONLY the output format is swapped.
+
+chat_output_format = """The input is a single claim or a list of claims.
+
+### OUTPUT FORMAT:
+Reason inside <think> tags using the following chain, then output YAML. Every step is mandatory when reached — do not skip.
+
+<think>
+1. CONTEXT
+   One-line summary of the source text: type (news, comment, forum post, council minutes, etc.), tone, overall intent, and number of claims.
+
+2. ANALYSIS
+   One block per claim, in input order:
+   Claim N ("short gist of the claim"):
+   a. Detection: One line — the opposition signal (or its absence) and the decision: true / false. If false, end the block here.
+   b. Frames: Shortlist every frame (N_1–N_8) that could plausibly apply, then adjudicate each — "[N_X]: KEEP — [brief reason]" or "[N_X]: REMOVE — [brief reason]". If none survive, the frame list is [N_0].
+   c. Claims: For each KEPT frame, shortlist every claim that could plausibly apply under it, then adjudicate each — "[C_X_Y]: KEEP — [brief reason]" or "[C_X_Y]: REMOVE — [brief reason]". Granularity: replace a kept parent (C_X_0 with subclaims) with the subclaim that fits better. Force-fit check: if every kept claim is supported ONLY by tone, sarcasm, a rhetorical question, or a cryptic fragment, drop them and use [C_0_1] alone.
+   d. Special considerations (where relevant): cost/price language — ask "who bears the cost?" per dimension: consumers/households/end-users/families/the poor → C_20_0; project capital or LCOE → C_27_0; taxpayers/municipalities → C_21_0; subsidy dependence (negative framing) → C_24_0; select few benefit → C_22_0; multiple can co-occur. Proponent-misconduct framing (C_32_0) — the accused must be proponents (industry, advocates, sympathetic officials), not the author being smeared.
+   e. Final: frames [..]; claims [..]
+</think>
+
+```yaml
+claims:
+  - claim: "<claim text, verbatim from the input>"
+    frames: [<frame_code>, ...]
+    categories:
+      - code: <claim_code>
+        reason: "<one line: why this code applies to this claim>"
+```
+
+STRICT RULES:
+- All reasoning must be inside <think> tags. Nothing after </think> except the YAML block.
+- One YAML entry per claim, in input order. All its codes are nested under `categories` — the claim text and `frames` appear exactly once per claim.
+- Every input claim must appear in the YAML. No-opposition claims get `frames: []` and `categories: []`.
+- Be concise. No second-guessing. Single pass per claim. Adjudication entries (KEEP/REMOVE) must be one line each.
+"""
+
+_chat_instruction_template = _instruction_template.split("### OUTPUT FORMAT:")[0] + chat_output_format
+
+slim_chat_system_instruction = _chat_instruction_template.format(
+    frames_codebook=slim_frames_codebook,
+    claims_codebook=slim_claims_codebook,
+)
+full_chat_system_instruction = _chat_instruction_template.format(
+    frames_codebook=full_frames_codebook,
+    claims_codebook=full_claims_codebook,
+)

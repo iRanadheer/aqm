@@ -27,7 +27,7 @@ from tqdm import tqdm
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from prompts import slim_system_instruction, slim_system_instruction_norecot, cot_trigger  # noqa: E402
+from prompts import slim_system_instruction, slim_system_instruction_norecot  # noqa: E402
 
 BACKENDS = {
     "vllm":       ("http://localhost:8000/v1",        None),
@@ -86,10 +86,11 @@ system_content = [{
 
 
 def _user_content(text: str) -> str:
-    # cot_trigger dropped for all variants — uniform user prompt across
-    # RECoT-FT, no-RECoT-FT, and base. RECoT-FT still gets thinking-mode
-    # via the chat template (enable_thinking=True) and its training-matched
-    # system prompt, just without the explicit "step by step" appendix.
+    # Uniform bare user prompt across RECoT-FT, no-RECoT-FT, and base.
+    # cot_trigger was removed from the codebase entirely — training data
+    # (prepare_splits.py) and inference now agree on `### Text:` alone.
+    # RECoT-FT still gets thinking-mode via the chat template
+    # (enable_thinking=True) and its training-matched system prompt.
     return f"### Text:\n{text}"
 
 

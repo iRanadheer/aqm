@@ -22,11 +22,13 @@ format: a `<think>` reasoning block with a fixed scaffold, then a YAML
 
 ## Triggers
 
-- `cot_trigger` — appended to the user message at inference time, prompts
-  the model to think before answering.
 - `recot_trigger` — used by the teacher script. Tells the teacher to
   generate reasoning that arrives at the given true labels without
-  revealing them in the trace.
+  revealing them in the trace. The same trigger serves both the API and
+  chat (`--chat`) teacher passes; only the system prompt differs.
+- `cot_trigger` was removed: training and inference both use a bare
+  `### Text:` user message; the system prompt alone pins the output
+  format.
 
 ## Why centralize
 

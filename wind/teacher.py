@@ -10,6 +10,10 @@ Input/output mapping:
   data/train/train_labels.jsonl        → data/train/train.jsonl
   data/train/train_eval_labels.jsonl   → data/train/train_eval.jsonl
 
+With --chat (chat-format SFT data, same rows/partition, validated against gold):
+  data/train/train_labels.jsonl        → data/train/train_chat.jsonl
+  data/train/train_eval_labels.jsonl   → data/train/train_eval_chat.jsonl
+
 Each output row (OpenAI SFT chat format):
     {"messages": [
         {"role": "system", "content": <system prompt>},
@@ -33,10 +37,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
 from openai import OpenAI
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
@@ -45,7 +51,12 @@ from tqdm import tqdm
 REPO_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from prompts import full_system_instruction, slim_system_instruction  # noqa: E402
+from prompts import (  # noqa: E402
+    full_chat_system_instruction,
+    full_system_instruction,
+    slim_chat_system_instruction,
+    slim_system_instruction,
+)
 from clean_recot import clean_file as clean_recot  # noqa: E402
 
 DEFAULT_MODEL = "anthropic/claude-opus-4.7"
@@ -78,11 +89,11 @@ def build_client() -> OpenAI:
     return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=key)
 
 
-def make_query(client: OpenAI, model: str, max_tokens: int):
+def make_query(client: OpenAI, model: str, max_tokens: int, chat: bool = False):
     # cache_control on the system prompt → ~10x cheaper after warmup.
     system_content = [{
         "type": "text",
-        "text": full_system_instruction,
+        "text": full_chat_system_instruction if chat else full_system_instruction,
         "cache_control": {"type": "ephemeral"},
     }]
 
@@ -130,7 +141,7 @@ def build_teacher_user_message(row: dict) -> str:
     )
 
 
-def build_sft_record(row: dict, assistant_response: str) -> dict:
+def build_sft_record(row: dict, assistant_response: str, chat: bool = False) -> dict:
     """Final SFT record (OpenAI chat format) — the student sees only the text.
 
     System prompt is SLIM (matches the rest of data/train/train.jsonl).
@@ -140,22 +151,58 @@ def build_sft_record(row: dict, assistant_response: str) -> dict:
     """
     return {
         "messages": [
-            {"role": "system", "content": slim_system_instruction},
+            {"role": "system", "content": slim_chat_system_instruction if chat else slim_system_instruction},
             {"role": "user", "content": USER_TEMPLATE.format(content=row["content"])},
             {"role": "assistant", "content": assistant_response},
         ],
     }
 
 
+def validate_chat_response(response: str, row: dict) -> str | None:
+    """Validate a chat-format teacher response against gold. None = OK.
+
+    Checks: a parseable YAML block after </think>, exactly one claim entry,
+    frames set == gold frames, codes set == gold claims. No-opposition rows
+    must have empty frames and categories.
+    """
+    after = response.split("</think>")[-1] if "</think>" in response else response
+    m = re.search(r"```yaml\s*\n(.*?)```", after, re.DOTALL)
+    if not m:
+        return "no YAML block after </think>"
+    try:
+        doc = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as e:
+        return f"YAML parse error: {e}"
+    claims = doc.get("claims") if isinstance(doc, dict) else None
+    if not isinstance(claims, list) or len(claims) != 1:
+        return f"expected exactly 1 claim entry, got {len(claims) if isinstance(claims, list) else 'none'}"
+    entry = claims[0]
+    frames = {str(x).strip() for x in (entry.get("frames") or [])}
+    cats = entry.get("categories") or []
+    codes = {str(c.get("code")).strip() for c in cats if isinstance(c, dict)}
+    gold_frames = {str(x).strip() for x in (row.get("true_frames") or [])}
+    gold_claims = {str(x).strip() for x in (row.get("true_claims") or [])}
+    if frames != gold_frames:
+        return f"frames {sorted(frames)} != gold {sorted(gold_frames)}"
+    if codes != gold_claims:
+        return f"codes {sorted(codes)} != gold {sorted(gold_claims)}"
+    return None
+
+
 # ---------------------------------------------------------------------------
 # IO
 # ---------------------------------------------------------------------------
 
-def output_path_for(input_path: Path) -> Path:
-    """Strip the `_labels` suffix from the input stem to get the SFT output path."""
+def output_path_for(input_path: Path, chat: bool = False) -> Path:
+    """Strip the `_labels` suffix from the input stem to get the SFT output path.
+
+    chat=True appends `_chat`: train_labels.jsonl → train_chat.jsonl.
+    """
     stem = input_path.stem
     if stem.endswith("_labels"):
         stem = stem[: -len("_labels")]
+    if chat:
+        stem += "_chat"
     return input_path.with_name(stem + input_path.suffix)
 
 
@@ -178,10 +225,14 @@ def load_done_contents(path: Path) -> set[str]:
     return done
 
 
-def process_row(row: dict, call) -> tuple[dict | None, str | None]:
+def process_row(row: dict, call, chat: bool = False) -> tuple[dict | None, str | None]:
     try:
         response = call(build_teacher_user_message(row))
-        return build_sft_record(row, response), None
+        if chat:
+            err = validate_chat_response(response, row)
+            if err:
+                return None, f"[{row.get('itemId', '?')}] VALIDATION (will retry on rerun): {err}"
+        return build_sft_record(row, response, chat=chat), None
     except Exception as e:
         return None, f"[{row.get('itemId', '?')}] ERROR: {e}"
 
@@ -191,7 +242,7 @@ def process_row(row: dict, call) -> tuple[dict | None, str | None]:
 # ---------------------------------------------------------------------------
 
 def run_one_file(in_path: Path, client: OpenAI, args) -> None:
-    out_path = output_path_for(in_path)
+    out_path = output_path_for(in_path, chat=args.chat)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(in_path) as f:
@@ -206,11 +257,11 @@ def run_one_file(in_path: Path, client: OpenAI, args) -> None:
     if not remaining:
         return
 
-    call = make_query(client, args.model, args.max_tokens)
+    call = make_query(client, args.model, args.max_tokens, chat=args.chat)
 
     n_ok = n_err = 0
     with open(out_path, "a") as fout, ThreadPoolExecutor(max_workers=args.concurrency) as pool:
-        futures = {pool.submit(process_row, r, call): r for r in remaining}
+        futures = {pool.submit(process_row, r, call, args.chat): r for r in remaining}
         for fut in tqdm(as_completed(futures), total=len(futures), desc=in_path.stem):
             rec, err = fut.result()
             if err is not None:
@@ -230,6 +281,9 @@ def main() -> None:
     parser.add_argument("--concurrency", type=int, default=10)
     parser.add_argument("--max-tokens", type=int, default=2000)
     parser.add_argument("--max", type=int, default=None, help="Process only the first N remaining rows per file.")
+    parser.add_argument("--chat", action="store_true",
+                        help="Generate chat-format SFT data (claim → frames + nested categories + reasons). "
+                             "Outputs *_chat.jsonl; responses validated against gold instead of clean_recot.")
     args = parser.parse_args()
 
     client = build_client()
@@ -240,11 +294,12 @@ def main() -> None:
             print(f"Skip (not found): {p}")
             continue
         run_one_file(p, client, args)
-        output_paths.append(output_path_for(p))
+        output_paths.append(output_path_for(p, chat=args.chat))
 
     # Post-generation filter: drop any rows where the teacher second-guessed itself.
-    # Rerunning generate_recot.py picks them back up via resume-by-content.
-    if output_paths:
+    # Rerunning teacher.py picks them back up via resume-by-content.
+    # Chat mode skips this — per-row YAML validation against gold replaces it.
+    if output_paths and not args.chat:
         print("\n=== Filtering second-guessing ===")
         for p in output_paths:
             clean_recot(p)

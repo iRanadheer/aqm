@@ -100,11 +100,54 @@ slim_system_instruction         = _build(slim_codebook, _OUTPUT_FORMAT_RECOT)
 slim_system_instruction_norecot = _build(slim_codebook, _OUTPUT_FORMAT_NORECOT)
 
 # ---------------------------------------------------------------------------
-# Triggers (final user messages)
+# Chat variant (for the cards-chat model)
 # ---------------------------------------------------------------------------
+# Input is a single claim or a list of claims (any format) — e.g. extracted
+# from a long text by an upstream model, or pasted directly by a user. The
+# model classifies every claim and returns one YAML entry per claim with its
+# categories (code + reason) nested under it, so the orchestrator can render
+# a table without parsing anything but the YAML. Labels are NOT emitted —
+# they are joined from taxonomy.csv by code at render time.
+#
+# Identical header + instructions as the single-text variants; ONLY the
+# output format differs.
 
-# CoT trigger: used as the final user message at inference
-cot_trigger = """Let's work this out in a step by step way to be sure we have the right answer."""
+chat_output_format = """The input is a single claim or a list of claims.
+
+### OUTPUT FORMAT:
+Reason inside <think> tags following this structure, then output YAML:
+
+<think>
+1. CONTEXT: One line. Text type, tone, intent. Sincere or satire/irony? Number of claims.
+2. ANALYSIS: One block per claim, in input order:
+Claim N ("short gist of the claim"):
+- SCAN: Go through each superclaim group (1_ through 7_). For each group, state "not relevant" or list all plausible codes.
+- VERIFY: One line per code from SCAN. Format: "[code]: KEEP/REMOVE — [max 10 words why]." Omit VERIFY when SCAN found no candidates.
+- Final codes: [codes, or 0_0_0]
+</think>
+```yaml
+claims:
+  - claim: "<claim text, verbatim from the input>"
+    categories:
+      - code: <category_code>
+        reason: "<one line: why this category applies to this claim>"
+```
+
+STRICT RULES:
+- All reasoning must be inside <think> tags. Nothing after </think> except the YAML block.
+- One YAML entry per claim, in input order. All its categories are nested under it — the claim text appears exactly once.
+- Every input claim must appear in the YAML. Irrelevant claims get a single `code: 0_0_0` entry.
+- Be concise. VERIFY entries must be one line each.
+"""
+
+chat_system_instruction      = _build(codebook,      chat_output_format)
+slim_chat_system_instruction = _build(slim_codebook, chat_output_format)
+
+# ---------------------------------------------------------------------------
+# Trigger (teacher data generation)
+# ---------------------------------------------------------------------------
+# The inference-time cot_trigger was removed: training and inference now use
+# a bare user message; the system prompt alone mandates <think> + YAML.
 
 # RECoT trigger: used when generating training data with a teacher model.
 # Tells the teacher to produce reasoning that arrives at the known true labels.
