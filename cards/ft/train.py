@@ -21,10 +21,15 @@ CARDS SFT trainer — single entrypoint for every variant.
   uv run train.py --base-model Qwen/Qwen3.5-4B
   uv run train.py --base-model Qwen/Qwen3.5-4B --no-recot
   uv run train.py --base-model Qwen/Qwen3.6-27B --joint
+  uv run train.py --base-model Qwen/Qwen3.6-27B --combined
   uv run train.py --base-model Qwen/Qwen3.5-4B --lora-only
 
 Single-task: trains on iRanadheer/cards_sft_dataset only.
 Joint:      adds iRanadheer/wind-opposition-sft (CARDS+Wind from the same backbone).
+Combined:   trains on iRanadheer/cards-wind-qwen-chat — API + chat formats for
+            both CARDS and Wind in one model; the system prompt selects the
+            output format at inference. Produces CARDS-Wind-<model> (the
+            API-only predecessors carry an -API suffix).
 
 Pushes a LoRA adapter to <hf_user>/<variant>-lora AND merges + pushes the
 full BF16 model to <hf_user>/<variant>. Pass --lora-only to skip the merge.
@@ -48,12 +53,18 @@ sys.stderr.reconfigure(line_buffering=True)
 HF_USERNAME = os.environ.get("HF_USERNAME", "iRanadheer")
 CARDS_REPO = f"{HF_USERNAME}/cards_sft_dataset"
 WIND_REPO = f"{HF_USERNAME}/wind-opposition-sft"
+# Combined API+chat dataset lives under iRanadheer (public) regardless of the
+# namespace the model is pushed to (e.g. HF_USERNAME=C3DS).
+COMBINED_REPO = "iRanadheer/cards-wind-qwen-chat"
 
 ap = argparse.ArgumentParser(description="CARDS / CARDS+Wind SFT trainer")
 ap.add_argument("--base-model", required=True,
                 help="HF model id, e.g. Qwen/Qwen3.5-4B or Qwen/Qwen3.6-27B")
 ap.add_argument("--joint", action="store_true",
                 help="Joint CARDS + Wind training (default: CARDS only)")
+ap.add_argument("--combined", action="store_true",
+                help="Train on the combined API+chat CARDS+Wind dataset "
+                     f"({COMBINED_REPO}); one model serves both output formats.")
 ap.add_argument("--recot", dest="recot", action="store_true", default=True)
 ap.add_argument("--no-recot", dest="recot", action="store_false")
 ap.add_argument("--max-seq", type=int, default=8192)
@@ -63,12 +74,22 @@ ap.add_argument("--variant", default=None,
                 help="Override variant name (default: derived from model + flags)")
 ap.add_argument("--epochs", type=int, default=3)
 ap.add_argument("--lr", type=float, default=2e-4)
+ap.add_argument("--batch-size", type=int, default=1,
+                help="per_device_train_batch_size. Keep batch_size*grad_accum "
+                     "constant to preserve the effective batch (recipe).")
+ap.add_argument("--grad-accum", type=int, default=8,
+                help="gradient_accumulation_steps.")
 ap.add_argument("--lora-rank", type=int, default=16,
                 help="LoRA rank r. Effective update scale is alpha/r.")
 ap.add_argument("--lora-alpha", type=int, default=16,
                 help="LoRA alpha. Lower = less perturbation of the base prior "
                      "(useful for strong-base scales where vanilla SFT regresses).")
 args = ap.parse_args()
+
+if args.combined and args.joint:
+    ap.error("--combined and --joint are mutually exclusive")
+if args.combined and not args.recot:
+    ap.error("--combined data is RECoT-only (every row targets <think> + YAML); drop --no-recot")
 
 
 # ---------------------------------------------------------------------------
@@ -78,8 +99,10 @@ model_short = args.base_model.split("/")[-1]                      # e.g. Qwen3.5
 
 if args.variant:
     variant = args.variant
-elif args.joint:
+elif args.combined:
     variant = f"CARDS-Wind-{model_short}"                          # e.g. CARDS-Wind-Qwen3.6-27B
+elif args.joint:
+    variant = f"CARDS-Wind-{model_short}-API"                      # legacy API-only joint line
 else:
     recot_tag = "recot" if args.recot else "norecot"
     variant = f"cards_{model_short.lower().replace('-', '_')}_{recot_tag}"
@@ -95,7 +118,7 @@ cards_eval_file = "cards_train_eval.jsonl" if args.recot else "cards_train_eval_
 print("=" * 60)
 print(f"  Variant:    {variant}")
 print(f"  Base model: {args.base_model}")
-print(f"  Joint:      {args.joint}  RECoT: {args.recot}")
+print(f"  Combined:   {args.combined}  Joint: {args.joint}  RECoT: {args.recot}")
 print(f"  Max seq:    {args.max_seq}")
 print(f"  Push merged:{args.push_merged}  (use --lora-only to skip)")
 print("=" * 60)
@@ -158,20 +181,33 @@ print(f"  loaded in {time.time() - t:.1f}s")
 print("\n[2/5] Loading dataset ...")
 t = time.time()
 
-train_ds = load_dataset(CARDS_REPO, data_files=cards_train_file, split="train", token=hf_token)
-eval_ds = load_dataset(CARDS_REPO, data_files=cards_eval_file, split="train", token=hf_token)
+if args.combined:
+    # cards/ and wind/ files are each already API+chat combined.
+    parts = {
+        split: [
+            load_dataset(COMBINED_REPO, data_files=f"{folder}/{split}.jsonl",
+                         split="train", token=hf_token).select_columns(["messages"])
+            for folder in ("cards", "wind")
+        ]
+        for split in ("train", "train_eval")
+    }
+    train_ds = concatenate_datasets(parts["train"]).shuffle(seed=42)
+    eval_ds = concatenate_datasets(parts["train_eval"]).shuffle(seed=42)
+else:
+    train_ds = load_dataset(CARDS_REPO, data_files=cards_train_file, split="train", token=hf_token)
+    eval_ds = load_dataset(CARDS_REPO, data_files=cards_eval_file, split="train", token=hf_token)
 
-if args.joint:
-    wind_train = load_dataset(WIND_REPO, data_files="train/train.jsonl", split="train", token=hf_token)
-    wind_eval = load_dataset(WIND_REPO, data_files="train/train_eval.jsonl", split="train", token=hf_token)
-    train_ds = concatenate_datasets([
-        train_ds.select_columns(["messages"]),
-        wind_train.select_columns(["messages"]),
-    ]).shuffle(seed=42)
-    eval_ds = concatenate_datasets([
-        eval_ds.select_columns(["messages"]),
-        wind_eval.select_columns(["messages"]),
-    ]).shuffle(seed=42)
+    if args.joint:
+        wind_train = load_dataset(WIND_REPO, data_files="train/train.jsonl", split="train", token=hf_token)
+        wind_eval = load_dataset(WIND_REPO, data_files="train/train_eval.jsonl", split="train", token=hf_token)
+        train_ds = concatenate_datasets([
+            train_ds.select_columns(["messages"]),
+            wind_train.select_columns(["messages"]),
+        ]).shuffle(seed=42)
+        eval_ds = concatenate_datasets([
+            eval_ds.select_columns(["messages"]),
+            wind_eval.select_columns(["messages"]),
+        ]).shuffle(seed=42)
 
 print(f"  train: {len(train_ds)}, eval: {len(eval_ds)}")
 
@@ -220,8 +256,8 @@ config = SFTConfig(
     eos_token=eos_token,
 
     num_train_epochs=args.epochs,
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=8,
+    per_device_train_batch_size=args.batch_size,
+    gradient_accumulation_steps=args.grad_accum,
     learning_rate=args.lr,
     max_length=args.max_seq,
 
