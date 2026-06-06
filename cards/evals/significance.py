@@ -88,6 +88,41 @@ COMPARISONS = [
         ("CARDS-27B FP8 vs full", "cards-qwen35-27b-fp8", "cards-qwen35-27b")]),
 ]
 
+VERDICT_TEX = {"improves": "higher", "lower": "lower", "comparable": "comparable"}
+
+# Comparisons as reported in the chapter appendix (samples-F1, L3).
+# RECoT rows use the no-think baseline — the no-RECoT models' natural
+# inference mode — to match the chapter's ablation table.
+TEX_COMPARISONS = {
+    "test": [
+        ("Fine-tuning (open-source)", [
+            (r"CARDS-Qwen3.5-4B vs.\ base",  "cards-qwen35-4b",  "qwen35-4b-base"),
+            (r"CARDS-Qwen3.5-9B vs.\ base",  "cards-qwen35-9b",  "qwen35-9b-base"),
+            (r"CARDS-Qwen3.5-27B vs.\ base", "cards-qwen35-27b", "qwen35-27b-base")]),
+        ("Fine-tuning (closed-source)", [
+            (r"CARDS-mini-opus vs.\ GPT-4o-mini", "cards-mini-opus", "gpt-4o-mini")]),
+        ("Scaling", [
+            (r"CARDS-Qwen3.5-9B vs.\ 4B",  "cards-qwen35-9b",  "cards-qwen35-4b"),
+            (r"CARDS-Qwen3.5-27B vs.\ 9B", "cards-qwen35-27b", "cards-qwen35-9b")]),
+        ("RECoT ablation", [
+            (r"CARDS-Qwen3.5-4B vs.\ no RECoT",  "cards-qwen35-4b",  "cards-qwen35-4b-norecot-nothink"),
+            (r"CARDS-Qwen3.5-9B vs.\ no RECoT",  "cards-qwen35-9b",  "cards-qwen35-9b-norecot-nothink"),
+            (r"CARDS-Qwen3.5-27B vs.\ no RECoT", "cards-qwen35-27b", "cards-qwen35-27b-norecot-nothink")]),
+        ("Versus frontier models", [
+            (r"CARDS-Qwen3.5-27B vs.\ Claude Opus 4.7", "cards-qwen35-27b", "claude-opus-4-7"),
+            (r"CARDS-Qwen3.5-27B vs.\ GPT-5.5",         "cards-qwen35-27b", "gpt-5-5"),
+            (r"CARDS-mini-opus vs.\ Claude Opus 4.7",   "cards-mini-opus",  "claude-opus-4-7"),
+            (r"CARDS-mini-opus vs.\ GPT-5.5",           "cards-mini-opus",  "gpt-5-5")]),
+        (r"Open vs.\ closed fine-tunes", [
+            (r"CARDS-mini-opus vs.\ CARDS-Qwen3.5-27B", "cards-mini-opus", "cards-qwen35-27b")]),
+        ("Quantization", [
+            (r"CARDS-Qwen3.5-27B FP8 vs.\ BF16", "cards-qwen35-27b-fp8", "cards-qwen35-27b")]),
+    ],
+}
+# twitter: same lineup — groups whose files are absent on that split are
+# skipped by the FileNotFoundError handling below.
+TEX_COMPARISONS["twitter"] = TEX_COMPARISONS["test"]
+
 
 # ---------------------------------------------------------------------------
 # Loader (rows aligned by unique input text; labels truncated + deduped)
@@ -245,11 +280,21 @@ def verdict(M):
     return "comparable"
 
 
+def cached_compare(cache, split, slug_a, slug_b, cfg):
+    """compare() memoized on (split, slug_a, slug_b) — the md summary and the
+    .tex appendix share most pairs, so each BCa run happens once."""
+    key = (split, slug_a, slug_b)
+    if key not in cache:
+        cache[key] = compare(split, slug_a, slug_b, cfg["level"], cfg["min_support"],
+                             cfg["n_resamples"], cfg["confidence"], cfg["seed"])
+    return cache[key]
+
+
 # ---------------------------------------------------------------------------
 # Markdown report (one file per split)
 # ---------------------------------------------------------------------------
 
-def build_split(split, cfg):
+def build_split(split, cfg, cache):
     pct = int(round(cfg["confidence"] * 100))
     L = [f"# CARDS results — {split} set\n",
          f"Headline metric: **samples-F1** (how well each document is tagged), "
@@ -279,8 +324,7 @@ def build_split(split, cfg):
         rows = []
         for label, sa, sb in pairs:
             try:
-                res = compare(split, sa, sb, cfg["level"], cfg["min_support"],
-                              cfg["n_resamples"], cfg["confidence"], cfg["seed"])
+                res = cached_compare(cache, split, sa, sb, cfg)
             except FileNotFoundError:
                 continue
             M = res["samples"]
@@ -293,12 +337,36 @@ def build_split(split, cfg):
     return "\n".join(L) + "\n"
 
 
+def build_tex(split, cfg, cache):
+    """LaTeX row fragment for the chapter appendix (samples-F1 gap + CI).
+
+    Rows only — main.tex owns the table scaffolding and \\inputs this."""
+    lines = []
+    for group, pairs in TEX_COMPARISONS[split]:
+        rows = []
+        for label, sa, sb in pairs:
+            try:
+                res = cached_compare(cache, split, sa, sb, cfg)
+            except FileNotFoundError:
+                continue
+            M = res["samples"]
+            rows.append(f"{label} & ${M['delta']:+.3f}$ $[{M['lo']:+.3f}, {M['hi']:+.3f}]$"
+                        f" & {VERDICT_TEX[verdict(M)]} \\\\")
+        if rows:
+            lines.append(rf"\multicolumn{{3}}{{l}}{{\textit{{{group}}}}} \\")
+            lines += rows
+    return "\n".join(lines) + "\n"
+
+
 def run_report(cfg, out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
     for split in ("test", "twitter"):
         print(f"  computing {split} ...")
-        (out_dir / f"summary_{split}.md").write_text(build_split(split, cfg))
+        cache = {}
+        (out_dir / f"summary_{split}.md").write_text(build_split(split, cfg, cache))
         print(f"  -> {out_dir}/summary_{split}.md")
+        (out_dir / f"sig_{split}.tex").write_text(build_tex(split, cfg, cache))
+        print(f"  -> {out_dir}/sig_{split}.tex")
 
 
 def run_pair(split, slug_a, slug_b, cfg):

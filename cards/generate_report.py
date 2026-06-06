@@ -4,6 +4,8 @@ Writes three reports under data/results/<split>/ (test + twitter):
   metrics_summary.{json,md}              — headline FT + API across all models
   test/recot_ablation.{json,md}          — 4B + 9B: Base vs No-RECoT vs RECoT
   test/scaling_ablation.{json,md}        — Base vs RECoT-FT across sizes
+plus LaTeX row fragments for the chapter tables (test only):
+  test/{recot_ablation,scaling_frontier,quantization}.tex
 
 Re-running overwrites. Per-variant classification reports are NOT written.
 
@@ -235,6 +237,88 @@ RECOT_ABLATION = [
     ("CARDS-Qwen3.5-27B",                        "cards-qwen35-27b"),
 ]
 
+# ---------------------------------------------------------------------------
+# LaTeX row fragments for the chapter tables (data/results/test/*.tex).
+# Rows only — main.tex owns the table scaffolding and \inputs these.
+# Columns: model, Samples F1 L1-3, Macro F1 L1-3 (minsup 3, %.3f keeps
+# trailing zeros that the md tables drop).
+# ---------------------------------------------------------------------------
+
+# recot_ablation.tex — chapter Table 1 (\midrule between size groups)
+ABLATION_TEX = [
+    [("CARDS-Qwen3.5-4B (no RECoT)",  "cards-qwen35-4b-norecot-nothink"),
+     ("CARDS-Qwen3.5-4B",             "cards-qwen35-4b")],
+    [("CARDS-Qwen3.5-9B (no RECoT)",  "cards-qwen35-9b-norecot-nothink"),
+     ("CARDS-Qwen3.5-9B",             "cards-qwen35-9b")],
+    [("CARDS-Qwen3.5-27B (no RECoT)", "cards-qwen35-27b-norecot-nothink"),
+     ("CARDS-Qwen3.5-27B",            "cards-qwen35-27b")],
+]
+
+# scaling_frontier.tex — chapter Table 2 (groups -> \multicolumn{7}{l}{\textit{...}})
+SCALING_TEX = [
+    ("Open-source base (zero-shot)",
+     [("Qwen3.5-4B Base", "qwen35-4b-base"), ("Qwen3.5-9B Base", "qwen35-9b-base"),
+      ("Qwen3.5-27B Base", "qwen35-27b-base")]),
+    ("Open-source RECoT fine-tuned",
+     [("CARDS-Qwen3.5-4B", "cards-qwen35-4b"), ("CARDS-Qwen3.5-9B", "cards-qwen35-9b"),
+      ("CARDS-Qwen3.5-27B", "cards-qwen35-27b")]),
+    ("Closed-source (zero-shot)",
+     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.7", "claude-opus-4-7"),
+      ("GPT-5.5", "gpt-5-5")]),
+    ("Closed-source RECoT fine-tuned",
+     [("CARDS-mini-opus", "cards-mini-opus")]),
+]
+
+# quantization.tex — chapter Table 3
+QUANT_TEX = [("CARDS-Qwen3.5-27B (BF16)", "cards-qwen35-27b"),
+             ("CARDS-Qwen3.5-27B FP8",    "cards-qwen35-27b-fp8")]
+
+
+def fmt_row(name, m, pad=33):
+    cells = [m[f"level_{l}_minsup_3"]["samples_f1"] for l in (1, 2, 3)] + \
+            [m[f"level_{l}_minsup_3"]["macro_f1"]   for l in (1, 2, 3)]
+    return f"{name:<{pad}s} & " + " & ".join(f"{c:.3f}" for c in cells) + r" \\"
+
+
+def write_tex_fragments():
+    split_dir = os.path.join(RESULTS_DIR, "test")
+    gold = load_canonical_gold()
+    memo = {}
+
+    def entry(stem):
+        if stem not in memo:
+            path = os.path.join(split_dir, f"{stem}.jsonl")
+            memo[stem] = (score_one(path, "true_claims", stem, prefix="[tex] ", gold=gold)
+                          if os.path.exists(path) else None)
+            if memo[stem] is None:
+                print(f"  [tex] missing: {stem}")
+        return memo[stem]
+
+    def emit(basename, lines):
+        out_path = os.path.join(split_dir, f"{basename}.tex")
+        with open(out_path, "w") as f:
+            f.write("\n".join(lines) + "\n")
+        print(f"  -> {out_path}")
+
+    lines = []
+    for i, group in enumerate(ABLATION_TEX):
+        if i:
+            lines.append(r"\midrule")
+        lines += [fmt_row(name, e) for name, stem in group if (e := entry(stem))]
+    emit("recot_ablation", lines)
+
+    lines = []
+    for group, models in SCALING_TEX:
+        rows = [fmt_row(name, e) for name, stem in models if (e := entry(stem))]
+        if rows:
+            lines.append(rf"\multicolumn{{7}}{{l}}{{\textit{{{group}}}}} \\")
+            lines += rows
+    emit("scaling_frontier", lines)
+
+    emit("quantization",
+         [fmt_row(name, e) for name, stem in QUANT_TEX if (e := entry(stem))])
+
+
 # Scaling ablation: base vs RECoT-FT across model sizes.
 SCALING_ABLATION = [
     ("Qwen3.5-2B Base",   "qwen35-2b-base"),
@@ -273,3 +357,5 @@ if __name__ == "__main__":
     report_ablation(SCALING_ABLATION,
                     "CARDS — Scaling ablation (Base vs RECoT-FT, test set)",
                     "scaling_ablation", "scaling")
+    print("\n=== LaTeX fragments (chapter tables, test) ===")
+    write_tex_fragments()

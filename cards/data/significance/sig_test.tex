@@ -1,0 +1,22 @@
+\multicolumn{3}{l}{\textit{Fine-tuning (open-source)}} \\
+CARDS-Qwen3.5-4B vs.\ base & $+0.198$ $[+0.174, +0.223]$ & higher \\
+CARDS-Qwen3.5-9B vs.\ base & $+0.133$ $[+0.111, +0.156]$ & higher \\
+CARDS-Qwen3.5-27B vs.\ base & $+0.034$ $[+0.018, +0.050]$ & higher \\
+\multicolumn{3}{l}{\textit{Fine-tuning (closed-source)}} \\
+CARDS-mini-opus vs.\ GPT-4o-mini & $+0.207$ $[+0.183, +0.231]$ & higher \\
+\multicolumn{3}{l}{\textit{Scaling}} \\
+CARDS-Qwen3.5-9B vs.\ 4B & $+0.034$ $[+0.017, +0.053]$ & higher \\
+CARDS-Qwen3.5-27B vs.\ 9B & $+0.031$ $[+0.014, +0.047]$ & higher \\
+\multicolumn{3}{l}{\textit{RECoT ablation}} \\
+CARDS-Qwen3.5-4B vs.\ no RECoT & $+0.045$ $[+0.025, +0.065]$ & higher \\
+CARDS-Qwen3.5-9B vs.\ no RECoT & $+0.170$ $[+0.145, +0.194]$ & higher \\
+CARDS-Qwen3.5-27B vs.\ no RECoT & $+0.021$ $[+0.004, +0.038]$ & higher \\
+\multicolumn{3}{l}{\textit{Versus frontier models}} \\
+CARDS-Qwen3.5-27B vs.\ Claude Opus 4.7 & $+0.004$ $[-0.011, +0.019]$ & comparable \\
+CARDS-Qwen3.5-27B vs.\ GPT-5.5 & $-0.027$ $[-0.043, -0.012]$ & lower \\
+CARDS-mini-opus vs.\ Claude Opus 4.7 & $+0.002$ $[-0.014, +0.018]$ & comparable \\
+CARDS-mini-opus vs.\ GPT-5.5 & $-0.029$ $[-0.045, -0.013]$ & lower \\
+\multicolumn{3}{l}{\textit{Open vs.\ closed fine-tunes}} \\
+CARDS-mini-opus vs.\ CARDS-Qwen3.5-27B & $-0.002$ $[-0.017, +0.013]$ & comparable \\
+\multicolumn{3}{l}{\textit{Quantization}} \\
+CARDS-Qwen3.5-27B FP8 vs.\ BF16 & $-0.002$ $[-0.013, +0.008]$ & comparable \\
