@@ -44,6 +44,22 @@ MODELS = [
 _CODE_RE = re.compile(r"<?(\d[\d_]+\d)>?")
 
 
+def load_canonical_gold():
+    """text -> true_claims from data/cards_test.jsonl (final_claims gold).
+
+    Several result jsonls embed a stale pre-final_claims gold for 67 test
+    rows, so test-split scoring re-pairs gold from the canonical split file
+    instead of trusting the copy stored alongside each response. Keyed by
+    text — unique across the split, unlike `id` (one duplicate).
+    """
+    gold = {}
+    with open(os.path.join(BASE_DIR, "data", "cards_test.jsonl")) as f:
+        for line in f:
+            r = json.loads(line)
+            gold[r["text"]] = r["true_claims"]
+    return gold
+
+
 def parse_response(response, require_think=True):
     """Parse a model response into a list of category codes.
 
@@ -111,9 +127,12 @@ def compute_metrics(df, level, min_support):
     return out
 
 
-def score_one(path, label_field, label, prefix=""):
+def score_one(path, label_field, label, prefix="", gold=None):
     df = pd.read_json(path, lines=True)
-    if label_field != "true_claims":
+    if gold is not None:
+        df = df[df["text"].isin(gold)].copy()
+        df["true_claims"] = df["text"].map(gold)
+    elif label_field != "true_claims":
         df["true_claims"] = df[label_field]
     # Slugs that opt into the relaxed parser (no </think> required):
     #   *norecot* — FT models trained without RECoT
@@ -185,13 +204,14 @@ def write_summary(title, summary, out_dir, basename):
 def report_for_split(split):
     split_dir = os.path.join(RESULTS_DIR, split)
     label_field = "labels" if split == "twitter" else "true_claims"
+    gold = load_canonical_gold() if split == "test" else None
     summary = {}
     for label, stem in MODELS:
         path = os.path.join(split_dir, f"{stem}.jsonl")
         if not os.path.exists(path):
             print(f"  [{split}] missing: {label}")
             continue
-        summary[label] = score_one(path, label_field, label, prefix=f"[{split}] ")
+        summary[label] = score_one(path, label_field, label, prefix=f"[{split}] ", gold=gold)
     write_summary(f"CARDS — {split} set", summary, split_dir, "metrics_summary")
 
 
@@ -230,13 +250,14 @@ SCALING_ABLATION = [
 
 def report_ablation(entries, title, basename, tag):
     split_dir = os.path.join(RESULTS_DIR, "test")
+    gold = load_canonical_gold()
     summary = {}
     for label, stem in entries:
         path = os.path.join(split_dir, f"{stem}.jsonl")
         if not os.path.exists(path):
             print(f"  [{tag}] missing: {label}")
             continue
-        summary[label] = score_one(path, "true_claims", label, prefix=f"[{tag}] ")
+        summary[label] = score_one(path, "true_claims", label, prefix=f"[{tag}] ", gold=gold)
     write_summary(title, summary, split_dir, basename)
 
 

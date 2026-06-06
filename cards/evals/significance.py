@@ -39,7 +39,7 @@ from scipy.stats import bootstrap
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from generate_report import parse_response  # noqa: E402
+from generate_report import load_canonical_gold, parse_response  # noqa: E402
 
 OUT_DIR = ROOT / "data" / "significance"
 METRICS = [("samples", "Samples-F1"), ("micro", "Micro-F1"), ("macro", "Macro-F1")]
@@ -62,8 +62,9 @@ LINEUP = [
     ("GPT-5.5 (zero-shot)",           "gpt-5-5"),
 ]
 
-# Each comparison is gap = A - B on the chosen metric. slug_a is always a
-# CARDS/API file (canonical gold); the other file's gold is ignored.
+# Each comparison is gap = A - B on the chosen metric. On the test split the
+# gold embedded in result files is ignored — both sides score against the
+# canonical cards_test.jsonl gold (see load), so the order of slugs is free.
 COMPARISONS = [
     ("Fine-tuning helps (open)", [
         ("CARDS-4B vs base",  "cards-qwen35-4b",  "qwen35-4b-base"),
@@ -92,17 +93,32 @@ COMPARISONS = [
 # Loader (rows aligned by unique input text; labels truncated + deduped)
 # ---------------------------------------------------------------------------
 
+_CANONICAL_GOLD = None
+
+
+def canonical_gold():
+    global _CANONICAL_GOLD
+    if _CANONICAL_GOLD is None:
+        _CANONICAL_GOLD = load_canonical_gold()
+    return _CANONICAL_GOLD
+
+
 def load(slug, split, level):
     path = ROOT / "data" / "results" / split / f"{slug}.jsonl"
     if not path.exists():
         raise FileNotFoundError(f"missing: {path}")
     rows = [json.loads(l) for l in open(path)]
+    # Test split: ignore the gold embedded in result files (stale for 67 rows
+    # in several of them) and re-pair against canonical cards_test.jsonl by text.
+    gold_map = canonical_gold() if split == "test" else None
+    if gold_map is not None:
+        rows = [r for r in rows if r["text"] in gold_map]
     rows.sort(key=lambda r: r.get("text") or "")          # align across files
     label_field = "labels" if split == "twitter" else "true_claims"
     require_think = "norecot" not in slug.lower() and "nothink" not in slug.lower()
     yt, yp = [], []
     for r in rows:
-        gold = list(r.get(label_field) or [])
+        gold = gold_map[r["text"]] if gold_map is not None else list(r.get(label_field) or [])
         pred = parse_response(r.get("response", ""), require_think=require_think)
         yt.append(list(dict.fromkeys("_".join(c.split("_")[:level]) for c in gold)))
         yp.append(list(dict.fromkeys("_".join(c.split("_")[:level]) for c in pred)))
@@ -204,7 +220,7 @@ def model_scores(slug, split, level, min_support, n_resamples, confidence, seed)
 
 def compare(split, slug_a, slug_b, level, min_support, n_resamples, confidence, seed):
     yt, ya = load(slug_a, split, level)
-    _, yb = load(slug_b, split, level)              # gold from slug_a is canonical
+    _, yb = load(slug_b, split, level)              # same canonical gold both sides
     vocab = support_vocab(yt, min_support)
     vset = set(vocab)
     yt = filter_to(yt, vset)
