@@ -311,6 +311,8 @@ def write_tex_fragments():
     for group, models in SCALING_TEX:
         rows = [fmt_row(name, e) for name, stem in models if (e := entry(stem))]
         if rows:
+            if lines:
+                lines.append(r"\midrule")
             lines.append(rf"\multicolumn{{7}}{{l}}{{\textit{{{group}}}}} \\")
             lines += rows
     emit("scaling_frontier", lines)

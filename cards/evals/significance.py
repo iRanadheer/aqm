@@ -353,6 +353,8 @@ def build_tex(split, cfg, cache):
             rows.append(f"{label} & ${M['delta']:+.3f}$ $[{M['lo']:+.3f}, {M['hi']:+.3f}]$"
                         f" & {VERDICT_TEX[verdict(M)]} \\\\")
         if rows:
+            if lines:
+                lines.append(r"\midrule")
             lines.append(rf"\multicolumn{{3}}{{l}}{{\textit{{{group}}}}} \\")
             lines += rows
     return "\n".join(lines) + "\n"
