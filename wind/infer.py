@@ -114,8 +114,10 @@ def query(text: str) -> str:
         temperature=0,
         max_tokens=args.max_tokens,
     )
-    if not args.think:
-        kwargs.setdefault("extra_body", {})["chat_template_kwargs"] = {"enable_thinking": False}
+    # Always pass enable_thinking explicitly: Qwen templates default it ON when
+    # absent, but Gemma 4 defaults OFF (pre-fills an empty thought channel) —
+    # leaving it implicit silently evals Gemma without reasoning.
+    kwargs.setdefault("extra_body", {})["chat_template_kwargs"] = {"enable_thinking": bool(args.think)}
     if args.structured:
         # parse() returns the Pydantic instance via message.parsed; serialize
         # to JSON so the stored response stays a string for downstream tools.

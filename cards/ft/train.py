@@ -253,6 +253,10 @@ config = SFTConfig(
     push_to_hub=True,
     hub_model_id=LORA_REPO,
     hub_private_repo=False,
+    # Push the FULL latest checkpoint dir (optimizer/scheduler/RNG state) to
+    # last-checkpoint/ on the Hub — makes interrupted/cancelled jobs exactly
+    # resumable via trainer.train(resume_from_checkpoint=...) on a fresh host.
+    hub_strategy="checkpoint",
     eos_token=eos_token,
 
     num_train_epochs=args.epochs,

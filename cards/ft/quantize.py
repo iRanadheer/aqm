@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #   "llmcompressor @ git+https://github.com/vllm-project/llm-compressor.git@main",
-#   "transformers>=5.2.0",
+#   "transformers>=5.10.2",  # gemma4_unified arch first ships in 5.10
 #   "tokenizers>=0.21",
 #   "torch",
 #   "accelerate",
@@ -12,7 +12,7 @@
 # [tool.uv]
 # extra-index-url = ["https://download.pytorch.org/whl/cu128"]
 # index-strategy = "unsafe-best-match"
-# override-dependencies = ["transformers>=5.2.0"]
+# override-dependencies = ["transformers>=5.10.2"]
 # ///
 """
 Post-training FP8_DYNAMIC quantizer.
@@ -78,13 +78,22 @@ print("=" * 60)
 print(f"\n[1/3] Loading {args.src} ...")
 t = time.time()
 tokenizer = AutoTokenizer.from_pretrained(args.src)
-model = AutoModelForCausalLM.from_pretrained(args.src, dtype=torch.bfloat16, device_map="auto")
+try:
+    model = AutoModelForCausalLM.from_pretrained(args.src, dtype=torch.bfloat16, device_map="auto")
+except ValueError:
+    # Unified/multimodal archs (e.g. gemma4_unified) don't map to CausalLM.
+    from transformers import AutoModelForMultimodalLM
+    model = AutoModelForMultimodalLM.from_pretrained(args.src, dtype=torch.bfloat16, device_map="auto")
+    print("  (loaded via AutoModelForMultimodalLM)")
 print(f"  loaded in {time.time() - t:.1f}s")
 
 print("\n[2/3] Quantizing (FP8_DYNAMIC) ...")
 t = time.time()
+# Vision/audio/projector ignores are no-ops on text-only models; on unified
+# models they keep the non-text towers in bf16 (vLLM expects this layout).
 oneshot(model=model, recipe=QuantizationModifier(
-    targets="Linear", scheme="FP8_DYNAMIC", ignore=["lm_head"],
+    targets="Linear", scheme="FP8_DYNAMIC",
+    ignore=["lm_head", "re:.*vision.*", "re:.*audio.*", "re:.*projector.*"],
 ))
 print(f"  quantized in {time.time() - t:.1f}s")
 
