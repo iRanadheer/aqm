@@ -27,7 +27,7 @@ from tqdm import tqdm
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from prompts import slim_system_instruction, slim_system_instruction_norecot  # noqa: E402
+from prompts import slim_system_instruction, slim_system_instruction_norecot, slim_chat_system_instruction  # noqa: E402
 
 BACKENDS = {
     "vllm":       ("http://localhost:8000/v1",        None),
@@ -50,6 +50,8 @@ ap.add_argument("--thinking", dest="thinking", action="store_true", default=None
                 help="Force enable_thinking=True at inference (overrides --no-recot default).")
 ap.add_argument("--no-thinking", dest="thinking", action="store_false",
                 help="Force enable_thinking=False at inference (overrides --recot default).")
+ap.add_argument("--chat", action="store_true",
+                help="Use the chat system prompt (per-claim nested YAML). Output slug gets a -chat suffix.")
 args = ap.parse_args()
 # If --thinking/--no-thinking not passed, default to: True for RECoT, False for no-RECoT.
 if args.thinking is None:
@@ -68,6 +70,8 @@ if not input_path.exists():
     sys.exit(f"Input not found: {input_path}")
 
 slug = re.sub(r"[^a-z0-9]+", "-", args.model.lower()).strip("-")
+if args.chat:
+    slug += "-chat"
 split = input_path.stem.replace("cards_", "")  # cards_test -> test
 output_path = Path(args.output) if args.output else ROOT / "data" / "results" / split / f"{slug}.jsonl"
 if not output_path.is_absolute():
@@ -76,7 +80,7 @@ if not output_path.is_absolute():
 client = OpenAI(base_url=base_url, api_key=api_key)
 # RECoT system prompt instructs <think>...</think>+YAML; no-RECoT variant
 # instructs YAML-only (no thinking). Pick to match the inference setting.
-_system_text = slim_system_instruction if args.recot else slim_system_instruction_norecot
+_system_text = slim_chat_system_instruction if args.chat else (slim_system_instruction if args.recot else slim_system_instruction_norecot)
 # Ephemeral caching for all backends — providers that don't honor it ignore the field.
 system_content = [{
     "type": "text",

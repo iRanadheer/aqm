@@ -40,7 +40,7 @@ class WindOutput(BaseModel):
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from prompts import full_system_instruction, slim_system_instruction  # noqa: E402
+from prompts import full_system_instruction, slim_system_instruction, slim_chat_system_instruction  # noqa: E402
 
 BACKENDS = {
     "vllm":       ("http://localhost:8000/v1",     None),
@@ -48,7 +48,8 @@ BACKENDS = {
     "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
 }
 
-PROMPT_VARIANTS = {"slim": slim_system_instruction, "full": full_system_instruction}
+PROMPT_VARIANTS = {"slim": slim_system_instruction, "full": full_system_instruction,
+                   "chat": slim_chat_system_instruction}
 
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("--backend", choices=list(BACKENDS), default="vllm")
