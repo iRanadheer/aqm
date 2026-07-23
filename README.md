@@ -6,8 +6,8 @@ PhD thesis monorepo. One folder per chapter; each chapter is self-contained
 | Chapter | Topic |
 |---|---|
 | [cards/](cards/) | Hierarchical climate-discourse claim classification |
-| `wind/` | Opposition-to-wind-energy detection (TBD: migrate from sibling repo) |
-| `debunk/` | TBD |
+| [wind/](wind/) | Wind-energy opposition detection (detection / frames / claims) |
+| [debunk/](debunk/) | Climate-claim fact-checking benchmark (Leippold et al. veracity dataset) |
 | [icl/](icl/) | In-context (static/dynamic few-shot) vs fine-tuning on cards + wind (no training) |
 
 ## Layout
