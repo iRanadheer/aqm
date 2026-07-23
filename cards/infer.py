@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["openai", "tenacity", "tqdm", "pandas"]
+# dependencies = ["openai", "tenacity", "tqdm", "pandas", "python-dotenv"]
 # ///
 """Run a chat-completion model on a CARDS jsonl and save responses.
 
@@ -21,18 +21,23 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import pandas as pd
+from dotenv import load_dotenv
 from openai import OpenAI
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
 ROOT = Path(__file__).resolve().parent
+load_dotenv(ROOT / ".env")
 sys.path.insert(0, str(ROOT))
 from prompts import slim_system_instruction, slim_system_instruction_norecot, slim_chat_system_instruction  # noqa: E402
 
 BACKENDS = {
-    "vllm":       ("http://localhost:8000/v1",        None),
-    "openai":     ("https://api.openai.com/v1",       "OPENAI_API_KEY"),
-    "openrouter": ("https://openrouter.ai/api/v1",    "OPENROUTER_API_KEY"),
+    "vllm":         ("http://localhost:8000/v1",        None),
+    "openai":       ("https://api.openai.com/v1",       "OPENAI_API_KEY"),
+    "openrouter":   ("https://openrouter.ai/api/v1",    "OPENROUTER_API_KEY"),
+    # Managed CARDS endpoint. It injects its OWN global system message, so the
+    # local system prompt is suppressed for this backend (see query()).
+    "discourselab": ("https://api.discourselab.ai/v1",  "DISCOURSELAB_API_KEY"),
 }
 
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -102,12 +107,14 @@ def _user_content(text: str) -> str:
        wait=wait_exponential(multiplier=5, min=5, max=60),
        retry=retry_if_exception_type(Exception))
 def query(text: str) -> str:
+    # The managed discourselab backend applies its own global system message;
+    # sending ours would double up. Suppress the local system prompt there.
+    messages = [{"role": "user", "content": _user_content(text)}]
+    if args.backend != "discourselab":
+        messages.insert(0, {"role": "system", "content": system_content})
     kwargs = dict(
         model=args.model,
-        messages=[
-            {"role": "system", "content": system_content},
-            {"role": "user", "content": _user_content(text)},
-        ],
+        messages=messages,
         temperature=0,
         max_tokens=args.max_tokens,
     )

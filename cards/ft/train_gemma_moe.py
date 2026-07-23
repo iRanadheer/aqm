@@ -4,7 +4,7 @@
 #   "unsloth",
 #   "datasets",
 #   "trl>=0.12.0",
-#   "transformers>=5.10.2",  # gemma4_unified arch first ships in 5.10
+#   "transformers>=5.10.2",  # gemma4 arch
 #   "huggingface_hub[hf_transfer]",
 #   "tensorboard",
 # ]
@@ -12,37 +12,35 @@
 # [tool.uv]
 # extra-index-url = ["https://download.pytorch.org/whl/cu128"]
 # index-strategy = "unsafe-best-match"
-# # unsloth's metadata caps transformers below what Gemma 4 needs; override wins.
 # override-dependencies = ["transformers>=5.10.2"]
 # ///
 """
-Gemma 4 SFT trainer — combined API+chat dataset, NATIVE thinking channel.
+Gemma 4 MoE SFT trainer — for google/gemma-4-26B-A4B-it (and the 31B/12B dense).
 
-  uv run train_gemma.py                                  # gemma-4-12B-it
-  uv run train_gemma.py --base-model google/gemma-4-31B-it
+  uv run train_gemma_moe.py                                   # gemma-4-26B-A4B-it
+  uv run train_gemma_moe.py --base-model google/gemma-4-31B-it
+  uv run train_gemma_moe.py --max-steps 5 --lora-only         # cheap dry-run
 
-Why a separate script (vs ft/train.py):
-  * Gemma 4 (`gemma4_unified`) loads via FastModel, not FastLanguageModel.
-  * RECoT reasoning goes into Gemma's NATIVE thought channel
-    (<|channel>thought ... <channel|>), not inline <think> text. Neither the
-    stock google/gemma-4 chat template (renders `reasoning` only for
-    tool-call turns — silently drops it otherwise) nor unsloth's
-    "gemma-4-thinking" template (strip_thinking on every model turn) can put
-    reasoning into an SFT target, so the target string is hand-built here.
-    A render guard asserts the reasoning survived before training starts.
-  * Gentler default HPs (lr 1e-4, 2 epochs) — Gemma 4 bases are strong;
-    aggressive Qwen-calibrated HPs regressed on the 31B (see docs).
+Built for running directly on a GPU box (Vast.ai H200): set HF_TOKEN in the env,
+`uv run` this file. Pushes a LoRA adapter + merged BF16 model to the Hub.
 
-Target format (model turn) — matches what the model natively emits when the
-generation prompt ends at `<|turn>model\n` with thinking enabled:
+Why this vs ft/train_gemma.py:
+  * gemma-4-26B-A4B is a MULTIMODAL MoE (Gemma4ForConditionalGeneration):
+      - vision_tower.* / embed_vision.*  -> FROZEN (finetune_vision_layers=False)
+      - self_attn.{q,k,v,o}_proj         -> adapted (attention)
+      - mlp.{gate,up,down}_proj          -> adapted (shared/dense expert)
+      - experts.{gate_up,down}_proj      -> adapted (128 routed experts, grouped;
+                                            unsloth MoE Split-LoRA handles these)
+      - router.{proj,scale,per_expert_scale} -> FROZEN (never LoRA the router)
+    The finetune_* flags below are unsloth's gemma4 selector; finetune_mlp_modules
+    drives both the shared MLP and the routed experts via the gemma4 MoE path,
+    and leaves the router untouched. (Verify with the trainable-params print +
+    a --max-steps 5 dry-run before committing the full run.)
+  * eval_steps bumped 25 -> 150 (the 12B run wasted ~3.5h on over-frequent eval).
 
-  <|turn>model\n<|channel>thought\n{reasoning}\n<channel|>{yaml}<turn|>\n
-
-Inference must therefore run with enable_thinking=True (system prompt gets
-<|think|>); parse the visible answer after <channel|>.
-
-Trains on iRanadheer/cards-wind-qwen-chat (API + chat formats, CARDS + Wind).
-Pushes a LoRA adapter and (by default) the merged BF16 model.
+RECoT reasoning uses Gemma's NATIVE thought channel (identical render to
+ft/train_gemma.py); inference must run enable_thinking=True and parse after
+<channel|>. Trains on iRanadheer/cards-wind-qwen-chat gemma4/*.jsonl.
 """
 
 import argparse
@@ -59,46 +57,41 @@ sys.stderr.reconfigure(line_buffering=True)
 # CLI
 # ---------------------------------------------------------------------------
 HF_USERNAME = os.environ.get("HF_USERNAME", "iRanadheer")
-# Dataset lives under iRanadheer (public) regardless of the push namespace.
 COMBINED_REPO = "iRanadheer/cards-wind-qwen-chat"
 
-ap = argparse.ArgumentParser(description="Gemma 4 combined SFT trainer (native thinking channel)")
-ap.add_argument("--base-model", default="google/gemma-4-12B-it",
-                help="Gemma 4 HF model id (default: google/gemma-4-12B-it)")
+ap = argparse.ArgumentParser(description="Gemma 4 MoE combined SFT trainer (native thinking channel)")
+ap.add_argument("--base-model", default="google/gemma-4-26B-A4B-it",
+                help="Gemma 4 HF model id (default: google/gemma-4-26B-A4B-it)")
 ap.add_argument("--max-seq", type=int, default=8192)
 ap.add_argument("--lora-only", dest="push_merged", action="store_false", default=True,
                 help="Skip merging + pushing the full BF16 model (LoRA adapter only)")
 ap.add_argument("--variant", default=None,
                 help="Override variant name (default: CARDS-Wind-Gemma4-<size>)")
-ap.add_argument("--epochs", type=int, default=2)
-ap.add_argument("--lr", type=float, default=1e-4)
-ap.add_argument("--batch-size", type=int, default=4,
-                help="per_device_train_batch_size. Keep batch_size*grad_accum "
-                     "constant to preserve the effective batch (recipe).")
-ap.add_argument("--grad-accum", type=int, default=2,
-                help="gradient_accumulation_steps.")
+ap.add_argument("--epochs", type=int, default=2,
+                help="2 is the sweet spot — epoch 3 plateaued on the LFM2/12B runs.")
+ap.add_argument("--lr", type=float, default=1e-4,
+                help="Gemma bases are strong; gentle LR (1e-4) per the 12B/31B recipe.")
+ap.add_argument("--batch-size", type=int, default=2)
+ap.add_argument("--grad-accum", type=int, default=4)
 ap.add_argument("--lora-rank", type=int, default=16)
 ap.add_argument("--lora-alpha", type=int, default=16,
                 help="Lower than rank = gentler perturbation of a strong base.")
-ap.add_argument("--eval-steps", type=int, default=150,
-                help="Eval frequency. 150 (not 25) — at 31B each eval is ~450s, "
-                     "so frequent eval wastes hours; eval_loss is only for ckpt "
-                     "selection and converges fine at this cadence.")
+ap.add_argument("--max-steps", type=int, default=-1,
+                help="Cap steps for a cheap dry-run (e.g. 5) before the full run.")
 args = ap.parse_args()
 
 if "gemma" not in args.base_model.lower():
-    ap.error("this script is Gemma-4-specific; use ft/train.py for other models")
+    ap.error("this script is Gemma-4-specific; use ft/train_lfm2.py or ft/train.py for other models")
 
 
 # ---------------------------------------------------------------------------
 # Variant naming
 # ---------------------------------------------------------------------------
-model_short = args.base_model.split("/")[-1]                  # e.g. gemma-4-12B-it
+model_short = args.base_model.split("/")[-1]                  # gemma-4-26B-A4B-it
 if args.variant:
     variant = args.variant
 else:
-    # gemma-4-12B-it -> CARDS-Wind-Gemma4-12B
-    size = model_short.replace("gemma-4-", "").replace("-it", "")
+    size = model_short.replace("gemma-4-", "").replace("-it", "")   # 26B-A4B
     variant = f"CARDS-Wind-Gemma4-{size}"
 
 LORA_REPO = f"{HF_USERNAME}/{variant}-lora"
@@ -134,12 +127,12 @@ if hf_token:
     login(token=hf_token)
 
 from unsloth import FastModel  # must precede trl/transformers/peft
-from datasets import concatenate_datasets, load_dataset
+from datasets import load_dataset
 from trl import SFTConfig, SFTTrainer
 
 
 # ---------------------------------------------------------------------------
-# 1. Load model + LoRA  (FastModel — gemma4_unified arch)
+# 1. Load model + LoRA  (FastModel — gemma4 MoE arch)
 # ---------------------------------------------------------------------------
 print("\n[1/5] Loading base model ...")
 t = time.time()
@@ -152,9 +145,9 @@ model, tokenizer = FastModel.from_pretrained(
     load_in_16bit=True,
     full_finetuning=False,
 )
-# finetune_* flags (not raw target_modules) — the unsloth-recommended way to
-# select text-only layers on the multimodal gemma4_unified arch; vision tower
-# stays frozen (still fully functional at inference, just not adapted).
+# finetune_* flags = unsloth's gemma4 layer selector. Vision tower frozen;
+# attention + MLP (shared expert AND the 128 routed experts via the gemma4 MoE
+# Split-LoRA path) adapted; the router is left frozen by this selector.
 model = FastModel.get_peft_model(
     model,
     finetune_vision_layers=False,
@@ -168,6 +161,20 @@ model = FastModel.get_peft_model(
     use_gradient_checkpointing="unsloth",
     random_state=42,
 )
+# Print the LoRA coverage — on the dry-run, confirm the routed experts are
+# adapted and `router.proj` is NOT in the trainable set.
+try:
+    model.print_trainable_parameters()
+except Exception as e:
+    print(f"  (print_trainable_parameters unavailable: {e})")
+# Diagnostic: which base modules actually received LoRA. Confirm the routed
+# experts ARE adapted and the router is NOT — the whole point of the MoE recipe.
+_lora = [n for n, _ in model.named_parameters() if ".lora_" in n]
+_leaves = sorted({n.split(".lora_")[0].split(".")[-1] for n in _lora})
+print(f"  LoRA-adapted leaf modules: {_leaves}")
+print(f"  experts adapted: {any('experts' in n for n in _lora)} (want True)")
+print(f"  router adapted:  {any('router' in n for n in _lora)} (want False)")
+print(f"  vision adapted:  {any('vision' in n for n in _lora)} (want False)")
 print(f"  loaded in {time.time() - t:.1f}s")
 
 
@@ -177,8 +184,6 @@ print(f"  loaded in {time.time() - t:.1f}s")
 print("\n[2/5] Loading dataset ...")
 t = time.time()
 
-# gemma4/ = cards+wind, API+chat combined, with the 2 unclosed-think rows
-# repaired (cards/ and wind/ folders stay byte-identical to the Qwen runs).
 train_ds = load_dataset(COMBINED_REPO, data_files="gemma4/train.jsonl",
                         split="train", token=hf_token).shuffle(seed=42)
 eval_ds = load_dataset(COMBINED_REPO, data_files="gemma4/train_eval.jsonl",
@@ -188,13 +193,9 @@ print(f"  train: {len(train_ds)}, eval: {len(eval_ds)}")
 
 def render_gemma_native(msgs):
     """Hand-built Gemma 4 thinking-mode render of one [system, user, assistant] row.
-
-    The <think>...</think> block in the assistant message becomes the native
-    thought channel; the YAML after it is the visible answer. No <bos> here —
-    the trainer's tokenizer adds it. All markers are verified single special
-    tokens (<|turn|>=105, <turn|>=106, <|channel>=100, <channel|>=101,
-    <|think|>=98).
-    """
+    Reasoning -> native thought channel; YAML after it is the visible answer.
+    Markers are verified single special tokens (<|turn|>=105, <turn|>=106,
+    <|channel>=100, <channel|>=101, <|think|>=98)."""
     sys_c, user_c, asst_c = (m["content"] for m in msgs)
     if "</think>" not in asst_c:
         raise ValueError("assistant target has no <think> block — combined data is RECoT-only")
@@ -215,8 +216,7 @@ train_ds = train_ds.map(apply_template, batched=True, remove_columns=["messages"
 eval_ds = eval_ds.map(apply_template, batched=True, remove_columns=["messages"])
 print(f"  ready in {time.time() - t:.1f}s")
 
-# Render guard: the silent failure mode on Gemma 4 is reasoning vanishing from
-# the target (both public chat templates do it). Refuse to train if so.
+# Render guard
 sample = train_ds[0]["text"]
 assert "<|channel>thought\n" in sample and "<channel|>" in sample, "thought channel missing"
 assert len(sample.split("<|channel>thought\n", 1)[1].split("<channel|>", 1)[0]) > 50, \
@@ -224,9 +224,7 @@ assert len(sample.split("<|channel>thought\n", 1)[1].split("<channel|>", 1)[0]) 
 assert "```yaml" in sample.split("<channel|>", 1)[1], "visible YAML answer missing"
 print(f"  render guard OK; sample: {sample[:160]!r}...")
 
-# BOS probe: unsloth's gemma-4 notebook strips <bos> from texts because "the
-# processor will be adding one". Our render emits none — verify the runtime
-# tokenizer really does add it; prepend ourselves if it doesn't.
+# BOS probe
 _text_tok = tokenizer if hasattr(tokenizer, "encode") else tokenizer.tokenizer
 _probe = _text_tok("probe", add_special_tokens=True).input_ids
 if _text_tok.bos_token_id is not None and _probe[0] != _text_tok.bos_token_id:
@@ -243,21 +241,17 @@ else:
 # ---------------------------------------------------------------------------
 print("\n[3/5] Configuring trainer ...")
 
-# Gemma 4 turns end with <turn|> (unsloth uses the same as its gemma-4 eos);
-# pass it explicitly so TRL doesn't inject the bare <eos> sentinel.
 config = SFTConfig(
     output_dir=OUTPUT_DIR,
     dataset_text_field="text",
     push_to_hub=True,
     hub_model_id=LORA_REPO,
     hub_private_repo=False,
-    # Push the FULL latest checkpoint dir (optimizer/scheduler/RNG state) to
-    # last-checkpoint/ on the Hub — makes interrupted/cancelled jobs exactly
-    # resumable via trainer.train(resume_from_checkpoint=...) on a fresh host.
     hub_strategy="checkpoint",
     eos_token="<turn|>",
 
     num_train_epochs=args.epochs,
+    max_steps=args.max_steps,
     per_device_train_batch_size=args.batch_size,
     gradient_accumulation_steps=args.grad_accum,
     learning_rate=args.lr,
@@ -265,11 +259,11 @@ config = SFTConfig(
 
     logging_steps=5,
     save_strategy="steps",
-    save_steps=args.eval_steps,  # must be a multiple of eval_steps for load_best_model_at_end
-    save_total_limit=6,
+    save_steps=100,
+    save_total_limit=4,
 
     eval_strategy="steps",
-    eval_steps=args.eval_steps,
+    eval_steps=150,
     load_best_model_at_end=True,
     metric_for_best_model="eval_loss",
     greater_is_better=False,
@@ -293,10 +287,7 @@ trainer = SFTTrainer(
     args=config,
 )
 
-# Loss only on the model turn (thought channel + YAML) — the system prompt
-# (~85% of each row's tokens, identical codebook every row) and user text are
-# context, not targets. Official unsloth Gemma 4 recipe; also makes eval_loss
-# (checkpoint selection) reflect response quality, not codebook recitation.
+# Loss only on the model turn (thought channel + YAML).
 from unsloth.chat_templates import train_on_responses_only
 trainer = train_on_responses_only(
     trainer,
