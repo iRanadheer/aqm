@@ -231,6 +231,21 @@ debunk/data/raw/kb_combined.jsonl
 debunk/data/raw/the_ccc_org_crawl_*.jsonl
 debunk/data/rag/chunks.jsonl
 debunk/data/rag/*/embeddings.npy
+
+# Dynamic-fewshot embedding cache — regenerable via build_corpus.py
+dynamic-fewshot-learning/data/embeddings/
 debunk/data/rag/*/dense.faiss
 debunk/data/rag/*/bm25.pkl
 debunk/data/rag/*/chunks.jsonl
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+dynamic-fewshot-learning/**/*.pdf

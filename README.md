@@ -8,6 +8,8 @@ PhD thesis monorepo. One folder per chapter; each chapter is self-contained
 | [cards/](cards/) | Hierarchical climate-discourse claim classification |
 | `wind/` | Opposition-to-wind-energy detection (TBD: migrate from sibling repo) |
 | `debunk/` | TBD |
+| [dynamic-fewshot-learning/](dynamic-fewshot-learning/) | Dynamic (retrieval) few-shot vs fine-tuning on cards + wind (no training) |
+| [dynamic-fewshot-learning/](dynamic-fewshot-learning/) | Dynamic few-shot learning for computational social science (paper) |
 
 ## Layout
 
