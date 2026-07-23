@@ -1,4 +1,7 @@
-# dynamic-fewshot-learning
+# icl
+
+In-context learning (static & dynamic few-shot) as a no-training alternative to
+fine-tuning.
 
 Can **dynamic few-shot** prompting — retrieving semantically similar labelled
 examples per test item and putting them in the prompt — match a **fine-tuned**
