@@ -1,0 +1,1707 @@
+{
+ "baseline_flicc_deberta": {
+  "accuracy": 0.73,
+  "macro_f1": 0.73,
+  "weighted_f1": 0.73,
+  "per_class": {
+   "ad hominem": 0.75,
+   "anecdote": 0.9,
+   "cherry picking": 0.67,
+   "conspiracy theory": 0.8,
+   "fake experts": 0.96,
+   "false choice": 0.8,
+   "false equivalence": 0.46,
+   "impossible expectations": 0.71,
+   "misrepresentation": 0.63,
+   "oversimplification": 0.7,
+   "single cause": 0.77,
+   "slothful induction": 0.65
+  }
+ },
+ "anthropic-claude-opus-4-7-bare": {
+  "file": "anthropic-claude-opus-4-7-bare.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.4245,
+  "macro_f1": 0.391,
+  "weighted_f1": 0.4134,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.966,
+    "recall": 0.418,
+    "f1": 0.583,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.628,
+    "recall": 0.628,
+    "f1": 0.628,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.355,
+    "recall": 0.679,
+    "f1": 0.466,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.648,
+    "recall": 0.897,
+    "f1": 0.753,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.444,
+    "recall": 1.0,
+    "f1": 0.615,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.143,
+    "recall": 0.077,
+    "f1": 0.1,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.429,
+    "recall": 0.214,
+    "f1": 0.286,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.538,
+    "recall": 0.189,
+    "f1": 0.28,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.149,
+    "recall": 0.263,
+    "f1": 0.19,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.14,
+    "recall": 0.167,
+    "f1": 0.152,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.8,
+    "recall": 0.14,
+    "f1": 0.239,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.38,
+    "recall": 0.422,
+    "f1": 0.4,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    28,
+    2,
+    2,
+    16,
+    1,
+    1,
+    1,
+    0,
+    11,
+    0,
+    0,
+    5,
+    0
+   ],
+   [
+    0,
+    27,
+    11,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    2,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    6,
+    38,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    9,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    35,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    12,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    4,
+    0,
+    0,
+    1,
+    0,
+    0,
+    6,
+    1,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    4,
+    0,
+    0,
+    0,
+    3,
+    0,
+    4,
+    1,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    5,
+    1,
+    1,
+    2,
+    1,
+    7,
+    10,
+    4,
+    0,
+    6,
+    0
+   ],
+   [
+    0,
+    2,
+    4,
+    1,
+    3,
+    0,
+    0,
+    1,
+    10,
+    13,
+    1,
+    3,
+    0
+   ],
+   [
+    0,
+    1,
+    17,
+    0,
+    0,
+    0,
+    2,
+    1,
+    9,
+    6,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    4,
+    9,
+    0,
+    3,
+    0,
+    0,
+    0,
+    15,
+    13,
+    8,
+    5,
+    0
+   ],
+   [
+    0,
+    0,
+    13,
+    0,
+    4,
+    3,
+    0,
+    3,
+    0,
+    3,
+    0,
+    19,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "anthropic-claude-opus-4-7-deconstruct-published": {
+  "file": "anthropic-claude-opus-4-7-deconstruct-published.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.4792,
+  "macro_f1": 0.4535,
+  "weighted_f1": 0.4749,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.839,
+    "recall": 0.701,
+    "f1": 0.764,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.655,
+    "recall": 0.442,
+    "f1": 0.528,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.323,
+    "recall": 0.768,
+    "f1": 0.455,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.675,
+    "recall": 0.692,
+    "f1": 0.684,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.556,
+    "recall": 0.833,
+    "f1": 0.667,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.125,
+    "recall": 0.077,
+    "f1": 0.095,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.5,
+    "recall": 0.643,
+    "f1": 0.562,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.4,
+    "recall": 0.324,
+    "f1": 0.358,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.381,
+    "recall": 0.211,
+    "f1": 0.271,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.256,
+    "recall": 0.306,
+    "f1": 0.278,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.633,
+    "recall": 0.333,
+    "f1": 0.437,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.419,
+    "recall": 0.289,
+    "f1": 0.342,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    47,
+    2,
+    2,
+    9,
+    1,
+    0,
+    0,
+    0,
+    5,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    19,
+    22,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    43,
+    2,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    8,
+    0
+   ],
+   [
+    7,
+    0,
+    0,
+    27,
+    3,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    10,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    5,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    5,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    9,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    6,
+    1,
+    0,
+    3,
+    3,
+    12,
+    3,
+    6,
+    1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    6,
+    1,
+    1,
+    1,
+    0,
+    4,
+    8,
+    11,
+    2,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    22,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    11,
+    1,
+    0,
+    0
+   ],
+   [
+    1,
+    4,
+    11,
+    0,
+    1,
+    1,
+    3,
+    1,
+    1,
+    9,
+    19,
+    6,
+    0
+   ],
+   [
+    0,
+    1,
+    12,
+    0,
+    2,
+    2,
+    2,
+    9,
+    0,
+    3,
+    1,
+    13,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "anthropic-claude-opus-4-7-deconstruct-revised": {
+  "file": "anthropic-claude-opus-4-7-deconstruct-revised.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.6543,
+  "macro_f1": 0.6322,
+  "weighted_f1": 0.6533,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.885,
+    "recall": 0.687,
+    "f1": 0.773,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.684,
+    "recall": 0.907,
+    "f1": 0.78,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.698,
+    "recall": 0.536,
+    "f1": 0.606,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.685,
+    "recall": 0.949,
+    "f1": 0.796,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.545,
+    "recall": 1.0,
+    "f1": 0.706,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.353,
+    "recall": 0.462,
+    "f1": 0.4,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.5,
+    "recall": 0.714,
+    "f1": 0.588,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.806,
+    "recall": 0.784,
+    "f1": 0.795,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.356,
+    "recall": 0.421,
+    "f1": 0.386,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.568,
+    "recall": 0.583,
+    "f1": 0.575,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.85,
+    "recall": 0.596,
+    "f1": 0.701,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.559,
+    "recall": 0.422,
+    "f1": 0.481,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    46,
+    2,
+    0,
+    11,
+    1,
+    2,
+    0,
+    0,
+    2,
+    0,
+    0,
+    3,
+    0
+   ],
+   [
+    0,
+    39,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    6,
+    30,
+    2,
+    0,
+    0,
+    1,
+    1,
+    7,
+    3,
+    0,
+    5,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    37,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    12,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    6,
+    1,
+    1,
+    2,
+    2,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    1,
+    2,
+    0,
+    29,
+    0,
+    1,
+    0,
+    3,
+    0
+   ],
+   [
+    3,
+    1,
+    0,
+    3,
+    2,
+    2,
+    0,
+    1,
+    16,
+    6,
+    3,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    3,
+    0,
+    0,
+    1,
+    0,
+    2,
+    7,
+    21,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    7,
+    3,
+    1,
+    3,
+    1,
+    5,
+    0,
+    1,
+    1,
+    34,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    2,
+    0,
+    3,
+    3,
+    3,
+    1,
+    8,
+    3,
+    2,
+    19,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "openai-gpt-5-5-bare": {
+  "file": "openai-gpt-5-5-bare.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.4726,
+  "macro_f1": 0.4638,
+  "weighted_f1": 0.4601,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.75,
+    "recall": 0.537,
+    "f1": 0.626,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.609,
+    "recall": 0.326,
+    "f1": 0.424,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.357,
+    "recall": 0.821,
+    "f1": 0.497,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.618,
+    "recall": 0.872,
+    "f1": 0.723,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.786,
+    "recall": 0.917,
+    "f1": 0.846,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.273,
+    "recall": 0.231,
+    "f1": 0.25,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.455,
+    "recall": 0.357,
+    "f1": 0.4,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.586,
+    "recall": 0.459,
+    "f1": 0.515,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.34,
+    "recall": 0.421,
+    "f1": 0.376,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.24,
+    "recall": 0.333,
+    "f1": 0.279,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.5,
+    "recall": 0.193,
+    "f1": 0.278,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.611,
+    "recall": 0.244,
+    "f1": 0.349,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    36,
+    4,
+    0,
+    12,
+    0,
+    0,
+    1,
+    0,
+    11,
+    2,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    14,
+    27,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    46,
+    3,
+    0,
+    0,
+    0,
+    2,
+    2,
+    1,
+    0,
+    1,
+    0
+   ],
+   [
+    4,
+    0,
+    0,
+    34,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    4,
+    0,
+    0,
+    3,
+    0,
+    1,
+    1,
+    2,
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    5,
+    0,
+    0,
+    0,
+    5,
+    0,
+    1,
+    2,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    6,
+    1,
+    0,
+    2,
+    2,
+    17,
+    5,
+    3,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    1,
+    2,
+    2,
+    0,
+    1,
+    0,
+    2,
+    16,
+    7,
+    5,
+    1,
+    0
+   ],
+   [
+    1,
+    0,
+    15,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    12,
+    3,
+    0,
+    0
+   ],
+   [
+    3,
+    3,
+    13,
+    3,
+    0,
+    2,
+    1,
+    0,
+    3,
+    15,
+    11,
+    3,
+    0
+   ],
+   [
+    1,
+    0,
+    11,
+    0,
+    3,
+    2,
+    1,
+    5,
+    5,
+    5,
+    1,
+    11,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "openai-gpt-5-5-deconstruct-published": {
+  "file": "openai-gpt-5-5-deconstruct-published.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.4726,
+  "macro_f1": 0.4706,
+  "weighted_f1": 0.4817,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.816,
+    "recall": 0.597,
+    "f1": 0.69,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.667,
+    "recall": 0.465,
+    "f1": 0.548,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.352,
+    "recall": 0.679,
+    "f1": 0.463,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.674,
+    "recall": 0.744,
+    "f1": 0.707,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.875,
+    "recall": 0.583,
+    "f1": 0.7,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.312,
+    "recall": 0.385,
+    "f1": 0.345,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.318,
+    "recall": 0.5,
+    "f1": 0.389,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.556,
+    "recall": 0.27,
+    "f1": 0.364,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.295,
+    "recall": 0.342,
+    "f1": 0.317,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.206,
+    "recall": 0.361,
+    "f1": 0.263,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.696,
+    "recall": 0.281,
+    "f1": 0.4,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.545,
+    "recall": 0.4,
+    "f1": 0.462,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    40,
+    3,
+    2,
+    8,
+    0,
+    0,
+    1,
+    0,
+    12,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    20,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    2,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    38,
+    2,
+    0,
+    0,
+    0,
+    2,
+    1,
+    4,
+    0,
+    7,
+    0
+   ],
+   [
+    5,
+    1,
+    1,
+    29,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    3,
+    0,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    5,
+    0,
+    0,
+    1,
+    6,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    7,
+    0,
+    1,
+    4,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    5,
+    1,
+    0,
+    2,
+    3,
+    10,
+    5,
+    9,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    1,
+    2,
+    0,
+    1,
+    0,
+    2,
+    13,
+    11,
+    5,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    15,
+    0,
+    0,
+    3,
+    1,
+    1,
+    1,
+    13,
+    2,
+    0,
+    0
+   ],
+   [
+    2,
+    2,
+    11,
+    1,
+    0,
+    3,
+    8,
+    0,
+    1,
+    9,
+    16,
+    4,
+    0
+   ],
+   [
+    1,
+    0,
+    9,
+    0,
+    0,
+    2,
+    1,
+    3,
+    7,
+    4,
+    0,
+    18,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "openai-gpt-5-5-deconstruct-revised": {
+  "file": "openai-gpt-5-5-deconstruct-revised.jsonl",
+  "n": 457,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.6368,
+  "macro_f1": 0.6402,
+  "weighted_f1": 0.6417,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.879,
+    "recall": 0.761,
+    "f1": 0.816,
+    "support": 67
+   },
+   "anecdote": {
+    "precision": 0.678,
+    "recall": 0.93,
+    "f1": 0.784,
+    "support": 43
+   },
+   "cherry picking": {
+    "precision": 0.703,
+    "recall": 0.464,
+    "f1": 0.559,
+    "support": 56
+   },
+   "conspiracy theory": {
+    "precision": 0.818,
+    "recall": 0.923,
+    "f1": 0.867,
+    "support": 39
+   },
+   "fake experts": {
+    "precision": 0.733,
+    "recall": 0.917,
+    "f1": 0.815,
+    "support": 12
+   },
+   "false choice": {
+    "precision": 0.379,
+    "recall": 0.846,
+    "f1": 0.524,
+    "support": 13
+   },
+   "false equivalence": {
+    "precision": 0.667,
+    "recall": 0.714,
+    "f1": 0.69,
+    "support": 14
+   },
+   "impossible expectations": {
+    "precision": 0.733,
+    "recall": 0.595,
+    "f1": 0.657,
+    "support": 37
+   },
+   "misrepresentation": {
+    "precision": 0.265,
+    "recall": 0.474,
+    "f1": 0.34,
+    "support": 38
+   },
+   "oversimplification": {
+    "precision": 0.478,
+    "recall": 0.611,
+    "f1": 0.537,
+    "support": 36
+   },
+   "single cause": {
+    "precision": 0.933,
+    "recall": 0.491,
+    "f1": 0.644,
+    "support": 57
+   },
+   "slothful induction": {
+    "precision": 0.615,
+    "recall": 0.356,
+    "f1": 0.451,
+    "support": 45
+   }
+  },
+  "confusion": [
+   [
+    51,
+    2,
+    0,
+    4,
+    0,
+    1,
+    0,
+    0,
+    7,
+    0,
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    40,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    2,
+    5,
+    26,
+    1,
+    0,
+    0,
+    0,
+    1,
+    12,
+    5,
+    1,
+    3,
+    0
+   ],
+   [
+    1,
+    1,
+    0,
+    36,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    11,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    11,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    1,
+    0,
+    2,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    1,
+    0,
+    2,
+    0,
+    22,
+    8,
+    2,
+    0,
+    1,
+    0
+   ],
+   [
+    2,
+    2,
+    0,
+    1,
+    0,
+    3,
+    0,
+    0,
+    18,
+    10,
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    1,
+    1,
+    0,
+    0,
+    3,
+    0,
+    2,
+    7,
+    22,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    8,
+    4,
+    1,
+    1,
+    5,
+    3,
+    1,
+    3,
+    1,
+    28,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    3,
+    4,
+    2,
+    2,
+    12,
+    3,
+    1,
+    16,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ }
+}
