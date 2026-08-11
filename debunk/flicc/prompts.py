@@ -178,6 +178,36 @@ PROMPT_VARIANTS: dict[str, str] = {
 VARIANT_NAMES = tuple(PROMPT_VARIANTS)
 USER_TEMPLATE = "### Text:\n{text}"
 
+# ---------------------------------------------------------------------------
+# RECoT — teacher-side only
+# ---------------------------------------------------------------------------
+# Used by teacher.py to generate training traces. The teacher is GIVEN the gold
+# label and asked to produce reasoning that arrives at it, so its job is
+# justification rather than classification. The system prompt is the ordinary
+# `deconstruct-revised` one, unchanged — the student must learn the same prompt
+# it will see at inference, so only the user turn differs.
+#
+# Never used at inference. Following cards/prompts.py::recot_trigger.
+
+TEACHER_TEMPLATE = """### Text:
+{text}
+
+### True Label:
+{label}
+
+{trigger}"""
+
+RECOT_TRIGGER = """The true label above is the correct classification. Generate \
+expert-level reasoning that arrives at exactly that label.
+
+Rules:
+- Write as a confident expert who has never seen the true label. Do not mention it, refer to being given it, or hint that the answer was known in advance.
+- Follow the OUTPUT FORMAT exactly: the seven-step <think> block, then the YAML.
+- SCAN must still cover all twelve labels in codebook order. Remove the others for reasons that stand on their own; keep the true label.
+- If the true label looks arguable, argue for it anyway — state the reading of the text on which it is the dominant fallacy. Do not hedge, and do not note the disagreement.
+- Be decisive. Single pass, no second-guessing, no repetition.
+- FINAL and the YAML must both be exactly the true label."""
+
 
 def get_prompt(variant: str) -> str:
     return PROMPT_VARIANTS[variant]

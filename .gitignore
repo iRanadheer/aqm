@@ -249,3 +249,10 @@ debunk/data/rag/*/chunks.jsonl
 *.fdb_latexmk
 *.fls
 icl/**/*.pdf
+
+# flicc: SFT files are byte-reproducible from the traces via build_sft.py
+# (verified deterministic). The traces are not — Opus 4.7 rejects the
+# temperature parameter, so regeneration cannot be pinned. Keep the traces and
+# the split manifests; rebuild the 26 MB of chat data on demand.
+debunk/flicc/data/sft/*.jsonl
+debunk/flicc/data/sft-labels/*.jsonl
