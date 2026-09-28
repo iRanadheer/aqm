@@ -259,3 +259,11 @@ icl/**/*.pdf
 # the split manifests; rebuild the 26 MB of chat data on demand.
 debunk/flicc/data/sft/*.jsonl
 debunk/flicc/data/sft-labels/*.jsonl
+
+# Derived application outputs (regenerable, hundreds of MB; rebuild on demand)
+cards/application/speech_cards_predictions.jsonl
+cards/application/speech_paragraphs_with_predictions.csv
+wind/data/application/thinktanks_wind_results.jsonl
+wind/data/application/thinktanks_wind_results.csv
+wind/data/application/thinktanks_wind_results_slim.csv
+wind/data/application/thinktanks_wind_results.xlsx
