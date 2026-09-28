@@ -39,14 +39,13 @@ PAPER_RESULTS: dict[str, dict[str, dict[int, float]]] = {}
 # two figures read as a matched pair.
 FAMILIES = [
     ("GPT-4o-mini",         "GPT-4o-mini offline",          "GPT-4o-mini + RAG (pplx-ctx)"),
-    ("Qwen3.5-9B",          "Qwen3.5-9B offline",           "Qwen3.5-9B + RAG (pplx-ctx)"),
     ("Qwen3.5-27B",         "Qwen3.5-27B offline",          "Qwen3.5-27B + RAG (pplx-ctx)"),
     ("DeepSeek V4 Flash",   "DeepSeek V4 Flash offline",    "DeepSeek V4 Flash + RAG (pplx-ctx)"),
     ("Claude Opus 4.7",     "Claude Opus 4.7 offline",      "Claude Opus 4.7 + RAG (pplx-ctx)"),
     ("GPT-5.5",             "GPT-5.5 offline",              "GPT-5.5 + RAG (pplx-ctx)"),
 ]
-FAMILY_COLOURS = ["#888888", "#2ca02c", "#17becf", "#9467bd", "#d62728", "#1f77b4"]
-# grey, green, cyan, purple, red, blue — Qwens grouped by adjacent cool hues
+FAMILY_COLOURS = ["#888888", "#17becf", "#9467bd", "#d62728", "#1f77b4"]
+# grey, cyan, purple, red, blue
 
 
 def plot_bars() -> Path:
@@ -403,9 +402,6 @@ def plot_combined() -> Path:
         ax.set_ylim(-0.12, 1.05)
     axes[1, 0].set_ylabel("Score")
 
-    fig.suptitle("Debunk benchmark — climinator (top) and veracity (bottom). "
-                 "Black ticks on the climinator panels mark Paper CLIM (recomputed).",
-                 y=0.995, fontsize=11)
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.12, hspace=0.35)
     # Build the legend column-by-column: each column is one model family with
@@ -424,8 +420,8 @@ def plot_combined() -> Path:
                ncol=len(FAMILIES), frameon=False, fontsize=9,
                bbox_to_anchor=(0.5, 0.0))
 
-    out = RESULTS_DIR / "debunk_benchmark.png"
-    fig.savefig(out, dpi=150, bbox_inches="tight")
+    out = RESULTS_DIR / "debunk_benchmark.pdf"
+    fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     return out
 

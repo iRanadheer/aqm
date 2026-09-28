@@ -1,0 +1,93 @@
+{"itemId": "test-0131", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "impossible expectations", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0240", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0112", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "oversimplification", "gold_slot": "b"}
+{"itemId": "test-0019", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "misrepresentation", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0146", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "impossible expectations", "model_label": "false choice", "gold_slot": "b"}
+{"itemId": "test-0100", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "cherry picking", "gold_slot": "a"}
+{"itemId": "test-0182", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0016", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0209", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0014", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "oversimplification", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0186", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "misrepresentation", "gold_slot": "a"}
+{"itemId": "test-0053", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "ad hominem", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0109", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "conspiracy theory", "gold_slot": "a"}
+{"itemId": "test-0046", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "oversimplification", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0143", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "impossible expectations", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0173", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "impossible expectations", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0157", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "a"}
+{"itemId": "test-0104", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "ad hominem", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0237", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "anecdote", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0161", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0150", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "impossible expectations", "model_label": "slothful induction", "gold_slot": "b"}
+{"itemId": "test-0096", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "conspiracy theory", "gold_slot": "b"}
+{"itemId": "test-0063", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0254", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "anecdote", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0144", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "false equivalence", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0130", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "slothful induction", "gold_slot": "b"}
+{"itemId": "test-0033", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0124", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "slothful induction", "gold_slot": "b"}
+{"itemId": "test-0128", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0057", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0249", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "oversimplification", "gold_slot": "a"}
+{"itemId": "test-0060", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0225", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0079", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0169", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "ad hominem", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0171", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0151", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "ad hominem", "model_label": "single cause", "gold_slot": "a"}
+{"itemId": "test-0043", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0107", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "impossible expectations", "gold_slot": "b"}
+{"itemId": "test-0076", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "a"}
+{"itemId": "test-0080", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "single cause", "model_label": "anecdote", "gold_slot": "a"}
+{"itemId": "test-0247", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "anecdote", "model_label": "cherry picking", "gold_slot": "a"}
+{"itemId": "test-0039", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "false choice", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0098", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "cherry picking", "gold_slot": "a"}
+{"itemId": "test-0172", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0238", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0044", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "ad hominem", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0134", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "misrepresentation", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0010", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "misrepresentation", "model_label": "impossible expectations", "gold_slot": "b"}
+{"itemId": "test-0189", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "ad hominem", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0126", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "anecdote", "gold_slot": "b"}
+{"itemId": "test-0118", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "false equivalence", "model_label": "slothful induction", "gold_slot": "b"}
+{"itemId": "test-0020", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "false equivalence", "model_label": "oversimplification", "gold_slot": "a"}
+{"itemId": "test-0194", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "single cause", "model_label": "anecdote", "gold_slot": "b"}
+{"itemId": "test-0021", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "misrepresentation", "gold_slot": "a"}
+{"itemId": "test-0070", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "single cause", "model_label": "anecdote", "gold_slot": "a"}
+{"itemId": "test-0192", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "slothful induction", "model_label": "oversimplification", "gold_slot": "a"}
+{"itemId": "test-0088", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "conspiracy theory", "model_label": "false choice", "gold_slot": "b"}
+{"itemId": "test-0178", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "ad hominem", "model_label": "anecdote", "gold_slot": "b"}
+{"itemId": "test-0117", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "single cause", "model_label": "false equivalence", "gold_slot": "b"}
+{"itemId": "test-0049", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "false choice", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0228", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "oversimplification", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0090", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "ad hominem", "model_label": "cherry picking", "gold_slot": "a"}
+{"itemId": "test-0187", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "false equivalence", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0113", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "oversimplification", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0071", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0226", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "fake experts", "gold_slot": "a"}
+{"itemId": "test-0255", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "false equivalence", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0193", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "single cause", "gold_slot": "b"}
+{"itemId": "test-0197", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "single cause", "model_label": "misrepresentation", "gold_slot": "b"}
+{"itemId": "test-0216", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "anecdote", "model_label": "conspiracy theory", "gold_slot": "a"}
+{"itemId": "test-0058", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0099", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0114", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "misrepresentation", "model_label": "impossible expectations", "gold_slot": "b"}
+{"itemId": "test-0220", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "single cause", "model_label": "false equivalence", "gold_slot": "a"}
+{"itemId": "test-0062", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "oversimplification", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0207", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "ad hominem", "model_label": "misrepresentation", "gold_slot": "a"}
+{"itemId": "test-0052", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "slothful induction", "model_label": "impossible expectations", "gold_slot": "b"}
+{"itemId": "test-0106", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "misrepresentation", "model_label": "oversimplification", "gold_slot": "b"}
+{"itemId": "test-0181", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "oversimplification", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0159", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0075", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0183", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "conspiracy theory", "model_label": "ad hominem", "gold_slot": "b"}
+{"itemId": "test-0026", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "slothful induction", "gold_slot": "b"}
+{"itemId": "test-0089", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "false equivalence", "gold_slot": "a"}
+{"itemId": "test-0103", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "single cause", "model_label": "slothful induction", "gold_slot": "a"}
+{"itemId": "test-0196", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "cherry picking", "model_label": "anecdote", "gold_slot": "b"}
+{"itemId": "test-0148", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "misrepresentation", "model_label": "conspiracy theory", "gold_slot": "a"}
+{"itemId": "test-0224", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "anecdote", "model_label": "cherry picking", "gold_slot": "b"}
+{"itemId": "test-0221", "a_source": "c3ds-flicc-qwen3-5-27b", "b_source": "gold", "gold_label": "single cause", "model_label": "oversimplification", "gold_slot": "b"}
+{"itemId": "test-0119", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "cherry picking", "model_label": "ad hominem", "gold_slot": "a"}
+{"itemId": "test-0038", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "false choice", "model_label": "impossible expectations", "gold_slot": "a"}
+{"itemId": "test-0004", "a_source": "gold", "b_source": "c3ds-flicc-qwen3-5-27b", "gold_label": "oversimplification", "model_label": "ad hominem", "gold_slot": "a"}

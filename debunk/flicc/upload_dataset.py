@@ -102,9 +102,12 @@ fallacies of Zanartu et al. 2024 (doi.org/10.1038/s41598-024-76139-w).
 | `labels/train_eval.jsonl` | {counts['labels/train_eval.jsonl']} | YAML answer only |
 
 Both arms come from one teacher pass over the same rows with the same stratified
-split (seed 42), so they differ only in whether the reasoning is present. That
-is the ablation for the source paper's own thesis: is the manual deconstruction
-what makes the dataset valuable, or do the labels alone suffice?
+split (seed 42), so they differ only in whether the reasoning is present.
+
+`recot/` is what the accompanying study trains on. `labels/` is published but
+NOT used by it — it exists so the ablation on the source paper's thesis (is the
+manual deconstruction what makes the dataset valuable, or do the labels alone
+suffice?) remains answerable by anyone who wants to run it.
 
 `split_manifest.json` in each folder records the seed, the rule, and which
 itemId went to which split, so the split is checkable without these files.

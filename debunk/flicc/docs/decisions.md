@@ -261,9 +261,13 @@ they are noisy and disproportionately expensive under macro F1.
 
 What is left is annotation convention, and the honest way to transfer convention
 is to train on the labelled data the baseline trained on: teacher traces over
-the 1,796 training rows, then LoRA SFT. A labels-only control tests the paper's
-own thesis — whether the deconstruction is what makes the dataset valuable, or
-whether the labels alone suffice.
+the 1,796 training rows, then LoRA SFT across Qwen3.5 at 0.8B, 2B, 4B and 9B.
+
+A labels-only arm was built (`build_sft.py --labels-only`, published under
+`labels/` in the Hub dataset) and would test the paper's own thesis — whether
+the deconstruction is what makes the dataset valuable, or whether the labels
+alone suffice. It is OUT OF SCOPE for this study and not run. The data is
+published so the question stays answerable later.
 
 ## 11. Protocol
 

@@ -861,6 +861,1411 @@
    ]
   ]
  },
+ "c3ds-flicc-qwen3-5-0-8b-deconstruct-revised": {
+  "file": "c3ds-flicc-qwen3-5-0-8b-deconstruct-revised.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.4531,
+  "macro_f1": 0.4151,
+  "weighted_f1": 0.4524,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.667,
+    "recall": 0.541,
+    "f1": 0.597,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.63,
+    "recall": 0.708,
+    "f1": 0.667,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.375,
+    "recall": 0.29,
+    "f1": 0.327,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.684,
+    "recall": 0.591,
+    "f1": 0.634,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.75,
+    "recall": 0.429,
+    "f1": 0.545,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.167,
+    "recall": 0.143,
+    "f1": 0.154,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.091,
+    "recall": 0.125,
+    "f1": 0.105,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.5,
+    "recall": 0.524,
+    "f1": 0.512,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.188,
+    "recall": 0.136,
+    "f1": 0.158,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.444,
+    "recall": 0.4,
+    "f1": 0.421,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.465,
+    "recall": 0.625,
+    "f1": 0.533,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.278,
+    "recall": 0.4,
+    "f1": 0.328,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    20,
+    2,
+    0,
+    2,
+    1,
+    0,
+    0,
+    3,
+    1,
+    1,
+    2,
+    5,
+    0
+   ],
+   [
+    0,
+    17,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    3,
+    0,
+    0
+   ],
+   [
+    1,
+    4,
+    9,
+    0,
+    0,
+    2,
+    2,
+    1,
+    1,
+    3,
+    3,
+    5,
+    0
+   ],
+   [
+    4,
+    0,
+    0,
+    13,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    3,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    3,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    2,
+    1,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    4,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    2,
+    11,
+    1,
+    1,
+    1,
+    3,
+    0
+   ],
+   [
+    1,
+    0,
+    2,
+    2,
+    0,
+    2,
+    4,
+    2,
+    3,
+    2,
+    2,
+    2,
+    0
+   ],
+   [
+    0,
+    1,
+    5,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    8,
+    3,
+    0,
+    0
+   ],
+   [
+    1,
+    3,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    0,
+    20,
+    4,
+    0
+   ],
+   [
+    2,
+    0,
+    3,
+    0,
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    4,
+    10,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "c3ds-flicc-qwen3-5-27b-deconstruct-revised": {
+  "file": "c3ds-flicc-qwen3-5-27b-deconstruct-revised.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.6367,
+  "macro_f1": 0.6357,
+  "weighted_f1": 0.6296,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.651,
+    "recall": 0.757,
+    "f1": 0.7,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.76,
+    "recall": 0.792,
+    "f1": 0.776,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.583,
+    "recall": 0.452,
+    "f1": 0.509,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.789,
+    "recall": 0.682,
+    "f1": 0.732,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.875,
+    "recall": 1.0,
+    "f1": 0.933,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.667,
+    "recall": 0.571,
+    "f1": 0.615,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.5,
+    "recall": 0.375,
+    "f1": 0.429,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.615,
+    "recall": 0.762,
+    "f1": 0.681,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.524,
+    "recall": 0.5,
+    "f1": 0.512,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.684,
+    "recall": 0.65,
+    "f1": 0.667,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.615,
+    "recall": 0.75,
+    "f1": 0.676,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.45,
+    "recall": 0.36,
+    "f1": 0.4,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    28,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    4,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    19,
+    3,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    2,
+    14,
+    1,
+    1,
+    0,
+    0,
+    1,
+    2,
+    2,
+    3,
+    3,
+    0
+   ],
+   [
+    6,
+    0,
+    0,
+    15,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    4,
+    0,
+    1,
+    1,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    0,
+    1,
+    1,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    16,
+    0,
+    0,
+    0,
+    3,
+    0
+   ],
+   [
+    4,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    2,
+    11,
+    1,
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    13,
+    2,
+    1,
+    0
+   ],
+   [
+    0,
+    3,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    1,
+    1,
+    24,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    1,
+    0,
+    0,
+    0,
+    4,
+    1,
+    1,
+    7,
+    9,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "c3ds-flicc-qwen3-5-2b-deconstruct-revised": {
+  "file": "c3ds-flicc-qwen3-5-2b-deconstruct-revised.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 1,
+  "accuracy": 0.6094,
+  "macro_f1": 0.5864,
+  "weighted_f1": 0.6079,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.774,
+    "recall": 0.649,
+    "f1": 0.706,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.697,
+    "recall": 0.958,
+    "f1": 0.807,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.6,
+    "recall": 0.387,
+    "f1": 0.471,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.762,
+    "recall": 0.727,
+    "f1": 0.744,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 1.0,
+    "recall": 0.857,
+    "f1": 0.923,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.4,
+    "recall": 0.286,
+    "f1": 0.333,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.182,
+    "recall": 0.25,
+    "f1": 0.211,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.6,
+    "recall": 0.714,
+    "f1": 0.652,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.429,
+    "recall": 0.409,
+    "f1": 0.419,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.667,
+    "recall": 0.6,
+    "f1": 0.632,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.647,
+    "recall": 0.688,
+    "f1": 0.667,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.433,
+    "recall": 0.52,
+    "f1": 0.473,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    24,
+    1,
+    0,
+    2,
+    0,
+    0,
+    2,
+    1,
+    3,
+    0,
+    0,
+    4,
+    0
+   ],
+   [
+    0,
+    23,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    1,
+    3,
+    12,
+    1,
+    0,
+    3,
+    2,
+    1,
+    1,
+    4,
+    1,
+    2,
+    0
+   ],
+   [
+    3,
+    0,
+    0,
+    16,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    6,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    2,
+    1,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    15,
+    2,
+    0,
+    0,
+    3,
+    0
+   ],
+   [
+    1,
+    2,
+    0,
+    1,
+    0,
+    0,
+    2,
+    2,
+    9,
+    1,
+    1,
+    3,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    12,
+    1,
+    2,
+    0
+   ],
+   [
+    1,
+    4,
+    2,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    22,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    3,
+    1,
+    0,
+    0,
+    0,
+    2,
+    2,
+    0,
+    4,
+    13,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "c3ds-flicc-qwen3-5-4b-deconstruct-revised": {
+  "file": "c3ds-flicc-qwen3-5-4b-deconstruct-revised.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.5742,
+  "macro_f1": 0.571,
+  "weighted_f1": 0.5741,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.698,
+    "recall": 0.811,
+    "f1": 0.75,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.8,
+    "recall": 0.833,
+    "f1": 0.816,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.579,
+    "recall": 0.355,
+    "f1": 0.44,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.867,
+    "recall": 0.591,
+    "f1": 0.703,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.875,
+    "recall": 1.0,
+    "f1": 0.933,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.5,
+    "recall": 0.429,
+    "f1": 0.462,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.333,
+    "recall": 0.375,
+    "f1": 0.353,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.619,
+    "recall": 0.619,
+    "f1": 0.619,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.333,
+    "recall": 0.364,
+    "f1": 0.348,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.444,
+    "recall": 0.6,
+    "f1": 0.511,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.621,
+    "recall": 0.562,
+    "f1": 0.59,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.3,
+    "recall": 0.36,
+    "f1": 0.327,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    30,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    20,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    2,
+    11,
+    0,
+    1,
+    0,
+    1,
+    1,
+    1,
+    6,
+    1,
+    6,
+    0
+   ],
+   [
+    6,
+    0,
+    0,
+    13,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    3,
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    3,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    13,
+    2,
+    0,
+    0,
+    4,
+    0
+   ],
+   [
+    2,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    2,
+    8,
+    4,
+    1,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    12,
+    2,
+    2,
+    0
+   ],
+   [
+    1,
+    2,
+    2,
+    0,
+    0,
+    0,
+    3,
+    0,
+    1,
+    2,
+    18,
+    3,
+    0
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    0,
+    1,
+    1,
+    2,
+    4,
+    1,
+    5,
+    9,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "c3ds-flicc-qwen3-5-9b-deconstruct-revised": {
+  "file": "c3ds-flicc-qwen3-5-9b-deconstruct-revised.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.6953,
+  "macro_f1": 0.7015,
+  "weighted_f1": 0.6931,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.8,
+    "recall": 0.865,
+    "f1": 0.831,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.821,
+    "recall": 0.958,
+    "f1": 0.885,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.739,
+    "recall": 0.548,
+    "f1": 0.63,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.833,
+    "recall": 0.682,
+    "f1": 0.75,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.8,
+    "recall": 0.571,
+    "f1": 0.667,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.556,
+    "recall": 0.625,
+    "f1": 0.588,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.615,
+    "recall": 0.762,
+    "f1": 0.681,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.542,
+    "recall": 0.591,
+    "f1": 0.565,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.778,
+    "recall": 0.7,
+    "f1": 0.737,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.618,
+    "recall": 0.656,
+    "f1": 0.636,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.458,
+    "recall": 0.44,
+    "f1": 0.449,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    32,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    23,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    17,
+    1,
+    0,
+    1,
+    0,
+    1,
+    3,
+    3,
+    0,
+    3,
+    0
+   ],
+   [
+    4,
+    0,
+    0,
+    15,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    4,
+    0,
+    0,
+    0,
+    0,
+    1,
+    2,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    16,
+    2,
+    0,
+    0,
+    3,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    3,
+    13,
+    0,
+    1,
+    2,
+    0
+   ],
+   [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    14,
+    3,
+    0,
+    0
+   ],
+   [
+    1,
+    2,
+    1,
+    0,
+    0,
+    0,
+    2,
+    1,
+    2,
+    0,
+    21,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    3,
+    1,
+    0,
+    0,
+    0,
+    1,
+    3,
+    1,
+    5,
+    11,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
  "openai-gpt-5-5-bare": {
   "file": "openai-gpt-5-5-bare.jsonl",
   "n": 256,
@@ -1686,6 +3091,1411 @@
     3,
     5,
     0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "qwen-qwen3-5-0-8b-deconstruct-revised-structured": {
+  "file": "qwen-qwen3-5-0-8b-deconstruct-revised-structured.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 88,
+  "out_of_vocab": 0,
+  "accuracy": 0.1055,
+  "macro_f1": 0.0958,
+  "weighted_f1": 0.1063,
+  "per_class": {
+   "ad hominem": {
+    "precision": 1.0,
+    "recall": 0.081,
+    "f1": 0.15,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.192,
+    "recall": 0.161,
+    "f1": 0.175,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.667,
+    "recall": 0.091,
+    "f1": 0.16,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.125,
+    "recall": 0.429,
+    "f1": 0.194,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.055,
+    "recall": 0.375,
+    "f1": 0.095,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.143,
+    "recall": 0.136,
+    "f1": 0.14,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.222,
+    "recall": 0.25,
+    "f1": 0.235,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    3,
+    0,
+    2,
+    1,
+    0,
+    4,
+    9,
+    0,
+    8,
+    0,
+    5,
+    0,
+    5
+   ],
+   [
+    0,
+    0,
+    5,
+    0,
+    0,
+    2,
+    1,
+    0,
+    1,
+    0,
+    6,
+    0,
+    9
+   ],
+   [
+    0,
+    0,
+    5,
+    0,
+    0,
+    5,
+    4,
+    0,
+    1,
+    0,
+    4,
+    0,
+    12
+   ],
+   [
+    0,
+    0,
+    2,
+    2,
+    0,
+    1,
+    10,
+    0,
+    2,
+    0,
+    0,
+    0,
+    5
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    2,
+    0,
+    1,
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    3,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    3,
+    0,
+    0,
+    0,
+    1,
+    0,
+    3
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    2,
+    5,
+    0,
+    0,
+    0,
+    3,
+    0,
+    10
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    5,
+    0,
+    3,
+    0,
+    1,
+    0,
+    12
+   ],
+   [
+    0,
+    0,
+    2,
+    0,
+    0,
+    2,
+    2,
+    0,
+    2,
+    0,
+    4,
+    0,
+    8
+   ],
+   [
+    0,
+    0,
+    5,
+    0,
+    0,
+    1,
+    7,
+    0,
+    2,
+    0,
+    8,
+    0,
+    9
+   ],
+   [
+    0,
+    0,
+    1,
+    0,
+    0,
+    2,
+    7,
+    0,
+    1,
+    0,
+    3,
+    0,
+    11
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "qwen-qwen3-5-27b-deconstruct-revised-structured": {
+  "file": "qwen-qwen3-5-27b-deconstruct-revised-structured.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.5195,
+  "macro_f1": 0.4953,
+  "weighted_f1": 0.494,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.714,
+    "recall": 0.811,
+    "f1": 0.759,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.523,
+    "recall": 0.958,
+    "f1": 0.676,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.389,
+    "recall": 0.226,
+    "f1": 0.286,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.714,
+    "recall": 0.682,
+    "f1": 0.698,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.7,
+    "recall": 1.0,
+    "f1": 0.824,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.273,
+    "recall": 0.429,
+    "f1": 0.333,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.4,
+    "recall": 0.5,
+    "f1": 0.444,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.6,
+    "recall": 0.571,
+    "f1": 0.585,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.25,
+    "recall": 0.364,
+    "f1": 0.296,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.45,
+    "recall": 0.45,
+    "f1": 0.45,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.667,
+    "recall": 0.438,
+    "f1": 0.528,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.143,
+    "recall": 0.04,
+    "f1": 0.062,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    30,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    23,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    11,
+    7,
+    1,
+    2,
+    0,
+    0,
+    0,
+    7,
+    1,
+    1,
+    1,
+    0
+   ],
+   [
+    5,
+    0,
+    0,
+    15,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    7,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    2,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    4,
+    2,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    1,
+    0,
+    0,
+    3,
+    0,
+    12,
+    3,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    4,
+    0,
+    3,
+    2,
+    0,
+    0,
+    0,
+    2,
+    8,
+    2,
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    0,
+    3,
+    0,
+    0,
+    1,
+    0,
+    1,
+    3,
+    9,
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    8,
+    1,
+    0,
+    0,
+    1,
+    4,
+    0,
+    1,
+    2,
+    14,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    3,
+    1,
+    0,
+    1,
+    0,
+    2,
+    9,
+    3,
+    4,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "qwen-qwen3-5-2b-deconstruct-revised-structured": {
+  "file": "qwen-qwen3-5-2b-deconstruct-revised-structured.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 0,
+  "out_of_vocab": 0,
+  "accuracy": 0.1602,
+  "macro_f1": 0.1486,
+  "weighted_f1": 0.1719,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.611,
+    "recall": 0.297,
+    "f1": 0.4,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.2,
+    "recall": 0.417,
+    "f1": 0.27,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.222,
+    "recall": 0.065,
+    "f1": 0.1,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 1.0,
+    "recall": 0.045,
+    "f1": 0.087,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 1.0,
+    "recall": 0.143,
+    "f1": 0.25,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.038,
+    "recall": 0.625,
+    "f1": 0.072,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.15,
+    "recall": 0.136,
+    "f1": 0.143,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.333,
+    "recall": 0.05,
+    "f1": 0.087,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.25,
+    "recall": 0.125,
+    "f1": 0.167,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.75,
+    "recall": 0.12,
+    "f1": 0.207,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    11,
+    6,
+    1,
+    0,
+    0,
+    0,
+    16,
+    0,
+    3,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    10,
+    1,
+    0,
+    0,
+    0,
+    9,
+    0,
+    2,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    2,
+    10,
+    2,
+    0,
+    0,
+    0,
+    11,
+    0,
+    4,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    2,
+    4,
+    0,
+    1,
+    0,
+    0,
+    13,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    5,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    17,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    1,
+    1,
+    3,
+    0,
+    0,
+    0,
+    14,
+    0,
+    3,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    10,
+    1,
+    2,
+    1,
+    4,
+    1,
+    0
+   ],
+   [
+    1,
+    5,
+    2,
+    0,
+    0,
+    0,
+    17,
+    1,
+    1,
+    1,
+    4,
+    0,
+    0
+   ],
+   [
+    0,
+    6,
+    0,
+    0,
+    0,
+    0,
+    12,
+    1,
+    1,
+    1,
+    1,
+    3,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "qwen-qwen3-5-4b-deconstruct-revised-structured": {
+  "file": "qwen-qwen3-5-4b-deconstruct-revised-structured.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 8,
+  "out_of_vocab": 0,
+  "accuracy": 0.3477,
+  "macro_f1": 0.3139,
+  "weighted_f1": 0.3227,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.595,
+    "recall": 0.595,
+    "f1": 0.595,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.259,
+    "recall": 0.875,
+    "f1": 0.4,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.333,
+    "recall": 0.032,
+    "f1": 0.059,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.667,
+    "recall": 0.364,
+    "f1": 0.471,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.6,
+    "recall": 0.429,
+    "f1": 0.5,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.231,
+    "recall": 0.429,
+    "f1": 0.3,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.111,
+    "recall": 0.125,
+    "f1": 0.118,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.308,
+    "recall": 0.19,
+    "f1": 0.235,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.25,
+    "recall": 0.318,
+    "f1": 0.28,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.35,
+    "recall": 0.35,
+    "f1": 0.35,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.44,
+    "recall": 0.344,
+    "f1": 0.386,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.5,
+    "recall": 0.04,
+    "f1": 0.074,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    22,
+    3,
+    0,
+    1,
+    0,
+    0,
+    1,
+    2,
+    3,
+    2,
+    1,
+    0,
+    2
+   ],
+   [
+    1,
+    21,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    21,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3,
+    2,
+    0,
+    1,
+    2
+   ],
+   [
+    6,
+    0,
+    0,
+    8,
+    2,
+    1,
+    0,
+    0,
+    5,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    1,
+    0,
+    0,
+    3,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0,
+    0,
+    0,
+    3,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    1,
+    3,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    2,
+    3,
+    1,
+    0,
+    0,
+    3,
+    1,
+    4,
+    1,
+    2,
+    2,
+    0,
+    2
+   ],
+   [
+    2,
+    4,
+    0,
+    2,
+    0,
+    1,
+    0,
+    1,
+    7,
+    3,
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    3,
+    1,
+    0,
+    0,
+    0,
+    2,
+    1,
+    1,
+    7,
+    4,
+    0,
+    1
+   ],
+   [
+    0,
+    12,
+    0,
+    0,
+    0,
+    4,
+    3,
+    0,
+    1,
+    1,
+    11,
+    0,
+    0
+   ],
+   [
+    1,
+    8,
+    0,
+    1,
+    0,
+    1,
+    1,
+    4,
+    3,
+    2,
+    2,
+    1,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  ]
+ },
+ "qwen-qwen3-5-9b-deconstruct-revised-structured": {
+  "file": "qwen-qwen3-5-9b-deconstruct-revised-structured.jsonl",
+  "n": 256,
+  "errors": 0,
+  "unparsed": 8,
+  "out_of_vocab": 0,
+  "accuracy": 0.3711,
+  "macro_f1": 0.3506,
+  "weighted_f1": 0.3544,
+  "per_class": {
+   "ad hominem": {
+    "precision": 0.684,
+    "recall": 0.703,
+    "f1": 0.693,
+    "support": 37
+   },
+   "anecdote": {
+    "precision": 0.328,
+    "recall": 0.875,
+    "f1": 0.477,
+    "support": 24
+   },
+   "cherry picking": {
+    "precision": 0.333,
+    "recall": 0.065,
+    "f1": 0.108,
+    "support": 31
+   },
+   "conspiracy theory": {
+    "precision": 0.818,
+    "recall": 0.409,
+    "f1": 0.545,
+    "support": 22
+   },
+   "fake experts": {
+    "precision": 0.75,
+    "recall": 0.857,
+    "f1": 0.8,
+    "support": 7
+   },
+   "false choice": {
+    "precision": 0.15,
+    "recall": 0.429,
+    "f1": 0.222,
+    "support": 7
+   },
+   "false equivalence": {
+    "precision": 0.182,
+    "recall": 0.25,
+    "f1": 0.211,
+    "support": 8
+   },
+   "impossible expectations": {
+    "precision": 0.364,
+    "recall": 0.19,
+    "f1": 0.25,
+    "support": 21
+   },
+   "misrepresentation": {
+    "precision": 0.171,
+    "recall": 0.318,
+    "f1": 0.222,
+    "support": 22
+   },
+   "oversimplification": {
+    "precision": 0.154,
+    "recall": 0.1,
+    "f1": 0.121,
+    "support": 20
+   },
+   "single cause": {
+    "precision": 0.55,
+    "recall": 0.344,
+    "f1": 0.423,
+    "support": 32
+   },
+   "slothful induction": {
+    "precision": 0.4,
+    "recall": 0.08,
+    "f1": 0.133,
+    "support": 25
+   }
+  },
+  "confusion": [
+   [
+    26,
+    4,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    3,
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    21,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    15,
+    2,
+    0,
+    1,
+    0,
+    2,
+    0,
+    5,
+    2,
+    1,
+    0,
+    2
+   ],
+   [
+    5,
+    1,
+    0,
+    9,
+    1,
+    2,
+    0,
+    0,
+    3,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    6,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0,
+    0,
+    0,
+    3,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    2,
+    1,
+    1,
+    0,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1,
+    0,
+    0,
+    5,
+    0,
+    4,
+    5,
+    5,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    5,
+    0,
+    1,
+    0,
+    3,
+    1,
+    1,
+    7,
+    0,
+    2,
+    0,
+    1
+   ],
+   [
+    1,
+    3,
+    2,
+    0,
+    0,
+    2,
+    2,
+    0,
+    5,
+    2,
+    2,
+    1,
+    0
+   ],
+   [
+    0,
+    9,
+    0,
+    0,
+    0,
+    1,
+    2,
+    1,
+    4,
+    1,
+    11,
+    1,
+    2
+   ],
+   [
+    2,
+    4,
+    0,
+    0,
+    0,
+    2,
+    1,
+    1,
+    6,
+    2,
+    4,
+    2,
+    1
    ],
    [
     0,

@@ -38,7 +38,7 @@ from tqdm import tqdm
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from prompts import (  # noqa: E402
-    USER_TEMPLATE, VARIANT_NAMES, extract_raw_label, get_prompt,
+    FALLACY_LABELS, USER_TEMPLATE, VARIANT_NAMES, extract_raw_label, get_prompt,
 )
 
 BACKENDS = {
@@ -69,6 +69,25 @@ ap.add_argument("--limit", type=int, default=None, help="Only process first N ro
 ap.add_argument("--no-think", dest="think", action="store_false", default=True,
                 help="Disable Qwen3 thinking-mode "
                      "(chat_template_kwargs.enable_thinking=False).")
+ap.add_argument("--structured", action="store_true",
+                help="Constrain the answer to a JSON schema of {reasoning, "
+                     "fallacy} via the standard OpenAI response_format. For "
+                     "BASE models, which cannot produce the output contract "
+                     "unaided — they invent <label> tags, echo the prompt's "
+                     "placeholder, or never stop reasoning — so strict parsing "
+                     "measures format failure rather than classification. The "
+                     "schema keeps reasoning free-form AND guarantees an "
+                     "in-vocabulary label, which closes both fairness "
+                     "objections at once: the baseline is neither denied "
+                     "reasoning nor penalised for formatting. Being generous to "
+                     "the baseline shrinks the fine-tune's margin, not grows it.")
+ap.add_argument("--reasoning-max-chars", type=int, default=1200,
+                help="maxLength on the schema's reasoning field (--structured "
+                     "only). 0 removes the cap. The cap exists to stop weak "
+                     "models rambling until they hit max_tokens without ever "
+                     "emitting the label — one 4B item ran to 20,972 chars "
+                     "unterminated. Capable models do not need it and it can "
+                     "truncate genuine reasoning, so pass 0 for 9B and up.")
 ap.add_argument("--dry-run", type=int, default=0, metavar="N",
                 help="Print the assembled system + user messages for the first "
                      "N rows and exit, without calling the model.")
@@ -96,12 +115,40 @@ if not input_path.exists():
 
 slug = re.sub(r"[^a-z0-9]+", "-", args.model.lower()).strip("-")
 split = input_path.stem  # val.jsonl -> val, test.jsonl -> test
+# The decoding condition goes in the filename. Without it a --structured run
+# resumes the strict run's file by itemId and silently blends two different
+# measurement protocols into one result set.
+suffix = f"{args.prompt}-structured" if args.structured else args.prompt
 output_path = (
     Path(args.output) if args.output
-    else ROOT / "data" / "results" / split / f"{slug}-{args.prompt}.jsonl"
+    else ROOT / "data" / "results" / split / f"{slug}-{suffix}.jsonl"
 )
 if not output_path.is_absolute():
     output_path = ROOT / output_path
+
+# Schema for --structured. Mirrors a pydantic model:
+#     class FallacyAnswer(BaseModel):
+#         reasoning: str
+#         fallacy: Literal[<the twelve labels>]
+# `reasoning` first so the model reasons BEFORE committing — JSON fields are
+# generated in order, so putting the label first would force it to answer and
+# then rationalise.
+ANSWER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        # maxLength is load-bearing for weak models, not cosmetic: without it
+        # they ramble inside `reasoning` until max_tokens, leaving the JSON
+        # unterminated — one 4B item produced 20,972 chars and never reached the
+        # `fallacy` key. The grammar backend enforces the cap (verified). But it
+        # also truncates genuine reasoning, so --reasoning-max-chars 0 removes
+        # it for models that do not need the brake.
+        "reasoning": ({"type": "string", "maxLength": args.reasoning_max_chars}
+                      if args.reasoning_max_chars > 0 else {"type": "string"}),
+        "fallacy": {"type": "string", "enum": list(FALLACY_LABELS)},
+    },
+    "required": ["reasoning", "fallacy"],
+    "additionalProperties": False,
+}
 
 system_prompt = get_prompt(args.prompt)
 client = OpenAI(base_url=base_url, api_key=api_key)
@@ -133,8 +180,34 @@ def query(text: str):
         temperature=0,
         max_tokens=args.max_tokens,
     )
-    if not args.think:
+    # Send enable_thinking EXPLICITLY on vLLM rather than trusting the chat
+    # template's default. Qwen3.5's template defaults it off, which pre-closes
+    # the <think> block: the FT 0.8B then emitted only the YAML answer with no
+    # deconstruction at all (0/457 traces, macro F1 0.238) despite having been
+    # trained on full traces. Passing True restores them.
+    if args.backend == "vllm":
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": args.think}}
+    elif not args.think:
         kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+    if args.structured:
+        if args.backend == "vllm":
+            # disable_any_whitespace is the point of taking vLLM's extra_body
+            # over the portable response_format here. A JSON grammar permits
+            # unlimited whitespace after `{`, and Qwen3.5-0.8B exploits it: it
+            # emitted 4,000 characters of spaces and hit the token cap on 36%
+            # of val items, never reaching the `fallacy` key. Dropping
+            # concurrency 64 -> 16 barely moved that (36% -> 31%), so it is the
+            # grammar, not batching. Portability is no loss: --structured is
+            # only ever used against base models on our own vLLM.
+            kwargs["extra_body"]["structured_outputs"] = {
+                "json": ANSWER_SCHEMA,
+                "disable_any_whitespace": True,
+            }
+        else:
+            kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": "fallacy_answer", "schema": ANSWER_SCHEMA},
+            }
     resp = client.chat.completions.create(**kwargs)
     return resp.choices[0].message
 

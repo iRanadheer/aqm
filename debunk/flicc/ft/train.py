@@ -1,19 +1,28 @@
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
-#   "unsloth",
-#   "datasets",
-#   "trl>=0.12.0",
+#   # Pins follow cards/ft/train_moe.py, which documents this dependency set
+#   # after it was worked out the hard way. The header inherited from the older
+#   # cards/ft/train.py fails on HF Jobs:
+#   #   AttributeError: module 'torch' has no attribute 'float4_e2m1fn_x2'
+#   # — it pinned no torch at all, so uv resolved one older than the Unsloth
+#   # build expects (float4_e2m1fn_x2 arrived in torch 2.8).
+#   #
+#   #  - torch==2.10.0: the only pin that matters. Its plain-PyPI wheel bundles
+#   #    CUDA, so NO extra-index-url is needed, and it ships triton 3.6, so no
+#   #    manual triton pin either. Inside unsloth's torch<2.11 cap.
+#   #  - flash-linear-attention deliberately OMITTED: it drags in triton>=3.4 ->
+#   #    tilelang -> "No CUDA in container". Dense Qwen3.5 does not need it.
+#   #  - everything else left loose so uv resolves within unsloth's own ranges.
+#   "unsloth==2026.5.9",
+#   "torch==2.10.0",
+#   "torchvision==0.25.0",
 #   "transformers>=5.2.0",
+#   "trl>=0.12.0",
+#   "datasets",
 #   "huggingface_hub[hf_transfer]",
-#   "flash-linear-attention",
-#   "triton<3.4",  # Hopper backward path is incorrect on >=3.4 (FLA #640); pre-3.4 is correct
 #   "tensorboard",
 # ]
-#
-# [tool.uv]
-# extra-index-url = ["https://download.pytorch.org/whl/cu128"]
-# index-strategy = "unsafe-best-match"
 # ///
 """FLICC SFT trainer — student model for twelve-way fallacy classification.
 
@@ -50,7 +59,12 @@ sys.stdout.reconfigure(line_buffering=True)
 sys.stderr.reconfigure(line_buffering=True)
 
 HF_USERNAME = os.environ.get("HF_USERNAME", "iRanadheer")
-FLICC_REPO = os.environ.get("FLICC_DATASET", f"{HF_USERNAME}/flicc-fallacy-sft")
+# The SFT dataset lives under iRanadheer (public) regardless of the namespace
+# the model is pushed to — following cards/ft/train.py::COMBINED_REPO. Deriving
+# it from HF_USERNAME instead sends an HF_USERNAME=C3DS run looking for
+# C3DS/flicc-fallacy-sft and it dies at dataset load. Override with
+# FLICC_DATASET if a copy really does live elsewhere.
+FLICC_REPO = os.environ.get("FLICC_DATASET", "iRanadheer/flicc-fallacy-sft")
 
 ap = argparse.ArgumentParser(description="FLICC fallacy SFT trainer")
 ap.add_argument("--base-model", required=True,
@@ -74,9 +88,12 @@ ap.add_argument("--lora-rank", type=int, default=16)
 ap.add_argument("--lora-alpha", type=int, default=16)
 args = ap.parse_args()
 
-model_short = args.base_model.split("/")[-1]
-recot_tag = "recot" if args.recot else "norecot"
-variant = args.variant or f"flicc_{model_short.lower().replace('-', '_')}_{recot_tag}"
+# House convention, e.g. iRanadheer/CARDS-Wind-LFM2.5-8B-A1B: STUDY-BaseModel,
+# base model spelled exactly as upstream. RECoT is the headline arm and carries
+# no tag; only the control is marked.
+model_short = args.base_model.split("/")[-1]          # e.g. Qwen3.5-4B
+base_name = f"FLICC-{model_short}"                     # e.g. FLICC-Qwen3.5-4B
+variant = args.variant or (base_name if args.recot else f"{base_name}-norecot")
 
 LORA_REPO = f"{HF_USERNAME}/{variant}-lora"
 MERGED_REPO = f"{HF_USERNAME}/{variant}"
@@ -202,7 +219,7 @@ config = SFTConfig(
     logging_steps=5,
     save_strategy="steps",
     save_steps=50,
-    save_total_limit=6,
+    save_total_limit=None,   # keep every local checkpoint; nothing pruned before upload
 
     eval_strategy="steps",
     eval_steps=25,
@@ -240,15 +257,15 @@ print(f"  done in {(time.time() - t) / 60:.1f} min")
 if (loss := result.metrics.get("train_loss")):
     print(f"  final train loss: {loss:.4f}")
 
-try:
-    eval_result = trainer.evaluate()
-    if (loss := eval_result.get("eval_loss")):
-        print(f"  final eval loss: {loss:.4f}")
-except Exception as e:
-    print(f"  eval failed: {e}")
-    if torch.cuda.is_available():
-        torch.cuda.synchronize()
-        torch.cuda.empty_cache()
+# NO final trainer.evaluate() here. The trainer already evaluates every
+# eval_steps, and load_best_model_at_end has just swapped the best checkpoint
+# back in — evaluating again after that weight swap killed the 9B run on
+# Blackwell with "CUDA error: an illegal memory access was encountered", after
+# 606/606 steps had completed cleanly. The number it printed was redundant with
+# the eval_loss already in the training log, and the abort cost the merge step.
+# Do not reintroduce it, and never call torch.cuda.synchronize() in a handler
+# for a CUDA fault: the context is already poisoned, so it converts a survivable
+# error into a process abort.
 
 
 # ---------------------------------------------------------------------------
