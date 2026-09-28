@@ -37,7 +37,7 @@ MODELS = [
     ("CARDS-Qwen3.5-27B",     "cards-qwen35-27b"),
     ("CARDS-Qwen3.5-27B FP8", "cards-qwen35-27b-fp8"),
     ("CARDS-Qwen3.6-27B",     "cards-qwen36-27b"),
-    ("Claude Opus 4.7",       "claude-opus-4-7"),
+    ("Claude Opus 4.6",       "claude-opus-4-6"),
     ("GPT-5.5",               "gpt-5-5"),
     ("GPT-4o-mini",           "gpt-4o-mini"),
     ("CARDS-mini-opus",       "cards-mini-opus"),
@@ -90,8 +90,17 @@ def parse_response(response, require_think=True):
         body = response.split("</think>")[-1].strip()
     else:
         body = response.split("</think>")[-1].strip() if "</think>" in response else response.strip()
-    m = re.search(r"categories:\s*\n((?:\s*-\s*.+\n?)+)", body)
-    return re.findall(r"-\s*<?(\d[\d_]+\d)>?", m.group(1)) if m else []
+    # LAST categories: block, not the first. Models that reason in the open
+    # (DeepSeek, and any model whose trace is not stripped into a separate
+    # reasoning field) echo the prompt's own OUTPUT FORMAT template mid-trace,
+    # so the first match is the literal placeholder `- <category_code>`, which
+    # yields no codes and silently scores the row zero. Scanning back to the
+    # last block with a usable code answers with the model's actual verdict.
+    for m in reversed(list(re.finditer(r"categories:\s*\n((?:\s*-\s*.+\n?)+)", body))):
+        codes = re.findall(r"-\s*<?(\d[\d_]+\d)>?", m.group(1))
+        if codes:
+            return codes
+    return []
 
 
 def truncate_to_level(codes, level):
@@ -264,7 +273,7 @@ SCALING_TEX = [
      [("CARDS-Qwen3.5-4B", "cards-qwen35-4b"), ("CARDS-Qwen3.5-9B", "cards-qwen35-9b"),
       ("CARDS-Qwen3.5-27B", "cards-qwen35-27b")]),
     ("Closed-source (zero-shot)",
-     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.7", "claude-opus-4-7"),
+     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.6", "claude-opus-4-6"),
       ("GPT-5.5", "gpt-5-5")]),
     ("Closed-source RECoT fine-tuned",
      [("CARDS-mini-opus", "cards-mini-opus")]),
@@ -280,7 +289,7 @@ TWITTER_TEX = [
      [("CARDS-Qwen3.5-4B", "cards-qwen35-4b"), ("CARDS-Qwen3.5-9B", "cards-qwen35-9b"),
       ("CARDS-Qwen3.5-27B", "cards-qwen35-27b"), ("CARDS-Qwen3.5-27B FP8", "cards-qwen35-27b-fp8")]),
     ("Closed-source (zero-shot)",
-     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.7", "claude-opus-4-7"),
+     [("GPT-4o-mini", "gpt-4o-mini"), ("Claude Opus 4.6", "claude-opus-4-6"),
       ("GPT-5.5", "gpt-5-5")]),
     ("Closed-source RECoT fine-tuned",
      [("CARDS-mini-opus", "cards-mini-opus")]),
@@ -290,6 +299,13 @@ TWITTER_TEX = [
 def fmt_row(name, m, pad=33):
     cells = [m[f"level_{l}_minsup_3"]["samples_f1"] for l in (1, 2, 3)] + \
             [m[f"level_{l}_minsup_3"]["macro_f1"]   for l in (1, 2, 3)]
+    return f"{name:<{pad}s} & " + " & ".join(f"{c:.3f}" for c in cells) + r" \\"
+
+
+def fmt_pr_row(name, m, metric, pad=33):
+    """Row for the appendix precision/recall tables: Samples then Macro at L1-3."""
+    cells = [m[f"level_{l}_minsup_3"][f"samples_{metric}"] for l in (1, 2, 3)] + \
+            [m[f"level_{l}_minsup_3"][f"macro_{metric}"]   for l in (1, 2, 3)]
     return f"{name:<{pad}s} & " + " & ".join(f"{c:.3f}" for c in cells) + r" \\"
 
 
@@ -315,10 +331,10 @@ def write_tex_fragments():
             f.write("\n".join(lines) + "\n")
         print(f"  -> {out_path}")
 
-    def grouped_rows(groups, split):
+    def grouped_rows(groups, split, row_fn=fmt_row):
         lines = []
         for group, models in groups:
-            rows = [fmt_row(name, e) for name, stem in models if (e := entry(stem, split))]
+            rows = [row_fn(name, e) for name, stem in models if (e := entry(stem, split))]
             if rows:
                 if lines:
                     lines.append(r"\midrule")
@@ -334,6 +350,11 @@ def write_tex_fragments():
     emit("test", "recot_ablation", lines)
 
     emit("test", "scaling_frontier", grouped_rows(SCALING_TEX, "test"))
+
+    emit("test", "scaling_precision",
+         grouped_rows(SCALING_TEX, "test", lambda n, e: fmt_pr_row(n, e, "precision")))
+    emit("test", "scaling_recall",
+         grouped_rows(SCALING_TEX, "test", lambda n, e: fmt_pr_row(n, e, "recall")))
 
     emit("test", "quantization",
          [fmt_row(name, e) for name, stem in QUANT_TEX if (e := entry(stem))])

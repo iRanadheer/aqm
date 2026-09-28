@@ -57,12 +57,22 @@ ap.add_argument("--no-thinking", dest="thinking", action="store_false",
                 help="Force enable_thinking=False at inference (overrides --recot default).")
 ap.add_argument("--chat", action="store_true",
                 help="Use the chat system prompt (per-claim nested YAML). Output slug gets a -chat suffix.")
+ap.add_argument("--base-url", default=None,
+                help="Override the backend's base URL, e.g. http://localhost:8003/v1 to hit a "
+                     "specific vLLM replica. '/v1' is appended if missing. Does not change the "
+                     "output slug, so sharding one eval across replicas writes to one file "
+                     "(pass distinct --output paths and concatenate).")
 args = ap.parse_args()
 # If --thinking/--no-thinking not passed, default to: True for RECoT, False for no-RECoT.
 if args.thinking is None:
     args.thinking = args.recot
 
 base_url, key_env = BACKENDS[args.backend]
+if args.base_url:
+    # Tolerate both "http://host:port" and "http://host:port/v1".
+    base_url = args.base_url.rstrip("/")
+    if not base_url.endswith("/v1"):
+        base_url += "/v1"
 if key_env:
     api_key = os.environ.get(key_env)
     if not api_key:
@@ -103,31 +113,78 @@ def _user_content(text: str) -> str:
     return f"### Text:\n{text}"
 
 
-@retry(stop=stop_after_attempt(5),
-       wait=wait_exponential(multiplier=5, min=5, max=60),
-       retry=retry_if_exception_type(Exception))
-def query(text: str) -> str:
+# Two request extras are not universally supported, and an unsupported one makes
+# the server reject EVERY request with a bare 400:
+#
+#   enable_thinking  — a Qwen3 chat-template kwarg. Gemma 4's template does not
+#                      accept it, and vLLM 400s on unknown template kwargs.
+#   cache_control    — Anthropic-style prompt caching on a structured system
+#                      block. Harmless where supported, rejected where not.
+#
+# Rather than hardcode a model-family guess, probe once at startup with a
+# 1-token request and keep the richest combination the server accepts. When
+# everything is supported this is a no-op, so runs stay comparable with
+# results produced before this probe existed.
+_send_thinking = True
+_system_as_blocks = True
+
+
+def _build_messages(text: str, system_as_blocks: bool):
     # The managed discourselab backend applies its own global system message;
     # sending ours would double up. Suppress the local system prompt there.
     messages = [{"role": "user", "content": _user_content(text)}]
     if args.backend != "discourselab":
-        messages.insert(0, {"role": "system", "content": system_content})
+        messages.insert(0, {
+            "role": "system",
+            "content": system_content if system_as_blocks else _system_text,
+        })
+    return messages
+
+
+def _request_kwargs(text: str, system_as_blocks: bool, send_thinking: bool, max_tokens: int):
     kwargs = dict(
         model=args.model,
-        messages=messages,
+        messages=_build_messages(text, system_as_blocks),
         temperature=0,
-        max_tokens=args.max_tokens,
+        max_tokens=max_tokens,
     )
     # No-RECoT models were trained without <think>...</think>. Qwen3's chat
     # template auto-injects <think>\n at the start of the assistant turn
     # unless we disable thinking mode — without this, the model fills the
     # injected <think> with the system prompt's example template instead of
     # the YAML it actually learned to emit.
-    # Pass enable_thinking to the chat template (vLLM extra_body). Independent
-    # of --no-recot now: RECoT models can be evaluated no-think, no-RECoT models
-    # can be evaluated with-think (matches their training-time chat template).
-    kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": args.thinking}}
-    resp = client.chat.completions.create(**kwargs)
+    if send_thinking:
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": args.thinking}}
+    return kwargs
+
+
+def probe_capabilities() -> None:
+    """Find the richest request shape this endpoint accepts. Preserves the
+    historical shape (blocks + thinking) whenever the server allows it."""
+    global _send_thinking, _system_as_blocks
+    for blocks, thinking in ((True, True), (True, False), (False, True), (False, False)):
+        try:
+            client.chat.completions.create(**_request_kwargs("probe", blocks, thinking, 1))
+        except Exception as e:
+            last = e
+            continue
+        _system_as_blocks, _send_thinking = blocks, thinking
+        note = []
+        if not thinking:
+            note.append("enable_thinking REJECTED (dropped)")
+        if not blocks:
+            note.append("cache_control block REJECTED (plain system string)")
+        print(f"Probe:   ok — {', '.join(note) if note else 'full request shape supported'}")
+        return
+    sys.exit(f"Probe failed: endpoint rejected every request shape.\nLast error: {last}")
+
+
+@retry(stop=stop_after_attempt(5),
+       wait=wait_exponential(multiplier=5, min=5, max=60),
+       retry=retry_if_exception_type(Exception))
+def query(text: str) -> str:
+    resp = client.chat.completions.create(
+        **_request_kwargs(text, _system_as_blocks, _send_thinking, args.max_tokens))
     return resp.choices[0].message.content
 
 
@@ -150,6 +207,10 @@ print(f"RECoT:   {args.recot}  (system prompt={'recot' if args.recot else 'norec
       f"trigger=off, thinking={'on' if args.thinking else 'off'})")
 print(f"Input:   {input_path}  ({len(df)} rows)")
 print(f"Output:  {output_path}")
+
+# One cheap request before spending an hour discovering the endpoint rejects
+# every one of them with a bare 400.
+probe_capabilities()
 
 results: list[dict | None] = [None] * len(df)
 with ThreadPoolExecutor(max_workers=args.max_workers) as pool:

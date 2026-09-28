@@ -245,45 +245,45 @@
       "accuracy": 0.528
     }
   },
-  "Claude Opus 4.7": {
-    "label": "Claude Opus 4.7",
+  "Claude Opus 4.6": {
+    "label": "Claude Opus 4.6",
     "n_samples": 744,
     "parse_failures": 0,
     "level_1_minsup_3": {
-      "samples_f1": 0.799,
-      "samples_precision": 0.795,
-      "samples_recall": 0.826,
-      "macro_f1": 0.788,
-      "macro_precision": 0.759,
-      "macro_recall": 0.832,
-      "micro_f1": 0.802,
-      "micro_precision": 0.776,
-      "micro_recall": 0.829,
-      "accuracy": 0.664
+      "samples_f1": 0.796,
+      "samples_precision": 0.777,
+      "samples_recall": 0.846,
+      "macro_f1": 0.78,
+      "macro_precision": 0.723,
+      "macro_recall": 0.863,
+      "micro_f1": 0.793,
+      "micro_precision": 0.737,
+      "micro_recall": 0.859,
+      "accuracy": 0.638
     },
     "level_2_minsup_3": {
-      "samples_f1": 0.735,
-      "samples_precision": 0.722,
-      "samples_recall": 0.772,
-      "macro_f1": 0.622,
-      "macro_precision": 0.609,
-      "macro_recall": 0.692,
-      "micro_f1": 0.724,
-      "micro_precision": 0.687,
-      "micro_recall": 0.765,
-      "accuracy": 0.563
+      "samples_f1": 0.73,
+      "samples_precision": 0.706,
+      "samples_recall": 0.788,
+      "macro_f1": 0.596,
+      "macro_precision": 0.557,
+      "macro_recall": 0.685,
+      "micro_f1": 0.715,
+      "micro_precision": 0.653,
+      "micro_recall": 0.79,
+      "accuracy": 0.54
     },
     "level_3_minsup_3": {
-      "samples_f1": 0.692,
-      "samples_precision": 0.68,
-      "samples_recall": 0.73,
-      "macro_f1": 0.597,
-      "macro_precision": 0.593,
-      "macro_recall": 0.682,
-      "micro_f1": 0.676,
-      "micro_precision": 0.641,
-      "micro_recall": 0.715,
-      "accuracy": 0.515
+      "samples_f1": 0.688,
+      "samples_precision": 0.666,
+      "samples_recall": 0.743,
+      "macro_f1": 0.572,
+      "macro_precision": 0.54,
+      "macro_recall": 0.681,
+      "micro_f1": 0.662,
+      "micro_precision": 0.602,
+      "micro_recall": 0.735,
+      "accuracy": 0.496
     }
   },
   "GPT-5.5": {

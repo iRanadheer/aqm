@@ -14,7 +14,7 @@ Headline metric: **samples-F1** (how well each document is tagged), with a 95% B
 | CARDS-Qwen3.5-27B (ours) | 0.842 [0.824, 0.859] | 0.810 | 0.496 |
 | GPT-4o-mini (zero-shot) | 0.634 [0.610, 0.656] | 0.520 | 0.285 |
 | CARDS-mini-opus (ours) | 0.840 [0.822, 0.857] | 0.810 | 0.415 |
-| Claude Opus 4.7 (zero-shot) | 0.838 [0.820, 0.855] | 0.804 | 0.519 |
+| Claude Opus 4.6 (zero-shot) | 0.854 [0.837, 0.870] | 0.823 | 0.521 |
 | GPT-5.5 (zero-shot) | 0.869 [0.853, 0.885] | 0.836 | 0.529 |
 
 ## Comparisons (samples-F1)
@@ -37,9 +37,9 @@ Gap = A − B with a 95% CI. `improves`/`lower` = CI clears 0; `comparable` = CI
 | CARDS-9B vs No-RECoT | 0.811 | 0.312 | +0.499 [+0.472, +0.527] | improves |
 | CARDS-27B vs No-RECoT | 0.842 | 0.740 | +0.102 [+0.086, +0.119] | improves |
 | **Vs frontier APIs** | | | | |
-| CARDS-27B vs Claude Opus 4.7 | 0.842 | 0.838 | +0.004 [-0.011, +0.019] | comparable |
+| CARDS-27B vs Claude Opus 4.6 | 0.842 | 0.854 | -0.012 [-0.027, +0.004] | comparable |
 | CARDS-27B vs GPT-5.5 | 0.842 | 0.869 | -0.027 [-0.043, -0.012] | lower |
-| CARDS-mini-opus vs Claude Opus 4.7 | 0.840 | 0.838 | +0.002 [-0.014, +0.018] | comparable |
+| CARDS-mini-opus vs Claude Opus 4.6 | 0.840 | 0.854 | -0.014 [-0.030, +0.002] | comparable |
 | CARDS-mini-opus vs GPT-5.5 | 0.840 | 0.869 | -0.029 [-0.045, -0.013] | lower |
 | **FP8 quantization** | | | | |
 | CARDS-27B FP8 vs full | 0.840 | 0.842 | -0.002 [-0.013, +0.008] | comparable |

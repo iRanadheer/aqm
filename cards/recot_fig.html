@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #ffffff; }
+  .fig {
+    width: 760px;
+    padding: 26px 26px 28px;
+    font-family: "Helvetica Neue", Arial, "DejaVu Sans", sans-serif;
+    color: #1d1d1b;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .eyebrow { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8a8980; }
+  .card { background: #f7f6f1; border: 1px solid #e3e1d8; border-radius: 12px; padding: 15px 17px; }
+  .quote { font-family: Georgia, "DejaVu Serif", serif; font-size: 15px; line-height: 1.6; margin: 9px 0 13px; color: #2a2a27; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; font-family: "DejaVu Sans Mono", monospace;
+          font-size: 12.5px; padding: 3px 10px; border-radius: 999px; font-weight: 600; margin: 2px 4px 2px 0; }
+  .p-gold { background: #faeeda; color: #854f0b; }
+  .p-ok   { background: #e1f5ee; color: #0f6e56; }
+  .p-bad  { background: #fceaea; color: #a32d2d; text-decoration: line-through; }
+  .p-miss { border: 1px dashed #d99; color: #8a8980; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; margin-top: 10px; }
+  .col { border-radius: 12px; padding: 15px; border: 1px solid; }
+  .col-bad { border-color: #e6b8b8; background: #fdfbfb; }
+  .col-ok  { border-color: #a9ddca; background: #fbfefc; }
+  .chead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .ctitle { font-weight: 600; font-size: 14.5px; }
+  .badge { font-size: 10.5px; padding: 2px 9px; border-radius: 999px; font-weight: 600; }
+  .b-bad { background: #fceaea; color: #a32d2d; }
+  .b-ok  { background: #e1f5ee; color: #0f6e56; }
+  .csub { font-size: 12px; color: #57564f; margin-bottom: 11px; }
+  .chip { display: inline-block; font-size: 11.5px; padding: 3px 9px; border-radius: 6px; background: #efeee7; color: #57564f; }
+  .flow { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; color: #b4b2a9; margin: 9px 0; }
+  .teacher { font-size: 11.5px; padding: 4px 11px; border-radius: 8px; border: 1px solid #d8d6cc; color: #1d1d1b; display: inline-block; }
+  .verdict-bad { margin-top: 11px; font-size: 11.5px; color: #a32d2d; line-height: 1.5; }
+  .verdict-ok  { margin-top: 11px; font-size: 11.5px; color: #0f6e56; line-height: 1.5; }
+  .trigger { border: 1px solid #ecca8e; background: #faeeda; border-radius: 8px; padding: 9px 11px; margin-bottom: 11px; }
+  .trigger .t { font-family: Georgia, "DejaVu Serif", serif; font-size: 12px; font-style: italic; color: #854f0b; line-height: 1.5; margin-top: 4px; }
+  .midcap { text-align: center; font-size: 12px; color: #57564f; margin: 13px 0 9px; }
+  .merge { text-align: center; margin: 15px 0 7px; }
+  .merge .arrow { font-size: 19px; line-height: 1; color: #0f6e56; }
+  .merge .lab { font-size: 11.5px; color: #57564f; margin-top: 3px; }
+  .student { border: 1px solid #b4d3f0; background: #e6f1fb; border-radius: 12px; padding: 14px; text-align: center; }
+  .student .st { font-weight: 600; color: #185fa5; font-size: 14.5px; }
+  .student .ss { font-size: 11.5px; color: #185fa5; margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="fig">
+
+  <div class="card">
+    <span class="eyebrow">Labeled training example</span>
+    <p class="quote">&ldquo;CO&#8322; is not a pollutant. Al Gore and the US Environmental Protection Agency (EPA) among others created the myth in order to vilify a gas essential to life on the planet.&rdquo;</p>
+    <span class="eyebrow" style="margin-right:8px">Human gold label</span>
+    <span class="pill p-gold">3.3.0</span>
+    <span class="pill p-gold">6.1.3</span>
+  </div>
+
+  <div class="midcap">Two ways to turn this example into a reasoning trace for the teacher</div>
+
+  <div class="cols">
+
+    <div class="col col-bad">
+      <div class="chead">
+        <span class="ctitle">Traditional chain-of-thought</span>
+        <span class="badge b-bad">discarded</span>
+      </div>
+      <div class="csub">Teacher sees the text only, and guesses the labels.</div>
+      <div class="eyebrow">Teacher input</div>
+      <div style="margin:5px 0 9px"><span class="chip">text</span></div>
+      <span class="teacher">Teacher &middot; Claude Opus 4.6</span>
+      <div class="flow"><span class="chip">Claims</span><span>&rarr;</span><span class="chip">Context</span><span>&rarr;</span><span class="chip">Scan&nbsp;(1&ndash;7)</span><span>&rarr;</span><span class="chip">Verify</span></div>
+      <div class="eyebrow">Predicted labels</div>
+      <div style="margin-top:5px">
+        <span class="pill p-ok">3.3.0</span>
+        <span class="pill p-bad">3.3.1</span>
+        <span class="pill p-miss">6.1.3 missing</span>
+      </div>
+      <div class="verdict-bad">&#10007; Doesn&rsquo;t match gold &mdash; hallucinated 3.3.1 (&ldquo;CO&#8322; = plant food&rdquo;) and missed 6.1.3.</div>
+    </div>
+
+    <div class="col col-ok">
+      <div class="chead">
+        <span class="ctitle">RECoT</span>
+        <span class="badge b-ok">kept</span>
+      </div>
+      <div class="csub">Teacher is handed the gold label, then explains how to reach it.</div>
+      <div class="eyebrow">Teacher input</div>
+      <div style="margin:5px 0 9px">
+        <span class="chip">text</span>
+        <span class="pill p-gold" style="font-size:12px">3.3.0</span>
+        <span class="pill p-gold" style="font-size:12px">6.1.3</span>
+      </div>
+      <div class="trigger">
+        <span class="eyebrow" style="color:#854f0b">RECoT trigger</span>
+        <div class="t">&ldquo;The labels above are correct. Generate reasoning that arrives at exactly these labels, as an expert who has never seen them.&rdquo;</div>
+      </div>
+      <span class="teacher">Teacher &middot; Claude Opus 4.6</span>
+      <div class="flow"><span class="chip">Claims</span><span>&rarr;</span><span class="chip">Context</span><span>&rarr;</span><span class="chip">Scan&nbsp;(1&ndash;7)</span><span>&rarr;</span><span class="chip">Verify</span></div>
+      <div class="eyebrow">Reasoned labels</div>
+      <div style="margin-top:5px">
+        <span class="pill p-ok">3.3.0 &#10003;</span>
+        <span class="pill p-ok">6.1.3 &#10003;</span>
+      </div>
+      <div class="verdict-ok">&#10003; Matches gold by construction &mdash; the trace is label-consistent.</div>
+    </div>
+
+  </div>
+
+  <div class="merge">
+    <div class="arrow">&darr;</div>
+    <div class="lab">Only the matching &#10003; trace survives</div>
+  </div>
+
+  <div class="student">
+    <span class="st">Fine-tune the student &middot; Qwen3.5</span>
+    <div class="ss">Learns to reason in the fixed Claims &rarr; Context &rarr; Scan &rarr; Verify structure.</div>
+  </div>
+
+</div>
+</body>
+</html>

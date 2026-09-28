@@ -15,7 +15,7 @@ Model comparisons report the gap (A − B) and its CI, labelled:
 
 Usage:
     python evals/significance.py              # -> data/significance/summary_{test,twitter}.md
-    python evals/significance.py pair test cards-qwen35-27b claude-opus-4-7
+    python evals/significance.py pair test cards-qwen35-27b claude-opus-4-6
 
 Flags: --level 3  --min-support 3  --n-resamples 9999  --confidence 0.95
        --seed 42  --out-dir data/significance
@@ -58,7 +58,7 @@ LINEUP = [
     ("CARDS-Qwen3.5-27B (ours)",      "cards-qwen35-27b"),
     ("GPT-4o-mini (zero-shot)",       "gpt-4o-mini"),
     ("CARDS-mini-opus (ours)",        "cards-mini-opus"),
-    ("Claude Opus 4.7 (zero-shot)",   "claude-opus-4-7"),
+    ("Claude Opus 4.6 (zero-shot)",   "claude-opus-4-6"),
     ("GPT-5.5 (zero-shot)",           "gpt-5-5"),
 ]
 
@@ -80,9 +80,9 @@ COMPARISONS = [
         ("CARDS-9B vs No-RECoT",  "cards-qwen35-9b",  "cards-qwen35-9b-norecot"),
         ("CARDS-27B vs No-RECoT", "cards-qwen35-27b", "cards-qwen35-27b-norecot")]),
     ("Vs frontier APIs", [
-        ("CARDS-27B vs Claude Opus 4.7",       "cards-qwen35-27b", "claude-opus-4-7"),
+        ("CARDS-27B vs Claude Opus 4.6",       "cards-qwen35-27b", "claude-opus-4-6"),
         ("CARDS-27B vs GPT-5.5",               "cards-qwen35-27b", "gpt-5-5"),
-        ("CARDS-mini-opus vs Claude Opus 4.7", "cards-mini-opus",  "claude-opus-4-7"),
+        ("CARDS-mini-opus vs Claude Opus 4.6", "cards-mini-opus",  "claude-opus-4-6"),
         ("CARDS-mini-opus vs GPT-5.5",         "cards-mini-opus",  "gpt-5-5")]),
     ("FP8 quantization", [
         ("CARDS-27B FP8 vs full", "cards-qwen35-27b-fp8", "cards-qwen35-27b")]),
@@ -109,9 +109,9 @@ TEX_COMPARISONS = {
             (r"CARDS-Qwen3.5-9B vs.\ no RECoT",  "cards-qwen35-9b",  "cards-qwen35-9b-norecot-nothink"),
             (r"CARDS-Qwen3.5-27B vs.\ no RECoT", "cards-qwen35-27b", "cards-qwen35-27b-norecot-nothink")]),
         ("Versus frontier models", [
-            (r"CARDS-Qwen3.5-27B vs.\ Claude Opus 4.7", "cards-qwen35-27b", "claude-opus-4-7"),
+            (r"CARDS-Qwen3.5-27B vs.\ Claude Opus 4.6", "cards-qwen35-27b", "claude-opus-4-6"),
             (r"CARDS-Qwen3.5-27B vs.\ GPT-5.5",         "cards-qwen35-27b", "gpt-5-5"),
-            (r"CARDS-mini-opus vs.\ Claude Opus 4.7",   "cards-mini-opus",  "claude-opus-4-7"),
+            (r"CARDS-mini-opus vs.\ Claude Opus 4.6",   "cards-mini-opus",  "claude-opus-4-6"),
             (r"CARDS-mini-opus vs.\ GPT-5.5",           "cards-mini-opus",  "gpt-5-5")]),
         (r"Open vs.\ closed fine-tunes", [
             (r"CARDS-mini-opus vs.\ CARDS-Qwen3.5-27B", "cards-mini-opus", "cards-qwen35-27b")]),
