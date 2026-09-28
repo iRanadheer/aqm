@@ -1,5 +1,7 @@
 # Wind — test set
 
+Samples F1 is per-row and support-independent (agreed-empty / non-opposition rows count as correct). Macro/Micro F1 follow the CARDS convention: restricted to gold codes with support ≥ 3, hallucinated codes dropped.
+
 | Model | Rows | API errors | Parse failures | Opposition-only n |
 |-------|---|---|---|---|
 | Windy-Qwen3.5-4B | 773 | 0 | 0 | 436 |
@@ -26,20 +28,20 @@
 | Claims — all rows | 0.654 | 0.676 | 0.741 | 0.755 | 0.754 | 0.745 |
 | Claims — opposition only | 0.623 | 0.66 | 0.675 | 0.694 | 0.667 | 0.614 |
 
-## Macro F1
+## Macro F1 (support ≥ 3)
 
 | View | Windy-Qwen3.5-4B | Windy-Qwen3.5-9B | Windy-Qwen3.5-27B | Windy-Qwen3.5-27B FP8 | Claude Opus 4.7 | GPT-5.5 |
 |---|---|---|---|---|---|---|
 | Frames — all rows | 0.573 | 0.552 | 0.622 | 0.63 | 0.664 | 0.646 |
 | Frames — opposition only | 0.631 | 0.606 | 0.659 | 0.664 | 0.692 | 0.66 |
-| Claims — all rows | 0.49 | 0.517 | 0.578 | 0.597 | 0.559 | 0.55 |
-| Claims — opposition only | 0.531 | 0.559 | 0.61 | 0.628 | 0.583 | 0.567 |
+| Claims — all rows | 0.537 | 0.586 | 0.619 | 0.628 | 0.617 | 0.599 |
+| Claims — opposition only | 0.571 | 0.614 | 0.642 | 0.648 | 0.635 | 0.608 |
 
-## Micro F1
+## Micro F1 (support ≥ 3)
 
 | View | Windy-Qwen3.5-4B | Windy-Qwen3.5-9B | Windy-Qwen3.5-27B | Windy-Qwen3.5-27B FP8 | Claude Opus 4.7 | GPT-5.5 |
 |---|---|---|---|---|---|---|
 | Frames — all rows | 0.679 | 0.674 | 0.752 | 0.756 | 0.757 | 0.749 |
 | Frames — opposition only | 0.744 | 0.74 | 0.792 | 0.796 | 0.788 | 0.768 |
-| Claims — all rows | 0.606 | 0.643 | 0.686 | 0.704 | 0.698 | 0.678 |
-| Claims — opposition only | 0.652 | 0.69 | 0.716 | 0.734 | 0.72 | 0.692 |
+| Claims — all rows | 0.611 | 0.649 | 0.688 | 0.706 | 0.702 | 0.682 |
+| Claims — opposition only | 0.657 | 0.695 | 0.718 | 0.735 | 0.724 | 0.696 |

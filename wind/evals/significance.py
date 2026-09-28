@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -41,8 +42,15 @@ sys.path.insert(0, str(ROOT))
 from generate_report import parse_response  # noqa: E402
 
 SENTINEL = "__PARSE_FAIL__"
-METRICS = [("det", "Detection F1"), ("frames", "Frames F1 (opp)"),
-           ("claims", "Claims F1 (opp)")]
+# Minimum gold support for a code to enter the macro vocabulary (matches the
+# CARDS convention and generate_report.MIN_SUPPORT). Detection and samples-F1
+# are support-independent; only macro is restricted.
+MIN_SUPPORT = 3
+METRICS = [("det", "Detection F1"),
+           ("frames", "Frames Samples-F1 (opp)"),
+           ("frames_macro", f"Frames Macro-F1 (opp, sup≥{MIN_SUPPORT})"),
+           ("claims", "Claims Samples-F1 (opp)"),
+           ("claims_macro", f"Claims Macro-F1 (opp, sup≥{MIN_SUPPORT})")]
 
 
 # ---------------------------------------------------------------------------
@@ -180,14 +188,44 @@ def ci_over(rows, value_fn, cfg):
 # Per-model scores and paired comparisons
 # ---------------------------------------------------------------------------
 
-def _metric_fns(stats, gold_op):
-    """Value functions (absolute-index -> scalar) for the three tasks of one
-    model, given its per-row pieces. Frames/claims are opposition-only."""
-    tp, fp, fn, f1f, f1c = stats
-    det = lambda ii: binary_f1(tp[ii].sum(), fp[ii].sum(), fn[ii].sum())
-    frames = lambda ii: float(f1f[ii].mean())
-    claims = lambda ii: float(f1c[ii].mean())
-    return det, frames, claims
+def support_vocab(yt_lists, min_support):
+    """Gold codes with support >= min_support, computed over the given rows
+    (here: the opposition-only rows, where frames/claims apply). The vocab is
+    fixed up front so bootstrap resampling indexes into stable per-label
+    arrays — matching aqm/cards/evals/significance.py."""
+    sup = Counter(l for row in yt_lists for l in row)
+    return sorted([l for l, c in sup.items() if c >= min_support])
+
+
+def label_mats(yt_lists, yp_lists, vocab):
+    """Per-row, per-label TP/FP/FN matrices (n_rows x |vocab|), gold-only vocab.
+
+    Predictions outside the vocab (rare codes below threshold, hallucinations,
+    the parse-fail sentinel) are dropped, so a failed row contributes FNs on its
+    gold labels — the same penalty the report applies."""
+    idx = {l: j for j, l in enumerate(vocab)}
+
+    def mat(rows):
+        M = np.zeros((len(rows), len(vocab)))
+        for i, r in enumerate(rows):
+            for l in r:
+                j = idx.get(l)
+                if j is not None:
+                    M[i, j] = 1.0
+        return M
+
+    Yt, P = mat(yt_lists), mat(yp_lists)
+    return Yt * P, P * (1 - Yt), Yt * (1 - P)          # TP, FP, FN per row/label
+
+
+def macro_fn(TP, FP, FN):
+    """Value function: macro-F1 over `vocab` for a subset of row indices."""
+    def f(ii):
+        tp, fp, fn = TP[ii].sum(0), FP[ii].sum(0), FN[ii].sum(0)
+        den = 2 * tp + fp + fn
+        f1 = np.divide(2 * tp, den, out=np.zeros_like(den, dtype=float), where=den > 0)
+        return float(f1.mean()) if f1.size else float("nan")
+    return f
 
 
 def _rows(yt_op):
@@ -198,14 +236,24 @@ def _rows(yt_op):
 def model_scores(slug, split, cfg):
     D = load(slug, split)
     yt_op, yp_op = D["op"]
+    yt_f, yp_f = D["frames"]
+    yt_c, yp_c = D["claims"]
     tp, fp, fn = det_stats(yt_op, yp_op)
-    stats = (tp, fp, fn, f1_rows(*D["frames"]), f1_rows(*D["claims"]))
-    det, frames, claims = _metric_fns(stats, yt_op)
+    f1f, f1c = f1_rows(yt_f, yp_f), f1_rows(yt_c, yp_c)
     allr, opp = _rows(yt_op)
+    opp_list = opp.tolist()
+    # Macro vocab from opposition-only gold (support >= MIN_SUPPORT).
+    vf = support_vocab([yt_f[i] for i in opp_list], MIN_SUPPORT)
+    vc = support_vocab([yt_c[i] for i in opp_list], MIN_SUPPORT)
+    f_macro = macro_fn(*label_mats(yt_f, yp_f, vf))
+    c_macro = macro_fn(*label_mats(yt_c, yp_c, vc))
+    det = lambda ii: binary_f1(tp[ii].sum(), fp[ii].sum(), fn[ii].sum())
     return {"n": len(yt_op), "n_opp": len(opp),
-            "det":    ci_over(allr, det, cfg),
-            "frames": ci_over(opp, frames, cfg),
-            "claims": ci_over(opp, claims, cfg)}
+            "det":          ci_over(allr, det, cfg),
+            "frames":       ci_over(opp, lambda ii: float(f1f[ii].mean()), cfg),
+            "frames_macro": ci_over(opp, f_macro, cfg),
+            "claims":       ci_over(opp, lambda ii: float(f1c[ii].mean()), cfg),
+            "claims_macro": ci_over(opp, c_macro, cfg)}
 
 
 def compare(split, slug_a, slug_b, cfg):
@@ -218,11 +266,19 @@ def compare(split, slug_a, slug_b, cfg):
     if n_mis:
         print(f"  WARNING: {n_mis}/{len(yt_op)} rows misaligned ({slug_a} vs "
               f"{slug_b}) — comparison invalid.", file=sys.stderr)
+    yt_f, yt_c = A["frames"][0], A["claims"][0]          # shared canonical gold
     tpA, fpA, fnA = det_stats(yt_op, A["op"][1])
     tpB, fpB, fnB = det_stats(yt_op, B["op"][1])
-    f1fA, f1fB = f1_rows(A["frames"][0], A["frames"][1]), f1_rows(A["frames"][0], B["frames"][1])
-    f1cA, f1cB = f1_rows(A["claims"][0], A["claims"][1]), f1_rows(A["claims"][0], B["claims"][1])
+    f1fA, f1fB = f1_rows(yt_f, A["frames"][1]), f1_rows(yt_f, B["frames"][1])
+    f1cA, f1cB = f1_rows(yt_c, A["claims"][1]), f1_rows(yt_c, B["claims"][1])
     allr, opp = _rows(yt_op)
+    opp_list = opp.tolist()
+    vf = support_vocab([yt_f[i] for i in opp_list], MIN_SUPPORT)
+    vc = support_vocab([yt_c[i] for i in opp_list], MIN_SUPPORT)
+    f_macroA = macro_fn(*label_mats(yt_f, A["frames"][1], vf))
+    f_macroB = macro_fn(*label_mats(yt_f, B["frames"][1], vf))
+    c_macroA = macro_fn(*label_mats(yt_c, A["claims"][1], vc))
+    c_macroB = macro_fn(*label_mats(yt_c, B["claims"][1], vc))
 
     def pack(rows, fa, fb):
         a, b = fa(rows), fb(rows)
@@ -232,8 +288,10 @@ def compare(split, slug_a, slug_b, cfg):
     return {
         "det":    pack(allr, lambda ii: binary_f1(tpA[ii].sum(), fpA[ii].sum(), fnA[ii].sum()),
                              lambda ii: binary_f1(tpB[ii].sum(), fpB[ii].sum(), fnB[ii].sum())),
-        "frames": pack(opp, lambda ii: float(f1fA[ii].mean()), lambda ii: float(f1fB[ii].mean())),
-        "claims": pack(opp, lambda ii: float(f1cA[ii].mean()), lambda ii: float(f1cB[ii].mean())),
+        "frames":       pack(opp, lambda ii: float(f1fA[ii].mean()), lambda ii: float(f1fB[ii].mean())),
+        "frames_macro": pack(opp, f_macroA, f_macroB),
+        "claims":       pack(opp, lambda ii: float(f1cA[ii].mean()), lambda ii: float(f1cB[ii].mean())),
+        "claims_macro": pack(opp, c_macroA, c_macroB),
     }
 
 
@@ -255,20 +313,26 @@ def build_split(split, cfg):
     pct = int(round(cfg["confidence"] * 100))
     L = [f"# Wind results — {split} set\n",
          f"Three tasks: binary **opposition detection** (all rows), and "
-         f"**frames**/**claims** multi-label F1 on **opposition-only** rows "
-         f"(where they apply). Each value is F1 with a {pct}% BCa bootstrap CI "
-         f"(`scipy.stats.bootstrap`, {cfg['n_resamples']} resamples). Parse "
-         f"failures / API errors are penalised, matching `generate_report.py`.\n",
+         f"**frames**/**claims** multi-label tagging on **opposition-only** rows "
+         f"(where they apply). For frames/claims we report **Samples-F1** "
+         f"(per-row, support-independent — agreed-empty/non-opposition rows count "
+         f"as correct) and **Macro-F1** restricted to gold codes with support ≥ "
+         f"{MIN_SUPPORT} (CARDS convention; hallucinated codes dropped). Each "
+         f"value is F1 with a {pct}% BCa bootstrap CI (`scipy.stats.bootstrap`, "
+         f"{cfg['n_resamples']} resamples). Parse failures / API errors are "
+         f"penalised, matching `generate_report.py`.\n",
          "## Model scores\n",
-         f"| Model | Detection F1 ({pct}% CI) | Frames F1, opp ({pct}% CI) | Claims F1, opp ({pct}% CI) |",
-         "|---|---|---|---|"]
+         f"| Model | Detection F1 | Frames Samples-F1 (opp) | Frames Macro-F1 (opp, sup≥{MIN_SUPPORT}) "
+         f"| Claims Samples-F1 (opp) | Claims Macro-F1 (opp, sup≥{MIN_SUPPORT}) |",
+         "|---|---|---|---|---|---|"]
     for name, slug in LINEUP:
         try:
             r = model_scores(slug, split, cfg)
         except FileNotFoundError:
             continue
         cell = lambda x: f"{x[0]:.3f} [{x[1]:.3f}, {x[2]:.3f}]"
-        L.append(f"| {name} | {cell(r['det'])} | {cell(r['frames'])} | {cell(r['claims'])} |")
+        L.append(f"| {name} | {cell(r['det'])} | {cell(r['frames'])} | {cell(r['frames_macro'])} "
+                 f"| {cell(r['claims'])} | {cell(r['claims_macro'])} |")
 
     # Compute each comparison once, then render one sub-table per task.
     results = {}

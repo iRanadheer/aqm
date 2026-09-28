@@ -211,32 +211,58 @@ def _samples_f1(y_true: list[list[str]], y_pred: list[list[str]]) -> float:
     return total / len(y_true)
 
 
+# Minimum gold support for a code to enter the macro/micro label vocabulary.
+# Matches the CARDS chapter convention ("metrics restricted to codes with at
+# least three instances"); see aqm/cards/generate_report.py. Samples F1 is
+# left support-independent on purpose — it is a per-row tagging-quality metric
+# whose empty/empty=1.0 rule credits agreed-empty (non-opposition) rows, which
+# a vocabulary restriction would wrongly zero out.
+MIN_SUPPORT = 3
+
+
 def multilabel_metrics(
-    y_true: list[list[str]], y_pred: list[list[str]]
+    y_true: list[list[str]], y_pred: list[list[str]], min_support: int = MIN_SUPPORT
 ) -> dict:
-    # Strip the parse-failure sentinel from y_pred for macro/micro: keeping
-    # it would inflate the label vocabulary unevenly across models. Samples
-    # F1 still receives the raw y_pred (sentinel needed there to penalize
-    # rows where gold is also []).
-    SENTINEL = "__PARSE_FAIL__"
-    y_pred_mlb = [[x for x in lab if x != SENTINEL] for lab in y_pred]
-    labels = set()
-    for lab in y_true + y_pred_mlb:
-        labels.update(lab)
-    if not labels:
-        return {"note": "no labels observed"}
-    mlb = MultiLabelBinarizer()
-    mlb.fit([sorted(labels)])
-    yt = mlb.transform(y_true)
-    yp = mlb.transform(y_pred_mlb)
+    # Samples F1: per-row, support-independent. Computed on the raw lists so
+    # the parse-fail sentinel still penalizes failed rows and agreed-empty
+    # (non-opposition) rows are credited (empty/empty = 1.0).
+    samples = round(_samples_f1(y_true, y_pred), 3)
+
+    # Macro/micro follow the CARDS convention: fix the label vocab to GOLD
+    # codes only (hallucinated predictions are dropped — the model is still
+    # penalized because the unpredicted gold label takes an FN), then keep only
+    # codes whose gold support >= min_support. Restricting to gold support
+    # makes the kept-code set identical across models, so macro is comparable.
+    base = {
+        "samples_f1": samples, "macro_f1": 0.0, "micro_f1": 0.0,
+        "micro_precision": 0.0, "micro_recall": 0.0,
+        "exact_match": 0.0, "hamming_loss": 0.0,
+        "min_support": min_support, "n_codes": 0,
+    }
+    gold_labels = sorted({l for row in y_true for l in row})
+    if not gold_labels:
+        return base
+    gold_set = set(gold_labels)
+    y_pred_clean = [[l for l in row if l in gold_set] for row in y_pred]
+    mlb = MultiLabelBinarizer(classes=gold_labels)
+    yt = mlb.fit_transform(y_true)
+    yp = mlb.transform(y_pred_clean)
+    if min_support > 0:
+        mask = yt.sum(axis=0) >= min_support
+        yt, yp = yt[:, mask], yp[:, mask]
+    n_codes = int(yt.shape[1])
+    if n_codes == 0:
+        return base
     return {
-        "samples_f1": round(_samples_f1(y_true, y_pred), 3),
+        "samples_f1": samples,
         "macro_f1": round(f1_score(yt, yp, average="macro", zero_division=0), 3),
         "micro_f1": round(f1_score(yt, yp, average="micro", zero_division=0), 3),
         "micro_precision": round(precision_score(yt, yp, average="micro", zero_division=0), 3),
         "micro_recall": round(recall_score(yt, yp, average="micro", zero_division=0), 3),
         "exact_match": round(accuracy_score(yt, yp), 3),
         "hamming_loss": round(hamming_loss(yt, yp), 3),
+        "min_support": min_support,
+        "n_codes": n_codes,
     }
 
 
@@ -271,8 +297,8 @@ LINEUP_HEADLINE = [
 
 SPLITS = ["test"]
 F1_KEYS = [("samples_f1", "Samples F1"),
-           ("macro_f1",   "Macro F1"),
-           ("micro_f1",   "Micro F1")]
+           ("macro_f1",   f"Macro F1 (support ≥ {MIN_SUPPORT})"),
+           ("micro_f1",   f"Micro F1 (support ≥ {MIN_SUPPORT})")]
 
 RESULTS_DIR = REPO_ROOT / "data" / "results"
 
@@ -358,7 +384,13 @@ def write_summary(split: str, summary: dict[str, dict], basename: str = "metrics
     header = "| " + " | ".join(["Metric"] + labels) + " |"
     sep    = "|" + "|".join(["---"] * (n_models + 1)) + "|"
 
-    lines = [f"# Wind — {split} set\n"]
+    lines = [
+        f"# Wind — {split} set\n",
+        f"Samples F1 is per-row and support-independent (agreed-empty / "
+        f"non-opposition rows count as correct). Macro/Micro F1 follow the "
+        f"CARDS convention: restricted to gold codes with support ≥ "
+        f"{MIN_SUPPORT}, hallucinated codes dropped.\n",
+    ]
     # Coverage table
     lines.append("| Model | Rows | API errors | Parse failures | Opposition-only n |")
     lines.append("|-------|---|---|---|---|")

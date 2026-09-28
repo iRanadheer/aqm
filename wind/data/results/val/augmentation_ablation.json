@@ -1,0 +1,85 @@
+{
+  "min_support": 3,
+  "pairs": [
+    {
+      "model": "Windy-Qwen3.5-4B",
+      "before": {
+        "detection.detection": 0.849,
+        "frames_opp.samples": 0.614,
+        "frames_opp.macro": 0.513,
+        "claims_opp.samples": 0.51,
+        "claims_opp.macro": 0.491,
+        "claims_all.samples": 0.625,
+        "claims_all.macro": 0.467
+      },
+      "after": {
+        "detection.detection": 0.864,
+        "frames_opp.samples": 0.727,
+        "frames_opp.macro": 0.655,
+        "claims_opp.samples": 0.623,
+        "claims_opp.macro": 0.656,
+        "claims_all.samples": 0.672,
+        "claims_all.macro": 0.613
+      },
+      "delta": {
+        "detection.detection": 0.015,
+        "frames_opp.samples": 0.113,
+        "frames_opp.macro": 0.142,
+        "claims_opp.samples": 0.113,
+        "claims_opp.macro": 0.165,
+        "claims_all.samples": 0.047,
+        "claims_all.macro": 0.146
+      }
+    },
+    {
+      "model": "Windy-Qwen3.5-9B",
+      "before": {
+        "detection.detection": 0.838,
+        "frames_opp.samples": 0.648,
+        "frames_opp.macro": 0.589,
+        "claims_opp.samples": 0.563,
+        "claims_opp.macro": 0.611,
+        "claims_all.samples": 0.66,
+        "claims_all.macro": 0.58
+      },
+      "after": {
+        "detection.detection": 0.866,
+        "frames_opp.samples": 0.713,
+        "frames_opp.macro": 0.635,
+        "claims_opp.samples": 0.651,
+        "claims_opp.macro": 0.693,
+        "claims_all.samples": 0.693,
+        "claims_all.macro": 0.652
+      },
+      "delta": {
+        "detection.detection": 0.028,
+        "frames_opp.samples": 0.065,
+        "frames_opp.macro": 0.046,
+        "claims_opp.samples": 0.088,
+        "claims_opp.macro": 0.082,
+        "claims_all.samples": 0.033,
+        "claims_all.macro": 0.072
+      }
+    }
+  ],
+  "references": {
+    "Windy-Qwen3.5-27B": {
+      "detection.detection": 0.912,
+      "frames_opp.samples": 0.747,
+      "frames_opp.macro": 0.655,
+      "claims_opp.samples": 0.733,
+      "claims_opp.macro": 0.752,
+      "claims_all.samples": 0.786,
+      "claims_all.macro": 0.732
+    },
+    "Claude Opus 4.7 (teacher)": {
+      "detection.detection": 0.937,
+      "frames_opp.samples": 0.72,
+      "frames_opp.macro": 0.648,
+      "claims_opp.samples": 0.713,
+      "claims_opp.macro": 0.736,
+      "claims_all.samples": 0.809,
+      "claims_all.macro": 0.728
+    }
+  }
+}

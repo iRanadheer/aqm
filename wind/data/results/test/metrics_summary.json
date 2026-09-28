@@ -23,7 +23,9 @@
       "micro_precision": 0.628,
       "micro_recall": 0.739,
       "exact_match": 0.554,
-      "hamming_loss": 0.066
+      "hamming_loss": 0.066,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.699,
@@ -32,25 +34,31 @@
       "micro_precision": 0.749,
       "micro_recall": 0.739,
       "exact_match": 0.445,
-      "hamming_loss": 0.085
+      "hamming_loss": 0.085,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.654,
-      "macro_f1": 0.49,
-      "micro_f1": 0.606,
-      "micro_precision": 0.599,
-      "micro_recall": 0.613,
-      "exact_match": 0.462,
-      "hamming_loss": 0.019
+      "macro_f1": 0.537,
+      "micro_f1": 0.611,
+      "micro_precision": 0.608,
+      "micro_recall": 0.614,
+      "exact_match": 0.464,
+      "hamming_loss": 0.027,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.623,
-      "macro_f1": 0.531,
-      "micro_f1": 0.652,
-      "micro_precision": 0.696,
-      "micro_recall": 0.613,
+      "macro_f1": 0.571,
+      "micro_f1": 0.657,
+      "micro_precision": 0.707,
+      "micro_recall": 0.614,
       "exact_match": 0.282,
-      "hamming_loss": 0.028
+      "hamming_loss": 0.039,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "Windy-Qwen3.5-9B": {
@@ -77,7 +85,9 @@
       "micro_precision": 0.617,
       "micro_recall": 0.744,
       "exact_match": 0.561,
-      "hamming_loss": 0.068
+      "hamming_loss": 0.068,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.695,
@@ -86,25 +96,31 @@
       "micro_precision": 0.736,
       "micro_recall": 0.744,
       "exact_match": 0.456,
-      "hamming_loss": 0.088
+      "hamming_loss": 0.088,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.676,
-      "macro_f1": 0.517,
-      "micro_f1": 0.643,
-      "micro_precision": 0.636,
-      "micro_recall": 0.65,
-      "exact_match": 0.489,
-      "hamming_loss": 0.018
+      "macro_f1": 0.586,
+      "micro_f1": 0.649,
+      "micro_precision": 0.645,
+      "micro_recall": 0.652,
+      "exact_match": 0.494,
+      "hamming_loss": 0.024,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.66,
-      "macro_f1": 0.559,
-      "micro_f1": 0.69,
-      "micro_precision": 0.736,
-      "micro_recall": 0.65,
-      "exact_match": 0.328,
-      "hamming_loss": 0.026
+      "macro_f1": 0.614,
+      "micro_f1": 0.695,
+      "micro_precision": 0.744,
+      "micro_recall": 0.652,
+      "exact_match": 0.33,
+      "hamming_loss": 0.035,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "Windy-Qwen3.5-27B": {
@@ -131,7 +147,9 @@
       "micro_precision": 0.719,
       "micro_recall": 0.788,
       "exact_match": 0.668,
-      "hamming_loss": 0.049
+      "hamming_loss": 0.049,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.747,
@@ -140,25 +158,31 @@
       "micro_precision": 0.796,
       "micro_recall": 0.788,
       "exact_match": 0.546,
-      "hamming_loss": 0.07
+      "hamming_loss": 0.07,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.741,
-      "macro_f1": 0.578,
-      "micro_f1": 0.686,
-      "micro_precision": 0.689,
+      "macro_f1": 0.619,
+      "micro_f1": 0.688,
+      "micro_precision": 0.691,
       "micro_recall": 0.684,
-      "exact_match": 0.577,
-      "hamming_loss": 0.015
+      "exact_match": 0.581,
+      "hamming_loss": 0.021,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.675,
-      "macro_f1": 0.61,
-      "micro_f1": 0.716,
-      "micro_precision": 0.752,
+      "macro_f1": 0.642,
+      "micro_f1": 0.718,
+      "micro_precision": 0.754,
       "micro_recall": 0.684,
-      "exact_match": 0.385,
-      "hamming_loss": 0.024
+      "exact_match": 0.39,
+      "hamming_loss": 0.033,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "Windy-Qwen3.5-27B FP8": {
@@ -185,7 +209,9 @@
       "micro_precision": 0.721,
       "micro_recall": 0.795,
       "exact_match": 0.678,
-      "hamming_loss": 0.049
+      "hamming_loss": 0.049,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.751,
@@ -194,25 +220,31 @@
       "micro_precision": 0.796,
       "micro_recall": 0.795,
       "exact_match": 0.557,
-      "hamming_loss": 0.069
+      "hamming_loss": 0.069,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.755,
-      "macro_f1": 0.597,
-      "micro_f1": 0.704,
-      "micro_precision": 0.705,
-      "micro_recall": 0.703,
-      "exact_match": 0.581,
-      "hamming_loss": 0.015
+      "macro_f1": 0.628,
+      "micro_f1": 0.706,
+      "micro_precision": 0.707,
+      "micro_recall": 0.704,
+      "exact_match": 0.583,
+      "hamming_loss": 0.02,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.694,
-      "macro_f1": 0.628,
-      "micro_f1": 0.734,
-      "micro_precision": 0.767,
-      "micro_recall": 0.703,
-      "exact_match": 0.385,
-      "hamming_loss": 0.023
+      "macro_f1": 0.648,
+      "micro_f1": 0.735,
+      "micro_precision": 0.768,
+      "micro_recall": 0.704,
+      "exact_match": 0.388,
+      "hamming_loss": 0.031,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "CARDS-Wind-Qwen3.6-27B": {
@@ -239,7 +271,9 @@
       "micro_precision": 0.705,
       "micro_recall": 0.772,
       "exact_match": 0.646,
-      "hamming_loss": 0.052
+      "hamming_loss": 0.052,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.729,
@@ -248,25 +282,31 @@
       "micro_precision": 0.785,
       "micro_recall": 0.772,
       "exact_match": 0.516,
-      "hamming_loss": 0.074
+      "hamming_loss": 0.074,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.735,
-      "macro_f1": 0.555,
-      "micro_f1": 0.687,
-      "micro_precision": 0.688,
-      "micro_recall": 0.687,
-      "exact_match": 0.565,
-      "hamming_loss": 0.015
+      "macro_f1": 0.602,
+      "micro_f1": 0.69,
+      "micro_precision": 0.693,
+      "micro_recall": 0.688,
+      "exact_match": 0.571,
+      "hamming_loss": 0.021,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.675,
-      "macro_f1": 0.584,
-      "micro_f1": 0.72,
-      "micro_precision": 0.756,
-      "micro_recall": 0.687,
-      "exact_match": 0.374,
-      "hamming_loss": 0.023
+      "macro_f1": 0.622,
+      "micro_f1": 0.722,
+      "micro_precision": 0.761,
+      "micro_recall": 0.688,
+      "exact_match": 0.381,
+      "hamming_loss": 0.032,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "CARDS-Wind-Qwen3.6-27B FP8": {
@@ -293,7 +333,9 @@
       "micro_precision": 0.704,
       "micro_recall": 0.781,
       "exact_match": 0.651,
-      "hamming_loss": 0.052
+      "hamming_loss": 0.052,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.739,
@@ -302,25 +344,31 @@
       "micro_precision": 0.784,
       "micro_recall": 0.781,
       "exact_match": 0.523,
-      "hamming_loss": 0.073
+      "hamming_loss": 0.073,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.738,
-      "macro_f1": 0.554,
-      "micro_f1": 0.686,
-      "micro_precision": 0.684,
-      "micro_recall": 0.689,
-      "exact_match": 0.55,
-      "hamming_loss": 0.015
+      "macro_f1": 0.6,
+      "micro_f1": 0.689,
+      "micro_precision": 0.689,
+      "micro_recall": 0.69,
+      "exact_match": 0.558,
+      "hamming_loss": 0.021,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.677,
-      "macro_f1": 0.57,
-      "micro_f1": 0.717,
-      "micro_precision": 0.746,
-      "micro_recall": 0.689,
-      "exact_match": 0.344,
-      "hamming_loss": 0.023
+      "macro_f1": 0.618,
+      "micro_f1": 0.72,
+      "micro_precision": 0.753,
+      "micro_recall": 0.69,
+      "exact_match": 0.356,
+      "hamming_loss": 0.033,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "Claude Opus 4.7": {
@@ -347,7 +395,9 @@
       "micro_precision": 0.734,
       "micro_recall": 0.781,
       "exact_match": 0.686,
-      "hamming_loss": 0.048
+      "hamming_loss": 0.048,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.734,
@@ -356,25 +406,31 @@
       "micro_precision": 0.795,
       "micro_recall": 0.781,
       "exact_match": 0.544,
-      "hamming_loss": 0.071
+      "hamming_loss": 0.071,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.754,
-      "macro_f1": 0.559,
-      "micro_f1": 0.698,
-      "micro_precision": 0.695,
-      "micro_recall": 0.7,
-      "exact_match": 0.578,
-      "hamming_loss": 0.015
+      "macro_f1": 0.617,
+      "micro_f1": 0.702,
+      "micro_precision": 0.7,
+      "micro_recall": 0.704,
+      "exact_match": 0.583,
+      "hamming_loss": 0.021,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.667,
-      "macro_f1": 0.583,
-      "micro_f1": 0.72,
-      "micro_precision": 0.742,
-      "micro_recall": 0.7,
-      "exact_match": 0.353,
-      "hamming_loss": 0.024
+      "macro_f1": 0.635,
+      "micro_f1": 0.724,
+      "micro_precision": 0.745,
+      "micro_recall": 0.704,
+      "exact_match": 0.358,
+      "hamming_loss": 0.033,
+      "min_support": 3,
+      "n_codes": 34
     }
   },
   "GPT-5.5": {
@@ -401,7 +457,9 @@
       "micro_precision": 0.745,
       "micro_recall": 0.753,
       "exact_match": 0.675,
-      "hamming_loss": 0.048
+      "hamming_loss": 0.048,
+      "min_support": 3,
+      "n_codes": 9
     },
     "frames_opp": {
       "samples_f1": 0.697,
@@ -410,25 +468,31 @@
       "micro_precision": 0.785,
       "micro_recall": 0.753,
       "exact_match": 0.491,
-      "hamming_loss": 0.076
+      "hamming_loss": 0.076,
+      "min_support": 3,
+      "n_codes": 9
     },
     "claims_all": {
       "samples_f1": 0.745,
-      "macro_f1": 0.55,
-      "micro_f1": 0.678,
-      "micro_precision": 0.718,
-      "micro_recall": 0.642,
-      "exact_match": 0.576,
-      "hamming_loss": 0.015
+      "macro_f1": 0.599,
+      "micro_f1": 0.682,
+      "micro_precision": 0.722,
+      "micro_recall": 0.647,
+      "exact_match": 0.577,
+      "hamming_loss": 0.021,
+      "min_support": 3,
+      "n_codes": 34
     },
     "claims_opp": {
       "samples_f1": 0.614,
-      "macro_f1": 0.567,
-      "micro_f1": 0.692,
-      "micro_precision": 0.751,
-      "micro_recall": 0.642,
+      "macro_f1": 0.608,
+      "micro_f1": 0.696,
+      "micro_precision": 0.754,
+      "micro_recall": 0.647,
       "exact_match": 0.314,
-      "hamming_loss": 0.026
+      "hamming_loss": 0.034,
+      "min_support": 3,
+      "n_codes": 34
     }
   }
 }

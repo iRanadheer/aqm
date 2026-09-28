@@ -1,0 +1,56 @@
+{
+  "claim_id": "NC_275",
+  "final_label": "Current state noise regulations inadequately address wind turbine noise, necessitating stricter limits based on health evidence including sleep deprivation and WHO guidelines",
+  "counts": {
+    "created": 1,
+    "matched": 21,
+    "updated": 3
+  },
+  "created": {
+    "timestamp": "2025-04-29T19:00:40.859993",
+    "action": "created",
+    "label_text": "Current state noise regulations inadequately address wind turbine noise",
+    "source_article_id": "185",
+    "article_url": "https://www.wind-watch.org/news/2010/12/06/workshop-dec-9-to-craft-new-rumford-wind-ordinance/",
+    "source_snippet": "Mexico resident Dr. Albert Aniel said that as a physician, he believes the main issue is wind turbine noise. He then said there is an effort under way in the Legislature to amend the state’s noise regulations, which don’t pertain to wind turbines.",
+    "rationale": "Identifies a gap in existing noise regulations specifically for wind turbines, distinct from general noise pollution claims (NC_220) or health impacts (NC_65/66)."
+  },
+  "matched_sample": {
+    "timestamp": "2025-04-29T22:34:00.759780",
+    "action": "matched",
+    "label_text": "Current state noise regulations inadequately address wind turbine noise",
+    "source_article_id": "380",
+    "article_url": "https://www.wind-watch.org/news/2017/06/07/town-boards-meet-for-wind-regulations/",
+    "source_snippet": "the amendment includes a separate list of definitions for sound regulation, varying degrees of town response determined by the extent of the noise violation",
+    "rationale": "Detailed noise regulation framework matches NC_275 (Current state noise regulations inadequately address wind turbine noise)."
+  },
+  "updated": [
+    {
+      "timestamp": "2025-04-29T23:28:02.585269",
+      "action": "updated",
+      "label_text": "Current state noise regulations inadequately address wind turbine noise, necessitating stricter limits based on health evidence",
+      "source_article_id": "426",
+      "article_url": "https://www.wind-watch.org/news/2013/03/17/a-barnett-big-wind-too-noisy/",
+      "source_snippet": "On March 6, the Maine Supreme Court ruled for lower noise on Saddleback Ridge wind turbine project for 'health' reasons. There was enough information on 'adverse' health effects for the Board of Environmental Protection and the legislators to lower Maine’s nighttime noise limit to 42 dbA.",
+      "rationale": "Expanded NC_275 to include regulatory adjustments driven by health evidence rather than just 'inadequacy' of existing regulations."
+    },
+    {
+      "timestamp": "2025-04-30T04:40:07.204836",
+      "action": "updated",
+      "label_text": "Current state noise regulations inadequately address wind turbine noise, necessitating stricter limits based on health evidence including sleep deprivation",
+      "source_article_id": "666",
+      "article_url": "https://www.wind-watch.org/news/2011/08/10/wind-turbines-will-hurt-wildlife-and-water/",
+      "source_snippet": "Will the noise drive some people crazy? Increasing medical evidence says, “Maybe, due to sleep deprivation.”",
+      "rationale": "Expanded NC_275 to explicitly include sleep deprivation as a health justification for noise limits."
+    },
+    {
+      "timestamp": "2025-04-30T13:59:34.707397",
+      "action": "updated",
+      "label_text": "Current state noise regulations inadequately address wind turbine noise, necessitating stricter limits based on health evidence including sleep deprivation and WHO guidelines",
+      "source_article_id": "1095",
+      "article_url": "https://www.wind-watch.org/news/2015/03/12/doctors-call-for-reduction-in-turbine-noise/",
+      "source_snippet": "The association has called for the introduction of a maximum noise level of 30 decibels as recommended by the WHO and for the set-back distance from inhabited houses to at least 1,500m from the current 500m.",
+      "rationale": "Expanded NC_275 to explicitly reference WHO guidelines, which are central to this claim about noise limits."
+    }
+  ]
+}

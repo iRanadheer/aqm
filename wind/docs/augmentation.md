@@ -183,3 +183,57 @@ both val and test results. Target: close the teacher–student gap on
 claims macro_F1 (sup≥4) from ~0.55 (current 9B slim) toward Opus slim
 (~0.72). A single augmentation pass is unlikely to fully close the gap;
 we'll iterate codebook + augmentation until plateau or budget exhausts.
+
+---
+
+## Measured impact — before/after ablation (val set)
+
+Pre-augmentation students (`*-preaug`) vs the same students retrained on
+`train_augmented`, scored on the 331-row val set. Macro F1 is restricted
+to codes with gold support ≥ 3 in val (same kept-code set before and
+after, so the comparison is fair); Samples F1 and Detection F1 are
+support-independent. Reproduce with `evals/augmentation_ablation.py`.
+
+**Caveat:** augmentation targets were selected partly from val FP/FN
+signal (see selection rules above), so these val gains are mildly
+optimistic by construction. Test-set numbers are the basis for the
+paper's final claims.
+
+### Windy-Qwen3.5-4B
+
+| Metric | Before | After | Δ |
+|---|---:|---:|---:|
+| Detection F1 | 0.849 | 0.864 | +0.015 |
+| Frames (opp) Samples F1 | 0.614 | 0.727 | +0.113 |
+| Frames (opp) Macro F1 (sup≥3) | 0.513 | 0.655 | +0.142 |
+| Claims (opp) Samples F1 | 0.510 | 0.623 | +0.113 |
+| Claims (opp) Macro F1 (sup≥3) | 0.491 | 0.656 | +0.165 |
+| Claims (all) Samples F1 | 0.625 | 0.672 | +0.047 |
+| Claims (all) Macro F1 (sup≥3) | 0.467 | 0.613 | +0.146 |
+
+### Windy-Qwen3.5-9B
+
+| Metric | Before | After | Δ |
+|---|---:|---:|---:|
+| Detection F1 | 0.838 | 0.866 | +0.028 |
+| Frames (opp) Samples F1 | 0.648 | 0.713 | +0.065 |
+| Frames (opp) Macro F1 (sup≥3) | 0.589 | 0.635 | +0.046 |
+| Claims (opp) Samples F1 | 0.563 | 0.651 | +0.088 |
+| Claims (opp) Macro F1 (sup≥3) | 0.611 | 0.693 | +0.082 |
+| Claims (all) Samples F1 | 0.660 | 0.693 | +0.033 |
+| Claims (all) Macro F1 (sup≥3) | 0.580 | 0.652 | +0.072 |
+
+### Reference points (no pre-aug counterpart)
+
+| Metric | Windy-Qwen3.5-27B | Claude Opus 4.7 (teacher) |
+|---|---:|---:|
+| Detection F1 | 0.912 | 0.937 |
+| Frames (opp) Macro F1 (sup≥3) | 0.655 | 0.648 |
+| Claims (opp) Macro F1 (sup≥3) | 0.752 | 0.736 |
+| Claims (all) Macro F1 (sup≥3) | 0.732 | 0.728 |
+
+**Read:** augmentation helped on every metric at both sizes, with the
+largest gains on macro F1 (the rare/under-predicted codes it targeted).
+The 9B claims macro F1 (sup≥3, opp) rose from 0.611 to 0.693, narrowing
+but not closing the gap to the Opus teacher (0.736), consistent with the
+"single pass unlikely to fully close it" expectation above.
