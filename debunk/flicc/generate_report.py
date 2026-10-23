@@ -86,11 +86,13 @@ def score_file(path: Path) -> dict:
         "errors": n_error,
         "unparsed": n_unparsed,
         "out_of_vocab": n_oov,
-        "accuracy": round(accuracy_score(y_true, y_pred), 4),
-        "macro_f1": round(f1_score(y_true, y_pred, labels=LABELS,
-                                   average="macro", zero_division=0), 4),
-        "weighted_f1": round(f1_score(y_true, y_pred, labels=LABELS,
-                                      average="weighted", zero_division=0), 4),
+        # Full precision: pre-rounding here double-rounds in downstream tables
+        # (e.g. 133/256 = 0.51953 -> stored 0.5195 -> formatted 0.519).
+        "accuracy": accuracy_score(y_true, y_pred),
+        "macro_f1": f1_score(y_true, y_pred, labels=LABELS,
+                                   average="macro", zero_division=0),
+        "weighted_f1": f1_score(y_true, y_pred, labels=LABELS,
+                                      average="weighted", zero_division=0),
         "per_class": {
             lab: {"precision": round(pp, 3), "recall": round(rr, 3),
                   "f1": round(ff, 3), "support": int(ss)}

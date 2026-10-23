@@ -267,3 +267,6 @@ wind/data/application/thinktanks_wind_results.jsonl
 wind/data/application/thinktanks_wind_results.csv
 wind/data/application/thinktanks_wind_results_slim.csv
 wind/data/application/thinktanks_wind_results.xlsx
+
+# Raw scraped corpora (575 MB, regenerable via screen_s3.py + classify_passages.py)
+wind/data/application_raw/

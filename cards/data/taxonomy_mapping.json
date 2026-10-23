@@ -1,0 +1,830 @@
+{
+  "source_old": "Coan, Boussalis, Cook & Nanko (2021), CARDS taxonomy, Scientific Reports 11:22320 (doi:10.1038/s41598-021-01714-4), Supplementary Table S2 - aqm/cards/data/original_taxonomy.json (81 entries: 5 super / 27 sub / 49 sub-sub)",
+  "source_new": "Revised CARDS taxonomy used in this thesis - aqm/cards/data/taxonomy.csv (103 unique codes; CSV contains 105 data rows because code 6_2_0 appears on three byte-identical duplicated rows)",
+  "mapping": [
+    {
+      "new_code": "0_0_0",
+      "new_label": "No Claim detected",
+      "status": "catch-all",
+      "old_code": null,
+      "old_label": null,
+      "note": "catch-all code for no claim detected; not part of the claim taxonomy"
+    },
+    {
+      "new_code": "1_0_0",
+      "new_label": "Global warming is not happening",
+      "status": "unchanged",
+      "old_code": "1",
+      "old_label": "Global warming is not happening",
+      "note": "Same super-claim, wording unchanged; renumbered 1 -> 1_0_0."
+    },
+    {
+      "new_code": "1_1_0",
+      "new_label": "Ice/permafrost/snow cover isn't melting",
+      "status": "unchanged",
+      "old_code": "1.1",
+      "old_label": "Ice/permafrost/snow cover isn't melting",
+      "note": "Same claim, wording unchanged; renumbered 1.1 -> 1_1_0."
+    },
+    {
+      "new_code": "1_1_1",
+      "new_label": "Antarctica is gaining ice/not warming",
+      "status": "unchanged",
+      "old_code": "1.1.1",
+      "old_label": "Antarctica is gaining ice/not warming",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "1_1_2",
+      "new_label": "Greenland is gaining ice/not melting",
+      "status": "unchanged",
+      "old_code": "1.1.2",
+      "old_label": "Greenland is gaining ice/not melting",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "1_1_3",
+      "new_label": "Arctic sea ice isn't vanishing",
+      "status": "unchanged",
+      "old_code": "1.1.3",
+      "old_label": "Arctic sea ice isn't vanishing",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "1_1_4",
+      "new_label": "Glaciers aren't vanishing",
+      "status": "unchanged",
+      "old_code": "1.1.4",
+      "old_label": "Glaciers aren't vanishing",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "1_2_0",
+      "new_label": "We're heading into an ice age/global cooling",
+      "status": "unchanged",
+      "old_code": "1.2",
+      "old_label": "We're heading into an ice age/global cooling",
+      "note": "Same claim, wording unchanged; renumbered 1.2 -> 1_2_0."
+    },
+    {
+      "new_code": "1_3_0",
+      "new_label": "Weather is cold/snowing",
+      "status": "unchanged",
+      "old_code": "1.3",
+      "old_label": "Weather is cold/snowing",
+      "note": "Same claim, wording unchanged; renumbered 1.3 -> 1_3_0."
+    },
+    {
+      "new_code": "1_4_0",
+      "new_label": "Climate hasn't warmed/changed over the last (few) decade(s)",
+      "status": "unchanged",
+      "old_code": "1.4",
+      "old_label": "Climate hasn't warmed/changed over the last (few) decade(s)",
+      "note": "Same claim, wording unchanged (prompt adds 'hiatus/pause' framing); renumbered 1.4 -> 1_4_0."
+    },
+    {
+      "new_code": "1_5_0",
+      "new_label": "Oceans are cooling/not warming",
+      "status": "unchanged",
+      "old_code": "1.5",
+      "old_label": "Oceans are cooling/not warming",
+      "note": "Same claim, wording unchanged; renumbered 1.5 -> 1_5_0."
+    },
+    {
+      "new_code": "1_6_0",
+      "new_label": "Sea level rise is exaggerated/not accelerating",
+      "status": "unchanged",
+      "old_code": "1.6",
+      "old_label": "Sea level rise is exaggerated/not accelerating",
+      "note": "Same claim, wording unchanged; renumbered 1.6 -> 1_6_0."
+    },
+    {
+      "new_code": "1_7_0",
+      "new_label": "Extreme weather isn't increasing/has happened before/isn't linked to climate change",
+      "status": "unchanged",
+      "old_code": "1.7",
+      "old_label": "Extreme weather isn't increasing/has happened before/isn't linked to climate change",
+      "note": "Same claim, wording unchanged; renumbered 1.7 -> 1_7_0."
+    },
+    {
+      "new_code": "1_8_0",
+      "new_label": "They changed the name from 'global warming' to 'climate change'",
+      "status": "unchanged",
+      "old_code": "1.8",
+      "old_label": "They changed the name from 'global warming' to 'climate change'",
+      "note": "Same claim, wording unchanged (prompt adds the motive 'so cold as well as hot weather counts as evidence'); renumbered 1.8 -> 1_8_0."
+    },
+    {
+      "new_code": "1_9_0",
+      "new_label": "Ocean pH is not falling",
+      "status": "relabelled",
+      "old_code": "2.4",
+      "old_label": "CO2 is not rising/ocean pH is not falling",
+      "note": "Split from old 2.4: this is the ocean-pH half; re-parented from attribution super-claim 2 to super-claim 1 (the CO2 half is now 2_3_6)."
+    },
+    {
+      "new_code": "2_0_0",
+      "new_label": "Human greenhouse gases are not causing climate change",
+      "status": "unchanged",
+      "old_code": "2",
+      "old_label": "Human greenhouse gases are not causing climate change",
+      "note": "Same super-claim, wording unchanged; renumbered 2 -> 2_0_0."
+    },
+    {
+      "new_code": "2_1_0",
+      "new_label": "It's natural cycles/variation",
+      "status": "unchanged",
+      "old_code": "2.1",
+      "old_label": "It's natural cycles/variation",
+      "note": "Same claim, wording unchanged; renumbered 2.1 -> 2_1_0."
+    },
+    {
+      "new_code": "2_1_1",
+      "new_label": "It's the sun/cosmic rays/astronomical",
+      "status": "unchanged",
+      "old_code": "2.1.1",
+      "old_label": "It's the sun/cosmic rays/astronomical",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_1_2",
+      "new_label": "It's geological (includes volcanoes)",
+      "status": "unchanged",
+      "old_code": "2.1.2",
+      "old_label": "It's geological (includes volcanoes)",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_1_3",
+      "new_label": "It's the ocean/internal variability",
+      "status": "unchanged",
+      "old_code": "2.1.3",
+      "old_label": "It's the ocean/internal variability",
+      "note": "Same claim, wording unchanged (prompt adds El Nino/La Nina examples)."
+    },
+    {
+      "new_code": "2_1_4",
+      "new_label": "Climate has changed naturally/been warm in the past",
+      "status": "unchanged",
+      "old_code": "2.1.4",
+      "old_label": "Climate has changed naturally/been warm in the past",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_2_0",
+      "new_label": "It's non-greenhouse gas human climate forcings (aerosols, land use)",
+      "status": "unchanged",
+      "old_code": "2.2",
+      "old_label": "It's non-greenhouse gas human climate forcings (aerosols, land use)",
+      "note": "Same claim, wording unchanged (prompt adds black soot on snow); renumbered 2.2 -> 2_2_0."
+    },
+    {
+      "new_code": "2_3_0",
+      "new_label": "There's no evidence for greenhouse effect/carbon dioxide driving climate change",
+      "status": "unchanged",
+      "old_code": "2.3",
+      "old_label": "There's no evidence for greenhouse effect/carbon dioxide driving climate change",
+      "note": "Same claim, wording unchanged; renumbered 2.3 -> 2_3_0."
+    },
+    {
+      "new_code": "2_3_1",
+      "new_label": "Carbon dioxide is just a trace gas",
+      "status": "unchanged",
+      "old_code": "2.3.1",
+      "old_label": "Carbon dioxide is just a trace gas",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_3_2",
+      "new_label": "Greenhouse effect is saturated/logarithmic",
+      "status": "unchanged",
+      "old_code": "2.3.2",
+      "old_label": "Greenhouse effect is saturated/logarithmic",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_3_3",
+      "new_label": "Carbon dioxide lags/not correlated with climate change",
+      "status": "unchanged",
+      "old_code": "2.3.3",
+      "old_label": "Carbon dioxide lags/not correlated with climate change",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_3_4",
+      "new_label": "Water vapor is the most powerful greenhouse gas",
+      "status": "unchanged",
+      "old_code": "2.3.4",
+      "old_label": "Water vapor is the most powerful greenhouse gas",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_3_5",
+      "new_label": "There's no tropospheric hot spot",
+      "status": "unchanged",
+      "old_code": "2.3.5",
+      "old_label": "There's no tropospheric hot spot",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "2_3_6",
+      "new_label": "CO2 is not rising",
+      "status": "relabelled",
+      "old_code": "2.4",
+      "old_label": "CO2 is not rising/ocean pH is not falling",
+      "note": "Split from old 2.4: this is the CO2-is-not-rising half (ocean-pH half now 1_9_0); re-parented under the 2_3 (no evidence for greenhouse effect) branch."
+    },
+    {
+      "new_code": "2_3_6_1",
+      "new_label": "CO2 was higher in the past",
+      "status": "relabelled",
+      "old_code": "2.3.6",
+      "old_label": "CO2 was higher in the past",
+      "note": "Label unchanged from old 2.3.6, but re-parented from the 2.3 branch (no evidence for greenhouse effect) into the new 2_3_6 (CO2 is not rising) branch."
+    },
+    {
+      "new_code": "2_3_6_2",
+      "new_label": "Human CO2 emissions are miniscule/not raising atmospheric CO2",
+      "status": "relabelled",
+      "old_code": "2.5",
+      "old_label": "Human CO2 emissions are miniscule/not raising atmospheric CO2",
+      "note": "Label matches old 2.5; re-parented under the new 2_3_6 branch; also absorbs old 2.1.5 (human CO2 tiny vs natural CO2 emissions), which has no separate successor."
+    },
+    {
+      "new_code": "3_0_0",
+      "new_label": "Climate impacts/global warming is beneficial/not bad",
+      "status": "unchanged",
+      "old_code": "3",
+      "old_label": "Climate impacts/global warming is beneficial/not bad",
+      "note": "Same super-claim, wording unchanged; renumbered 3 -> 3_0_0."
+    },
+    {
+      "new_code": "3_1_0",
+      "new_label": "Climate sensitivity is low/negative feedbacks reduce warming",
+      "status": "unchanged",
+      "old_code": "3.1",
+      "old_label": "Climate sensitivity is low/negative feedbacks reduce warming",
+      "note": "Same claim, wording unchanged; renumbered 3.1 -> 3_1_0."
+    },
+    {
+      "new_code": "3_2_0",
+      "new_label": "Species/plants/reefs aren't showing climate impacts yet/are benefiting from climate change",
+      "status": "unchanged",
+      "old_code": "3.2",
+      "old_label": "Species/plants/reefs aren't showing climate impacts yet/are benefiting from climate change",
+      "note": "Same claim, wording unchanged; renumbered 3.2 -> 3_2_0."
+    },
+    {
+      "new_code": "3_2_1",
+      "new_label": "Species can adapt to global warming",
+      "status": "unchanged",
+      "old_code": "3.2.1",
+      "old_label": "Species can adapt to global warming",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "3_2_2",
+      "new_label": "Polar bears are not in danger from climate change",
+      "status": "unchanged",
+      "old_code": "3.2.2",
+      "old_label": "Polar bears are not in danger from climate change",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "3_2_3",
+      "new_label": "Ocean acidification/coral impacts aren't serious",
+      "status": "unchanged",
+      "old_code": "3.2.3",
+      "old_label": "Ocean acidification/coral impacts aren't serious",
+      "note": "Same claim, wording unchanged (prompt adds the 'oceans have stayed alkaline' elaboration)."
+    },
+    {
+      "new_code": "3_3_0",
+      "new_label": "CO2 is beneficial/not a pollutant",
+      "status": "unchanged",
+      "old_code": "3.3",
+      "old_label": "CO2 is beneficial/not a pollutant",
+      "note": "Same claim, wording unchanged; renumbered 3.3 -> 3_3_0."
+    },
+    {
+      "new_code": "3_3_1",
+      "new_label": "CO2 is plant food",
+      "status": "unchanged",
+      "old_code": "3.3.1",
+      "old_label": "CO2 is plant food",
+      "note": "Same claim, wording unchanged."
+    },
+    {
+      "new_code": "3_4_0",
+      "new_label": "It's only a few degrees (or less)",
+      "status": "unchanged",
+      "old_code": "3.4",
+      "old_label": "It's only a few degrees (or less)",
+      "note": "Same claim, wording unchanged; renumbered 3.4 -> 3_4_0."
+    },
+    {
+      "new_code": "3_5_0",
+      "new_label": "Climate change does not contribute to human conflict/threaten national security",
+      "status": "unchanged",
+      "old_code": "3.5",
+      "old_label": "Climate change does not contribute to human conflict/threaten national security",
+      "note": "Same claim, wording unchanged; renumbered 3.5 -> 3_5_0."
+    },
+    {
+      "new_code": "3_6_0",
+      "new_label": "Climate change doesn't negatively impact health",
+      "status": "unchanged",
+      "old_code": "3.6",
+      "old_label": "Climate change doesn't negatively impact health",
+      "note": "Same claim, wording unchanged; renumbered 3.6 -> 3_6_0."
+    },
+    {
+      "new_code": "4_0_0",
+      "new_label": "Climate solutions are harmful or unnecessary",
+      "status": "relabelled",
+      "old_code": "4",
+      "old_label": "Climate solutions won't work",
+      "note": "Super-claim reworded: 'won't work' -> 'harmful or unnecessary', now covering the harm branch (old 4.1) and the new 'no need for more action' branch 4_4. short_label blank in taxonomy.csv; label taken from prompt_label."
+    },
+    {
+      "new_code": "4_1_0",
+      "new_label": "Climate solutions are harmful",
+      "status": "relabelled",
+      "old_code": "4.1",
+      "old_label": "Climate policies (mitigation or adaptation) are harmful",
+      "note": "Same claim, subject broadened from 'climate policies (mitigation or adaptation)' to 'climate solutions' (now also covering technologies and practices)."
+    },
+    {
+      "new_code": "4_1_1",
+      "new_label": "Solutions increases costs",
+      "status": "relabelled",
+      "old_code": "4.1.1",
+      "old_label": "Climate policy will increase costs/harm economy/kill jobs",
+      "note": "Same claim, subject broadened from 'climate policy' to 'climate solutions'; split into aspect codes 4_1_1_1 through 4_1_1_3."
+    },
+    {
+      "new_code": "4_1_1_1",
+      "new_label": "Policy harms competitiveness",
+      "status": "relabelled",
+      "old_code": "4.1.1",
+      "old_label": "Climate policy will increase costs/harm economy/kill jobs",
+      "note": "Split from old 4.1.1; economic-competitiveness harm was only implicit in 'harm economy'."
+    },
+    {
+      "new_code": "4_1_1_2",
+      "new_label": "Policy harms vulnerable members of society",
+      "status": "relabelled",
+      "old_code": "4.1.1",
+      "old_label": "Climate policy will increase costs/harm economy/kill jobs",
+      "note": "Split from old 4.1.1; killing jobs was explicit in 2021, 'vulnerable members of society' is a new elaboration."
+    },
+    {
+      "new_code": "4_1_1_3",
+      "new_label": "Climate-friendly alternatives are too expensive",
+      "status": "relabelled",
+      "old_code": "4.4.1",
+      "old_label": "Clean energy/biofuels are too expensive/unreliable/counterproductive/harmful",
+      "note": "Cost aspect of old 4.4.1, generalized from clean energy/biofuels to all climate-friendly alternatives and re-parented from the old 4.4 ineffectiveness branch into the 4_1 harm branch."
+    },
+    {
+      "new_code": "4_1_2",
+      "new_label": "Policy weakens security",
+      "status": "relabelled",
+      "old_code": "4.1.2",
+      "old_label": "Proposed action would weaken national security/national sovereignty/cause conflict",
+      "note": "Same claim, wording compressed; prompt adds energy security ('Climate policies will weaken national security, energy security, national sovereignty, and/or cause conflict')."
+    },
+    {
+      "new_code": "4_1_3",
+      "new_label": "Solutions harm environment",
+      "status": "relabelled",
+      "old_code": "4.1.3",
+      "old_label": "Proposed action would actually harm the environment and species",
+      "note": "Same claim, 'proposed action' -> 'climate solutions'; split into a policy half (4_1_3_1) and an alternatives half (4_1_3_2)."
+    },
+    {
+      "new_code": "4_1_3_1",
+      "new_label": "Policy harms environment",
+      "status": "relabelled",
+      "old_code": "4.1.3",
+      "old_label": "Proposed action would actually harm the environment and species",
+      "note": "Policy half of the split of old 4.1.3."
+    },
+    {
+      "new_code": "4_1_3_2",
+      "new_label": "Climate-friendly alternatives harm environment",
+      "status": "relabelled",
+      "old_code": "4.4.1",
+      "old_label": "Clean energy/biofuels are too expensive/unreliable/counterproductive/harmful",
+      "note": "'Counterproductive/harmful' aspect of old 4.4.1, re-parented into the 4_1_3 environment-harm branch (policy-side harm is now 4_1_3_1)."
+    },
+    {
+      "new_code": "4_1_4",
+      "new_label": "Policy creates uncertainty",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart in the 2021 taxonomy; economic-uncertainty / unintended-consequences claims about climate policy were not a separate 2021 category."
+    },
+    {
+      "new_code": "4_1_5",
+      "new_label": "Policy limits freedom",
+      "status": "relabelled",
+      "old_code": "4.1.5",
+      "old_label": "Climate policy limits liberty/freedom/capitalism",
+      "note": "Same claim; prompt widened to government overreach and 'war on energy' framings."
+    },
+    {
+      "new_code": "4_2_0",
+      "new_label": "Climate solutions are ineffective",
+      "status": "relabelled",
+      "old_code": "4.2",
+      "old_label": "Climate policies are ineffective/flawed",
+      "note": "Same claim, 'climate policies' -> 'climate solutions' and 'flawed' -> 'won't work'."
+    },
+    {
+      "new_code": "4_2_1",
+      "new_label": "Green economy won't work",
+      "status": "relabelled",
+      "old_code": "4.2.1",
+      "old_label": "Clean energy/green jobs/businesses won't work",
+      "note": "Same claim narrowed from clean energy/green jobs/businesses to the promised benefits of green jobs."
+    },
+    {
+      "new_code": "4_2_2",
+      "new_label": "Policy impact is negligible",
+      "status": "relabelled",
+      "old_code": "4.2.3",
+      "old_label": "Climate policy will make negligible difference to climate change",
+      "note": "Same claim as old 4.2.3; prompt adds 'only make a difference in the distant future'."
+    },
+    {
+      "new_code": "4_2_3",
+      "new_label": "One country is negligible",
+      "status": "unchanged",
+      "old_code": "4.2.4",
+      "old_label": "A single country/region only contributes a small % of global emissions",
+      "note": "Same claim, wording essentially unchanged in prompt ('%' spelled out); short label compressed; renumbered 4.2.4 -> 4_2_3."
+    },
+    {
+      "new_code": "4_2_4",
+      "new_label": "Other countries' emissions",
+      "status": "unchanged",
+      "old_code": "4.2.6",
+      "old_label": "Climate action is pointless because of China/India/other countries' emissions",
+      "note": "Same claim, wording essentially unchanged; short label compressed; renumbered 4.2.6 -> 4_2_4."
+    },
+    {
+      "new_code": "4_2_6",
+      "new_label": "Policies can be manipulated",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; 'climate policy can be gamed or manipulated' (e.g. offsets, loopholes) is absent from the 2021 taxonomy - old 4.2 'ineffective/flawed' is only the generic parent, not this specific claim."
+    },
+    {
+      "new_code": "4_2_7",
+      "new_label": "Climate-friendly alternatives are ineffective",
+      "status": "relabelled",
+      "old_code": "4.4",
+      "old_label": "Clean energy technology/biofuels won't work",
+      "note": "Old 4.4 branch dissolved: 'clean energy technology/biofuels' reworded and broadened to 'climate-friendly technologies and practices'; the cost and harm aspects of its child 4.4.1 were moved to 4_1_1_3 and 4_1_3_2."
+    },
+    {
+      "new_code": "4_2_7_1",
+      "new_label": "Not ready",
+      "status": "relabelled",
+      "old_code": "4.4.2",
+      "old_label": "Carbon Capture & Sequestration (CCS) is unproven/expensive",
+      "note": "Uncertain: generalizes 'unproven' beyond CCS (old 4.4.2) to all climate-friendly technologies; the CCS-specific category was dropped by the revision. Could be judged new."
+    },
+    {
+      "new_code": "4_2_7_2",
+      "new_label": "Not enough",
+      "status": "relabelled",
+      "old_code": "4.4.1",
+      "old_label": "Clean energy/biofuels are too expensive/unreliable/counterproductive/harmful",
+      "note": "'Unreliable' aspect of old 4.4.1, sharpened to intermittency (no base-load power) and scalability of renewables."
+    },
+    {
+      "new_code": "4_2_8",
+      "new_label": "Markets are more efficient",
+      "status": "unchanged",
+      "old_code": "4.2.2",
+      "old_label": "Markets/private sector are economically more efficient than government policies",
+      "note": "Same claim, prompt wording essentially unchanged; short label compressed; renumbered 4.2.2 -> 4_2_8."
+    },
+    {
+      "new_code": "4_2_9",
+      "new_label": "Individuals are responsible",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; deflection to individual/consumer responsibility ('individuals, not policy, should solve it') was not in the 2021 taxonomy."
+    },
+    {
+      "new_code": "4_2_10",
+      "new_label": "Future generations, technologies, and efficiencies will solve it",
+      "status": "relabelled",
+      "old_code": "4.1.4",
+      "old_label": "Future generations will be richer and better able to adapt",
+      "note": "Aggregate header created by the revision, combining old 4.1.4 (future generations) with new 'technology/efficiency will solve it' claims (4_2_10_2, 4_2_12); old 4.1.4 is the closest single counterpart."
+    },
+    {
+      "new_code": "4_2_10_1",
+      "new_label": "Future generations will fix it",
+      "status": "relabelled",
+      "old_code": "4.1.4",
+      "old_label": "Future generations will be richer and better able to adapt",
+      "note": "Same claim as old 4.1.4 ('better able to adapt' -> 'better able to solve'); moved from the harm branch 4.1 to the ineffectiveness branch 4_2."
+    },
+    {
+      "new_code": "4_2_10_2",
+      "new_label": "Technology will fix it",
+      "status": "relabelled",
+      "old_code": "4.2.7",
+      "old_label": "We should invest in technology/reduce poverty/disease first",
+      "note": "Uncertain: the 'invest in technology first' half of old 4.2.7 is the closest counterpart (the poverty/disease half is now 4_2_14); 'future technology will fix climate change so we need not worry' could also be judged new."
+    },
+    {
+      "new_code": "4_2_11",
+      "new_label": "Adaptation is the solution",
+      "status": "relabelled",
+      "old_code": "4.2.5",
+      "old_label": "Better to adapt/geoengineer/increase resiliency",
+      "note": "The adaptation/resiliency half of old 4.2.5; the geoengineering half was split off into 4_2_13."
+    },
+    {
+      "new_code": "4_2_12",
+      "new_label": "Energy efficiency is enough",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the claim that increasing energy efficiency alone suffices is absent from the 2021 taxonomy."
+    },
+    {
+      "new_code": "4_2_13",
+      "new_label": "Removing CO2 is the solution",
+      "status": "relabelled",
+      "old_code": "4.2.5",
+      "old_label": "Better to adapt/geoengineer/increase resiliency",
+      "note": "The geoengineering half of old 4.2.5, narrowed to carbon dioxide removal as the preferred alternative to emissions cuts."
+    },
+    {
+      "new_code": "4_2_14",
+      "new_label": "Other issues are more pressing",
+      "status": "relabelled",
+      "old_code": "4.2.7",
+      "old_label": "We should invest in technology/reduce poverty/disease first",
+      "note": "Same claim, reworded as competing priorities; the 'invest in technology first' half of old 4.2.7 is echoed in 4_2_10_2."
+    },
+    {
+      "new_code": "4_2_15",
+      "new_label": "Cheaper to mitigate abroad",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the cost-effectiveness-of-mitigating-abroad argument is absent from the 2021 taxonomy."
+    },
+    {
+      "new_code": "4_3_0",
+      "new_label": "Solving climate change is too difficult",
+      "status": "unchanged",
+      "old_code": "4.3",
+      "old_label": "It's too hard to solve",
+      "note": "Same claim, wording essentially unchanged (prompt: 'It's too hard to solve climate change'); renumbered 4.3 -> 4_3_0."
+    },
+    {
+      "new_code": "4_3_1",
+      "new_label": "We're not ready for policy",
+      "status": "relabelled",
+      "old_code": "4.3.1",
+      "old_label": "Climate policy is politically/legally/economically/technically too difficult",
+      "note": "Uncertain: old 4.3.1 reworded from 'too difficult' to 'don't have the right policy yet / need to understand the implications first'."
+    },
+    {
+      "new_code": "4_3_2",
+      "new_label": "It's too late to fix it",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the fatalist 'too late to mitigate' claim is absent - old 4.3 covered difficulty, not lateness."
+    },
+    {
+      "new_code": "4_3_3",
+      "new_label": "Low support",
+      "status": "relabelled",
+      "old_code": "4.3.2",
+      "old_label": "Media/public support/acceptance is low/decreasing",
+      "note": "Same claim as old 4.3.2; 'media' dropped from the target list and subject changed to support for climate solutions."
+    },
+    {
+      "new_code": "4_4_0",
+      "new_label": "No need for more action",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the 'already made progress / no need for more action' aggregate is created by the revision (its children 4_4_1 through 4_4_3 are likewise new)."
+    },
+    {
+      "new_code": "4_4_1",
+      "new_label": "Already taking it seriously",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart in the 2021 taxonomy."
+    },
+    {
+      "new_code": "4_4_2",
+      "new_label": "Already doing enough",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart in the 2021 taxonomy."
+    },
+    {
+      "new_code": "4_4_3",
+      "new_label": "Already doing good",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; claims that an actor already contributes enough to the societal good to be excused from climate action."
+    },
+    {
+      "new_code": "5_0_0",
+      "new_label": "Climate-related science is uncertain/unsound/unreliable (data, methods & models)",
+      "status": "relabelled",
+      "old_code": "5.1",
+      "old_label": "Climate-related science is uncertain/unsound/unreliable (data, methods & models)",
+      "note": "Label unchanged from old 5.1, but promoted from sub-claim to the new top-level super-claim 5 when the mixed old super-claim 5 ('Climate movement/science is unreliable') was split into new super 5 (science unreliable) and new super 6 (people/movement unreliable)."
+    },
+    {
+      "new_code": "5_1_0",
+      "new_label": "There's no scientific consensus on climate/the science isn't settled",
+      "status": "unchanged",
+      "old_code": "5.1.1",
+      "old_label": "There's no scientific consensus on climate/the science isn't settled",
+      "note": "Same claim, wording unchanged; renumbered 5.1.1 -> 5_1_0."
+    },
+    {
+      "new_code": "5_2_0",
+      "new_label": "Proxy data is unreliable (includes hockey stick)",
+      "status": "unchanged",
+      "old_code": "5.1.2",
+      "old_label": "Proxy data is unreliable (includes hockey stick)",
+      "note": "Same claim, wording unchanged; renumbered 5.1.2 -> 5_2_0."
+    },
+    {
+      "new_code": "5_3_0",
+      "new_label": "Temperature record is unreliable",
+      "status": "unchanged",
+      "old_code": "5.1.3",
+      "old_label": "Temperature record is unreliable",
+      "note": "Same claim (prompt says 'temperature data' and adds 'biased'); renumbered 5.1.3 -> 5_3_0."
+    },
+    {
+      "new_code": "5_4_0",
+      "new_label": "Models are wrong/unreliable/uncertain",
+      "status": "unchanged",
+      "old_code": "5.1.4",
+      "old_label": "Models are wrong/unreliable/uncertain",
+      "note": "Same claim, wording unchanged; renumbered 5.1.4 -> 5_4_0."
+    },
+    {
+      "new_code": "6_0_0",
+      "new_label": "Climate scientists and proponents of climate action are alarmist, biased, wrong, hypocritical, corrupt, and/or politically motivated",
+      "status": "relabelled",
+      "old_code": "5.2",
+      "old_label": "Climate movement is alarmist/wrong/political/biased/hypocritical (people or groups)",
+      "note": "New top-level super-claim 6 created by the revision when it split old mixed super 5: broadens old 5.2 by explicitly naming climate scientists and adding 'corrupt'. short_label blank in taxonomy.csv; label taken from prompt_label."
+    },
+    {
+      "new_code": "6_1_0",
+      "new_label": "Climate movement is alarmist/wrong/political/biased/hypocritical (people or groups)",
+      "status": "relabelled",
+      "old_code": "5.2",
+      "old_label": "Climate movement is alarmist/wrong/political/biased/hypocritical (people or groups)",
+      "note": "Label identical to old 5.2; prompt rewords 'climate movement' to 'climate change proponents'; re-parented under the new super-claim 6_0_0."
+    },
+    {
+      "new_code": "6_1_1",
+      "new_label": "Climate movement is religion",
+      "status": "unchanged",
+      "old_code": "5.2.1",
+      "old_label": "Climate movement is religion",
+      "note": "Same claim, wording essentially unchanged; renumbered 5.2.1 -> 6_1_1."
+    },
+    {
+      "new_code": "6_1_2",
+      "new_label": "Media (includes bloggers) is alarmist/wrong/political/biased",
+      "status": "unchanged",
+      "old_code": "5.2.2",
+      "old_label": "Media (including bloggers) is alarmist/wrong/political/biased",
+      "note": "Same claim ('includes' for 'including'); renumbered 5.2.2 -> 6_1_2."
+    },
+    {
+      "new_code": "6_1_3",
+      "new_label": "Politicians/government/UN are alarmist/wrong/political/biased",
+      "status": "unchanged",
+      "old_code": "5.2.3",
+      "old_label": "Politicians/government/UN are alarmist/wrong/political/biased",
+      "note": "Same claim, wording unchanged; renumbered 5.2.3 -> 6_1_3."
+    },
+    {
+      "new_code": "6_1_4",
+      "new_label": "Environmentalists are alarmist/wrong/political/biased",
+      "status": "unchanged",
+      "old_code": "5.2.4",
+      "old_label": "Environmentalists are alarmist/wrong/political/biased",
+      "note": "Same claim, wording unchanged; renumbered 5.2.4 -> 6_1_4."
+    },
+    {
+      "new_code": "6_1_5",
+      "new_label": "Scientists/academics are alarmist/wrong/political/biased",
+      "status": "unchanged",
+      "old_code": "5.2.5",
+      "old_label": "Scientists/academics are alarmist/wrong/political/biased",
+      "note": "Same claim, wording unchanged; renumbered 5.2.5 -> 6_1_5."
+    },
+    {
+      "new_code": "6_2_0",
+      "new_label": "Climate change (science or policy) is a conspiracy (deception)",
+      "status": "relabelled",
+      "old_code": "5.3",
+      "old_label": "Climate change (science or policy) is a conspiracy (deception)",
+      "note": "Label identical to old 5.3, but its children 5.3.1 (climate policy/renewables is a hoax) and 5.3.2 (climate science is a hoax, incl. climategate) were merged into this single leaf; prompt now names both deceptions. taxonomy.csv lists this code on three byte-identical duplicated rows."
+    },
+    {
+      "new_code": "7_0_0",
+      "new_label": "We need fossil fuels",
+      "status": "relabelled",
+      "old_code": "4.5",
+      "old_label": "People need energy (e.g., from fossil fuels/nuclear)",
+      "note": "Old 4.5 narrowed from energy generally (incl. nuclear) to fossil fuels and promoted to the new top-level super-claim 7; the nuclear-positive child 4.5.3 was dropped by the revision."
+    },
+    {
+      "new_code": "7_1_0",
+      "new_label": "Fossil fuels are plentiful",
+      "status": "relabelled",
+      "old_code": "4.5.1",
+      "old_label": "Fossil fuel reserves are plentiful",
+      "note": "Same core claim, generalized from reserves to fossil fuels generally, and re-parented from old 4.5 ('People need energy') into the new super-claim 7."
+    },
+    {
+      "new_code": "7_2_0",
+      "new_label": "Fossil fuels are good",
+      "status": "relabelled",
+      "old_code": "4.5.2",
+      "old_label": "Fossil fuels are cheap/good/safe for society/economy/environment",
+      "note": "Aggregate header created by the revision, generalizing old 4.5.2 and dropping 'cheap' and 'safe'; split into aspect codes 7_2_1 through 7_2_4."
+    },
+    {
+      "new_code": "7_2_1",
+      "new_label": "Good for economic growth",
+      "status": "relabelled",
+      "old_code": "4.5.2",
+      "old_label": "Fossil fuels are cheap/good/safe for society/economy/environment",
+      "note": "Split from the economy aspect of old 4.5.2 and made explicit as the economic growth/development link."
+    },
+    {
+      "new_code": "7_2_2",
+      "new_label": "Good for energy security",
+      "status": "relabelled",
+      "old_code": "4.5.2",
+      "old_label": "Fossil fuels are cheap/good/safe for society/economy/environment",
+      "note": "Uncertain: the energy-security/energy-independence framing is not explicit in any 2021 label; the generic 'good for society/economy' of old 4.5.2 is the closest counterpart. Could be judged new."
+    },
+    {
+      "new_code": "7_2_3",
+      "new_label": "Our fossil fuels are clean",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the comparative-cleanliness claim for domestic fossil fuels is absent from the 2021 taxonomy."
+    },
+    {
+      "new_code": "7_2_4",
+      "new_label": "Fossil fuels are part of the solution",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the 'transition to cleaner fossil fuels' framing is absent from the 2021 taxonomy."
+    },
+    {
+      "new_code": "7_3_0",
+      "new_label": "Fossil fuels are necessary",
+      "status": "relabelled",
+      "old_code": "4.5",
+      "old_label": "People need energy (e.g., from fossil fuels/nuclear)",
+      "note": "Energy-demand necessity from old 4.5, widened to 'we need all forms of energy' mix arguments; the nuclear emphasis (old 4.5.3) was dropped by the revision."
+    },
+    {
+      "new_code": "7_4_0",
+      "new_label": "We have the right to use them",
+      "status": "new",
+      "old_code": null,
+      "old_label": null,
+      "note": "No counterpart; the right-to-profit / right-to-use claim is absent from the 2021 taxonomy."
+    }
+  ]
+}

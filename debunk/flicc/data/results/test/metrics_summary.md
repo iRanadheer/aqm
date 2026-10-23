@@ -12,7 +12,7 @@ Parse and vocabulary failures count as wrong. No hand-repair.
 | anthropic-claude-opus-4-7-deconstruct-revised | 256 | **0.635** | -0.095 | 0.656 | 0.653 | 0 | 0 | 0 |
 | c3ds-flicc-qwen3-5-2b-deconstruct-revised | 256 | **0.586** | -0.144 | 0.609 | 0.608 | 0 | 1 | 0 |
 | c3ds-flicc-qwen3-5-4b-deconstruct-revised | 256 | **0.571** | -0.159 | 0.574 | 0.574 | 0 | 0 | 0 |
-| qwen-qwen3-5-27b-deconstruct-revised-structured | 256 | **0.495** | -0.235 | 0.519 | 0.494 | 0 | 0 | 0 |
+| qwen-qwen3-5-27b-deconstruct-revised-structured | 256 | **0.495** | -0.235 | 0.520 | 0.494 | 0 | 0 | 0 |
 | anthropic-claude-opus-4-7-deconstruct-published | 256 | **0.488** | -0.242 | 0.480 | 0.477 | 0 | 0 | 0 |
 | openai-gpt-5-5-deconstruct-published | 256 | **0.463** | -0.267 | 0.457 | 0.458 | 0 | 0 | 0 |
 | openai-gpt-5-5-bare | 256 | **0.454** | -0.276 | 0.473 | 0.458 | 0 | 0 | 0 |

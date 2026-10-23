@@ -1,0 +1,497 @@
+{
+  "source": "Coan, Boussalis, Cook & Nanko (2021), Scientific Reports 11:22320, doi:10.1038/s41598-021-01714-4, Supplementary Table S2",
+  "counts": {
+    "super": 5,
+    "sub": 27,
+    "subsub": 49,
+    "total": 81
+  },
+  "claims": [
+    {
+      "code": "1",
+      "identifier": 1,
+      "level": 1,
+      "label": "Global warming is not happening"
+    },
+    {
+      "code": "1.1",
+      "identifier": 6,
+      "level": 2,
+      "label": "Ice/permafrost/snow cover isn't melting"
+    },
+    {
+      "code": "1.1.1",
+      "identifier": 7,
+      "level": 3,
+      "label": "Antarctica is gaining ice/not warming"
+    },
+    {
+      "code": "1.1.2",
+      "identifier": 8,
+      "level": 3,
+      "label": "Greenland is gaining ice/not melting"
+    },
+    {
+      "code": "1.1.3",
+      "identifier": 9,
+      "level": 3,
+      "label": "Arctic sea ice isn't vanishing"
+    },
+    {
+      "code": "1.1.4",
+      "identifier": 10,
+      "level": 3,
+      "label": "Glaciers aren't vanishing"
+    },
+    {
+      "code": "1.2",
+      "identifier": 11,
+      "level": 2,
+      "label": "We're heading into an ice age/global cooling"
+    },
+    {
+      "code": "1.3",
+      "identifier": 12,
+      "level": 2,
+      "label": "Weather is cold/snowing"
+    },
+    {
+      "code": "1.4",
+      "identifier": 13,
+      "level": 2,
+      "label": "Climate hasn't warmed/changed over the last (few) decade(s)"
+    },
+    {
+      "code": "1.5",
+      "identifier": 14,
+      "level": 2,
+      "label": "Oceans are cooling/not warming"
+    },
+    {
+      "code": "1.6",
+      "identifier": 15,
+      "level": 2,
+      "label": "Sea level rise is exaggerated/not accelerating"
+    },
+    {
+      "code": "1.7",
+      "identifier": 16,
+      "level": 2,
+      "label": "Extreme weather isn't increasing/has happened before/isn't linked to climate change"
+    },
+    {
+      "code": "1.8",
+      "identifier": 17,
+      "level": 2,
+      "label": "They changed the name from 'global warming' to 'climate change'"
+    },
+    {
+      "code": "2",
+      "identifier": 2,
+      "level": 1,
+      "label": "Human greenhouse gases are not causing climate change"
+    },
+    {
+      "code": "2.1",
+      "identifier": 18,
+      "level": 2,
+      "label": "It's natural cycles/variation"
+    },
+    {
+      "code": "2.1.1",
+      "identifier": 19,
+      "level": 3,
+      "label": "It's the sun/cosmic rays/astronomical"
+    },
+    {
+      "code": "2.1.2",
+      "identifier": 20,
+      "level": 3,
+      "label": "It's geological (includes volcanoes)"
+    },
+    {
+      "code": "2.1.3",
+      "identifier": 21,
+      "level": 3,
+      "label": "It's the ocean/internal variability"
+    },
+    {
+      "code": "2.1.4",
+      "identifier": 22,
+      "level": 3,
+      "label": "Climate has changed naturally/been warm in the past"
+    },
+    {
+      "code": "2.1.5",
+      "identifier": 23,
+      "level": 3,
+      "label": "Human CO2 emissions are tiny compared to natural CO2 emission"
+    },
+    {
+      "code": "2.2",
+      "identifier": 24,
+      "level": 2,
+      "label": "It's non-greenhouse gas human climate forcings (aerosols, land use)"
+    },
+    {
+      "code": "2.3",
+      "identifier": 25,
+      "level": 2,
+      "label": "There's no evidence for greenhouse effect/carbon dioxide driving climate change"
+    },
+    {
+      "code": "2.3.1",
+      "identifier": 26,
+      "level": 3,
+      "label": "Carbon dioxide is just a trace gas"
+    },
+    {
+      "code": "2.3.2",
+      "identifier": 27,
+      "level": 3,
+      "label": "Greenhouse effect is saturated/logarithmic"
+    },
+    {
+      "code": "2.3.3",
+      "identifier": 28,
+      "level": 3,
+      "label": "Carbon dioxide lags/not correlated with climate change"
+    },
+    {
+      "code": "2.3.4",
+      "identifier": 29,
+      "level": 3,
+      "label": "Water vapor is the most powerful greenhouse gas"
+    },
+    {
+      "code": "2.3.5",
+      "identifier": 30,
+      "level": 3,
+      "label": "There's no tropospheric hot spot"
+    },
+    {
+      "code": "2.3.6",
+      "identifier": 75,
+      "level": 3,
+      "label": "CO2 was higher in the past"
+    },
+    {
+      "code": "2.4",
+      "identifier": 76,
+      "level": 2,
+      "label": "CO2 is not rising/ocean pH is not falling"
+    },
+    {
+      "code": "2.5",
+      "identifier": 78,
+      "level": 2,
+      "label": "Human CO2 emissions are miniscule/not raising atmospheric CO2"
+    },
+    {
+      "code": "3",
+      "identifier": 3,
+      "level": 1,
+      "label": "Climate impacts/global warming is beneficial/not bad"
+    },
+    {
+      "code": "3.1",
+      "identifier": 31,
+      "level": 2,
+      "label": "Climate sensitivity is low/negative feedbacks reduce warming"
+    },
+    {
+      "code": "3.2",
+      "identifier": 32,
+      "level": 2,
+      "label": "Species/plants/reefs aren't showing climate impacts yet/are benefiting from climate change"
+    },
+    {
+      "code": "3.2.1",
+      "identifier": 33,
+      "level": 3,
+      "label": "Species can adapt to global warming"
+    },
+    {
+      "code": "3.2.2",
+      "identifier": 34,
+      "level": 3,
+      "label": "Polar bears are not in danger from climate change"
+    },
+    {
+      "code": "3.2.3",
+      "identifier": 77,
+      "level": 3,
+      "label": "Ocean acidification/coral impacts aren't serious"
+    },
+    {
+      "code": "3.3",
+      "identifier": 35,
+      "level": 2,
+      "label": "CO2 is beneficial/not a pollutant"
+    },
+    {
+      "code": "3.3.1",
+      "identifier": 36,
+      "level": 3,
+      "label": "CO2 is plant food"
+    },
+    {
+      "code": "3.4",
+      "identifier": 37,
+      "level": 2,
+      "label": "It's only a few degrees (or less)"
+    },
+    {
+      "code": "3.5",
+      "identifier": 38,
+      "level": 2,
+      "label": "Climate change does not contribute to human conflict/threaten national security"
+    },
+    {
+      "code": "3.6",
+      "identifier": 39,
+      "level": 2,
+      "label": "Climate change doesn't negatively impact health"
+    },
+    {
+      "code": "4",
+      "identifier": 4,
+      "level": 1,
+      "label": "Climate solutions won't work"
+    },
+    {
+      "code": "4.1",
+      "identifier": 40,
+      "level": 2,
+      "label": "Climate policies (mitigation or adaptation) are harmful"
+    },
+    {
+      "code": "4.1.1",
+      "identifier": 41,
+      "level": 3,
+      "label": "Climate policy will increase costs/harm economy/kill jobs"
+    },
+    {
+      "code": "4.1.2",
+      "identifier": 42,
+      "level": 3,
+      "label": "Proposed action would weaken national security/national sovereignty/cause conflict"
+    },
+    {
+      "code": "4.1.3",
+      "identifier": 43,
+      "level": 3,
+      "label": "Proposed action would actually harm the environment and species"
+    },
+    {
+      "code": "4.1.4",
+      "identifier": 44,
+      "level": 3,
+      "label": "Future generations will be richer and better able to adapt"
+    },
+    {
+      "code": "4.1.5",
+      "identifier": 45,
+      "level": 3,
+      "label": "Climate policy limits liberty/freedom/capitalism"
+    },
+    {
+      "code": "4.2",
+      "identifier": 46,
+      "level": 2,
+      "label": "Climate policies are ineffective/flawed"
+    },
+    {
+      "code": "4.2.1",
+      "identifier": 47,
+      "level": 3,
+      "label": "Clean energy/green jobs/businesses won't work"
+    },
+    {
+      "code": "4.2.2",
+      "identifier": 48,
+      "level": 3,
+      "label": "Markets/private sector are economically more efficient than government policies"
+    },
+    {
+      "code": "4.2.3",
+      "identifier": 49,
+      "level": 3,
+      "label": "Climate policy will make negligible difference to climate change"
+    },
+    {
+      "code": "4.2.4",
+      "identifier": 50,
+      "level": 3,
+      "label": "A single country/region only contributes a small % of global emissions"
+    },
+    {
+      "code": "4.2.5",
+      "identifier": 51,
+      "level": 3,
+      "label": "Better to adapt/geoengineer/increase resiliency"
+    },
+    {
+      "code": "4.2.6",
+      "identifier": 52,
+      "level": 3,
+      "label": "Climate action is pointless because of China/India/other countries' emissions"
+    },
+    {
+      "code": "4.2.7",
+      "identifier": 80,
+      "level": 3,
+      "label": "We should invest in technology/reduce poverty/disease first"
+    },
+    {
+      "code": "4.3",
+      "identifier": 53,
+      "level": 2,
+      "label": "It's too hard to solve"
+    },
+    {
+      "code": "4.3.1",
+      "identifier": 54,
+      "level": 3,
+      "label": "Climate policy is politically/legally/economically/technically too difficult"
+    },
+    {
+      "code": "4.3.2",
+      "identifier": 79,
+      "level": 3,
+      "label": "Media/public support/acceptance is low/decreasing"
+    },
+    {
+      "code": "4.4",
+      "identifier": 55,
+      "level": 2,
+      "label": "Clean energy technology/biofuels won't work"
+    },
+    {
+      "code": "4.4.1",
+      "identifier": 56,
+      "level": 3,
+      "label": "Clean energy/biofuels are too expensive/unreliable/counterproductive/harmful"
+    },
+    {
+      "code": "4.4.2",
+      "identifier": 57,
+      "level": 3,
+      "label": "Carbon Capture & Sequestration (CCS) is unproven/expensive"
+    },
+    {
+      "code": "4.5",
+      "identifier": 58,
+      "level": 2,
+      "label": "People need energy (e.g., from fossil fuels/nuclear)"
+    },
+    {
+      "code": "4.5.1",
+      "identifier": 81,
+      "level": 3,
+      "label": "Fossil fuel reserves are plentiful"
+    },
+    {
+      "code": "4.5.2",
+      "identifier": 82,
+      "level": 3,
+      "label": "Fossil fuels are cheap/good/safe for society/economy/environment"
+    },
+    {
+      "code": "4.5.3",
+      "identifier": 83,
+      "level": 3,
+      "label": "Nuclear power is safe/good for society/economy/environment"
+    },
+    {
+      "code": "5",
+      "identifier": 5,
+      "level": 1,
+      "label": "Climate movement/science is unreliable"
+    },
+    {
+      "code": "5.1",
+      "identifier": 59,
+      "level": 2,
+      "label": "Climate-related science is uncertain/unsound/unreliable (data, methods & models)"
+    },
+    {
+      "code": "5.1.1",
+      "identifier": 60,
+      "level": 3,
+      "label": "There's no scientific consensus on climate/the science isn't settled"
+    },
+    {
+      "code": "5.1.2",
+      "identifier": 61,
+      "level": 3,
+      "label": "Proxy data is unreliable (includes hockey stick)"
+    },
+    {
+      "code": "5.1.3",
+      "identifier": 62,
+      "level": 3,
+      "label": "Temperature record is unreliable"
+    },
+    {
+      "code": "5.1.4",
+      "identifier": 63,
+      "level": 3,
+      "label": "Models are wrong/unreliable/uncertain"
+    },
+    {
+      "code": "5.2",
+      "identifier": 64,
+      "level": 2,
+      "label": "Climate movement is alarmist/wrong/political/biased/hypocritical (people or groups)"
+    },
+    {
+      "code": "5.2.1",
+      "identifier": 65,
+      "level": 3,
+      "label": "Climate movement is religion"
+    },
+    {
+      "code": "5.2.2",
+      "identifier": 66,
+      "level": 3,
+      "label": "Media (including bloggers) is alarmist/wrong/political/biased"
+    },
+    {
+      "code": "5.2.3",
+      "identifier": 67,
+      "level": 3,
+      "label": "Politicians/government/UN are alarmist/wrong/political/biased"
+    },
+    {
+      "code": "5.2.4",
+      "identifier": 68,
+      "level": 3,
+      "label": "Environmentalists are alarmist/wrong/political/biased"
+    },
+    {
+      "code": "5.2.5",
+      "identifier": 69,
+      "level": 3,
+      "label": "Scientists/academics are alarmist/wrong/political/biased"
+    },
+    {
+      "code": "5.3",
+      "identifier": 70,
+      "level": 2,
+      "label": "Climate change (science or policy) is a conspiracy (deception)"
+    },
+    {
+      "code": "5.3.1",
+      "identifier": 71,
+      "level": 3,
+      "label": "Climate policy/renewables is a hoax/scam/conspiracy/secretive"
+    },
+    {
+      "code": "5.3.2",
+      "identifier": 72,
+      "level": 3,
+      "label": "Climate science is a hoax/scam/conspiracy/secretive/money-motivated (includes climategate)"
+    }
+  ]
+}

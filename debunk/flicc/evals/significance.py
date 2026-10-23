@@ -11,10 +11,9 @@ significance verdict (Ulmer et al., LREC 2022; Koehn 2004).
 Two comparison types, and the distinction matters:
 
   vs BASELINE — one-sample. Zanartu et al.'s 0.73 is a published point
-      estimate; their model is not re-run here, so there are no paired
-      predictions and no interval on their side. We bootstrap OUR macro F1 and
-      ask whether its interval excludes their fixed 0.73. This is weaker than a
-      paired test and is labelled as such.
+      estimate with no per-item outputs on their side, so comparisons against
+      it are one-sample. The reproduced checkpoint (the fzanartu run) supports
+      the stronger paired comparisons.
 
   vs EACH OTHER — paired. Our own runs share the same items, so the bootstrap
       is over the per-item difference, which is the stronger comparison.
@@ -59,8 +58,10 @@ def load(path: Path) -> dict[str, tuple[str, str]]:
             continue
         r = json.loads(line)
         # Re-parsed from the response, matching generate_report.py, so the two
-        # never disagree about what a run predicted.
-        p = extract_raw_label(str(r.get("response", "")))
+        # never disagree about what a run predicted. The reproduced DeBERTa run
+        # is a classifier and stores pred_label instead of a response.
+        p = (extract_raw_label(str(r["response"])) if "response" in r
+             else r["pred_label"])
         out[r["itemId"]] = (r["true_fallacy"], p if p in LABELS else WRONG)
     return out
 
@@ -104,8 +105,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--split", default="test", choices=["val", "test"])
-    ap.add_argument("--pair", nargs=2, metavar=("A", "B"),
-                    help="Paired comparison between two run slugs.")
+    ap.add_argument("--skip-baseline", action="store_true",
+                    help="Skip the one-sample table (one bootstrap per run; slow).")
+    ap.add_argument("--pair", nargs=2, action="append", metavar=("A", "B"),
+                    help="Paired comparison between two run slugs (repeatable).")
     ap.add_argument("--n-resamples", type=int, default=9999)
     ap.add_argument("--confidence", type=float, default=0.95)
     ap.add_argument("--seed", type=int, default=42)
@@ -120,39 +123,40 @@ def main() -> None:
     base = BASELINE_MACRO_F1[a.split]
     lines = [f"# FLICC significance — {a.split} split", "",
              f"95% BCa bootstrap, {a.n_resamples} resamples, seed {a.seed}. "
-             f"Parse failures and out-of-vocabulary labels count as wrong.", "",
-             "## vs published baseline (one-sample)", "",
-             f"Zanartu et al. DeBERTa-v2-xlarge macro F1 = **{base}**, a published "
-             f"point estimate. Their model is not re-run, so this is a one-sample "
-             f"comparison against a fixed value — weaker than a paired test.", "",
-             "| Run | n | Macro F1 | 95% CI | vs baseline |",
-             "|---|---:|---:|---|---|"]
+             f"Parse failures and out-of-vocabulary labels count as wrong."]
 
-    for name, data in runs.items():
-        gold, pred = as_arrays(data, sorted(data))
-        n = len(gold)
-        pt, lo, hi = ci(lambda ix: macro_f1(gold, pred, ix), n, cfg)
-        lines.append(f"| {name} | {n} | {pt:.3f} | [{lo:.3f}, {hi:.3f}] | "
-                     f"{verdict(lo, hi, base)} |")
+    if not a.skip_baseline:
+        lines += ["", "## vs published baseline (one-sample)", "",
+                  f"Zanartu et al. DeBERTa-v2-xlarge macro F1 = **{base}**, a published "
+                  f"point estimate. This is a one-sample comparison against a fixed "
+                  f"value — weaker than a paired test.", "",
+                  "| Run | n | Macro F1 | 95% CI | vs baseline |",
+                  "|---|---:|---:|---|---|"]
+        for name, data in runs.items():
+            gold, pred = as_arrays(data, sorted(data))
+            n = len(gold)
+            pt, lo, hi = ci(lambda ix: macro_f1(gold, pred, ix), n, cfg)
+            lines.append(f"| {name} | {n} | {pt:.3f} | [{lo:.3f}, {hi:.3f}] | "
+                         f"{verdict(lo, hi, base)} |")
 
     if a.pair:
-        na, nb = a.pair
-        for s in (na, nb):
-            if s not in runs:
-                sys.exit(f"Unknown run {s!r}. Available: {sorted(runs)}")
-        keys = sorted(set(runs[na]) & set(runs[nb]))
-        ga, pa = as_arrays(runs[na], keys)
-        gb, pb = as_arrays(runs[nb], keys)
-        if ga != gb:
-            sys.exit(f"Gold labels differ between {na} and {nb} — alignment off.")
-        n = len(keys)
-        d, lo, hi = ci(
-            lambda ix: macro_f1(ga, pa, ix) - macro_f1(gb, pb, ix), n, cfg)
-        lines += ["", "## Paired comparison", "",
+        lines += ["", "## Paired comparisons", "",
                   "| A | B | Delta (A-B) | 95% CI | verdict |",
-                  "|---|---|---:|---|---|",
-                  f"| {na} | {nb} | {d:+.3f} | [{lo:+.3f}, {hi:+.3f}] | "
-                  f"{verdict(lo, hi, 0.0)} |"]
+                  "|---|---|---:|---|---|"]
+        for na, nb in a.pair:
+            for s in (na, nb):
+                if s not in runs:
+                    sys.exit(f"Unknown run {s!r}. Available: {sorted(runs)}")
+            keys = sorted(set(runs[na]) & set(runs[nb]))
+            ga, pa = as_arrays(runs[na], keys)
+            gb, pb = as_arrays(runs[nb], keys)
+            if ga != gb:
+                sys.exit(f"Gold labels differ between {na} and {nb} — alignment off.")
+            n = len(keys)
+            d, lo, hi = ci(
+                lambda ix: macro_f1(ga, pa, ix) - macro_f1(gb, pb, ix), n, cfg)
+            lines.append(f"| {na} | {nb} | {d:+.3f} | [{lo:+.3f}, {hi:+.3f}] | "
+                         f"{verdict(lo, hi, 0.0)} |")
 
     out_dir = ROOT / "data" / "significance"
     out_dir.mkdir(parents=True, exist_ok=True)
